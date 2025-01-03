@@ -1,36 +1,63 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-## Getting Started
+## Pre-Dev
 
-First, run the development server:
+- [x] Create a Next.js app.
+- [x] Create a GitHub repository and add remote.
+- [x] Add a README with a checklist.
+- [x] Create a Figma design/blueprint and provide the link here.
+https://www.figma.com/board/Y3PEHJrY38diWJO0gmyCpz/Untitled?node-id=0-1&p=f&t=IqRDPtp6Yyg1laH9-0
+- [] Prisma install.
+- [] nextauth install.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+---
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Landing Page
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- [ ] Gather necessary images for the hero section.
+- [ ] Draft necessary text for the hero section.
+- [ ] Collect gallery sample images.
+- [ ] Find and select a suitable font.
+- [ ] Include a singular artwork video.
+- [ ] Compile artwork sample images for collections.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+---
 
-## Learn More
+## Navbar
 
-To learn more about Next.js, take a look at the following resources:
+- [ ] Implement navigation buttons (e.g., Work and Curated Collections).
+- [ ] Develop a search component.
+- [ ] Add functionality for user login and account creation (authentication).
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Search Component
 
-## Deploy on Vercel
+- [ ] Create an input text field for search queries.
+- [ ] Implement filters for refining search results.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+---
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Singular Artwork Page
+
+- [ ] Placeholder
+- [ ] Placeholder
+
+---
+
+## Gallery/Search Page
+
+- [ ] Placeholder
+- [ ] Placeholder
+
+---
+
+## Curated Collections Page
+
+- [ ] Placeholder
+- [ ] Placeholder
+
+
+## Auth modal
+
+- [ ] Placeholder
+- [ ] Placeholder
