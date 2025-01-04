@@ -39,21 +39,21 @@ https://www.figma.com/board/Y3PEHJrY38diWJO0gmyCpz/Untitled?node-id=0-1&p=f&t=Iq
 
 ## Singular Artwork Page
 
-- [ ] Placeholder
+- [ ] Skeleton 
 - [ ] Placeholder
 
 ---
 
 ## Gallery/Search Page
 
-- [ ] Placeholder
+- [ ] Skeleton 
 - [ ] Placeholder
 
 ---
 
 ## Curated Collections Page
 
-- [ ] Placeholder
+- [ ] Skeleton 
 - [ ] Placeholder
 
 
