@@ -6,8 +6,8 @@
 - [x] Add a README with a checklist.
 - [x] Create a Figma design/blueprint and provide the link here.
 https://www.figma.com/board/Y3PEHJrY38diWJO0gmyCpz/Untitled?node-id=0-1&p=f&t=IqRDPtp6Yyg1laH9-0
-- [] Prisma install.
-- [] nextauth install.
+- [ ] Prisma install.
+- [ ] nextauth install.
 
 ---
 
