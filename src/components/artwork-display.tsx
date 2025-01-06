@@ -12,16 +12,9 @@ import { Button } from "@/components/ui/button";
 import { Download, Maximize2, Share2, Plus } from "lucide-react";
 import Image from "next/image";
 
-interface ArtworkDisplayProps {
-	title: string;
-	creator: string;
-	culturalContext: string;
-	date: string;
-	source: string;
-	imageUrl: string;
-}
 
-export default function ArtworkDisplay({}: ArtworkDisplayProps) {
+
+export default function ArtworkDisplay() {
 	const artwork = {
 		title: "Polyhedron Model by Martin Berman, Regular Tetrahedron",
 		creator: "Berman, Martin",
