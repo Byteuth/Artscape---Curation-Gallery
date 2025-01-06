@@ -16,19 +16,24 @@ import {
 	SheetTrigger,
 	SheetHeader,
 	SheetTitle,
-    SheetDescription,
+	SheetDescription,
 } from "@/components/ui/sheet";
+import Link from "next/link";
 
 export default function NavigationBar() {
 	return (
 		<nav className="bg-[#B6B8A2] flex items-center justify-between p-2 w-full shadow-lg">
 			<Sheet>
 				<div className="flex items-center space-x-4 ">
-					<h1 className="hidden lg-custom:block text-xl font-bold mr-6 text-center">
-						Through the Canvas
-					</h1>
+					<Link href="/">
+						<h1 className="hidden lg-custom:block text-xl font-bold mr-6 text-center">
+							Through the Canvas
+						</h1>
+					</Link>
 					<div className="hidden md:flex space-x-4">
-						<Button variant="ghost">Artworks</Button>
+						<Link href="/gallery">
+							<Button variant="ghost">Gallery</Button>
+						</Link>
 						<Button variant="ghost">Curated Collections</Button>
 					</div>
 				</div>
@@ -43,7 +48,9 @@ export default function NavigationBar() {
 				>
 					<SheetHeader>
 						<SheetTitle className="sr-only ">Mobile Menu</SheetTitle>
-                        <SheetDescription className="sr-only ">Menu Options</SheetDescription>
+						<SheetDescription className="sr-only ">
+							Menu Options
+						</SheetDescription>
 					</SheetHeader>
 					<MobileMenu />
 				</SheetContent>

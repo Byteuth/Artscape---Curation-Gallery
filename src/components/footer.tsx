@@ -2,9 +2,9 @@ import Link from "next/link";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
-const Footer = () => {
+export default function Footer() {
 	return (
-		<footer className="max-w-4xl mx-auto ">
+		<footer className="bg-[#B6B8A2] flex flex-col justify-center items-center p-16 w-full">
 			<div className="container mx-auto">
 				<div className="grid grid-cols-1 md:grid-cols-2 md:gap-44 gap-16">
 					{/* Left side */}
@@ -56,6 +56,4 @@ const Footer = () => {
 			</div>
 		</footer>
 	);
-};
-
-export default Footer;
+}
