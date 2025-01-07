@@ -50,9 +50,8 @@ export default function GalleryCarousel() {
 	}, []);
 
 	return (
-		<div className="bg-[#ffffff] flex flex-col justify-center items-center p-16 w-full ">
-			<div className="container mx-auto px-4 sm:px-6 lg:px-8 mb-12">
-				{/* Carousel Section */}
+		<div className="bg-[#ffffff] flex flex-col justify-center items-center p-4 w-full ">
+			<div className="container mx-auto px-4 sm:px-6 lg:px-8 ">
 				<Carousel
 					opts={{
 						align: "start",
@@ -62,19 +61,22 @@ export default function GalleryCarousel() {
 							delay: 2000,
 						}),
 					]}
-					className="w-full pt-12"
+					className="w-full"
 				>
 					<CarouselContent>
 						{gallerySample.map((imageSrc, index) => (
 							<CarouselItem
 								key={index}
-								className="carousel-item md:basis-1/4 lg:basis-1/6"
+								className="carousel-item md:basis-1/4 lg:basis-1/6 my-12"
 							>
 								<div className="p-1">
 									<Card
-										className={`transform transition-transform ${
-											index % 2 === 1 ? "scale-50" : "scale-100"
+										className={`cursor-pointer transform transition-transform hover:shadow-right-bottom ${
+											index % 2 === 1
+												? "md:scale-50 scale-100 hover:md:scale-[0.625] hover:scale-125"
+												: "scale-100 hover:scale-125"
 										}`}
+										onClick={() => console.log("clicked")}
 									>
 										<Image
 											src={imageSrc}

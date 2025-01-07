@@ -10,8 +10,11 @@ export default {
 	theme: {
 		extend: {
 			screens: {
-				'lg-custom': "1060px"
+				"lg-custom": "1060px",
 			},
+			boxShadow: {
+				'right-bottom': '4px 4px 10px rgba(0, 0, 0, 0.25)',
+			  },
 			colors: {
 				background: "hsl(var(--background))",
 				foreground: "hsl(var(--foreground))",
