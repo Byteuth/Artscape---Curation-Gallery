@@ -1,14 +1,14 @@
 "use client";
 import React, { useState } from "react";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { ArrowLeft, Plus } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
 import NavigationBar from "@/components/navigation-bar";
 import GalleryCarousel from "@/components/gallery-carousel";
+import SearchAndFilter from "@/components/search-and-filter";
 import Footer from "@/components/footer";
 
 const artworks = [
@@ -255,7 +255,11 @@ const artworks = [
 ];
 
 export default function Gallery() {
-	const [searchTerm, setSearchTerm] = useState("");
+	const [visibleArtworks, setVisibleArtworks] = useState<number>(12);
+
+	const loadMore = () => {
+		setVisibleArtworks((prev) => prev + 12);
+	};
 
 	return (
 		<div>
@@ -276,175 +280,70 @@ export default function Gallery() {
 					to the beginnings of civilization.
 				</p>
 			</div>
+
 			<GalleryCarousel />
+
+			{/* Gallery */}
 			<div className="bg-[#ebefe0]">
-				<div className="max-w-screen-xl mx-auto  ">
+				<div className="max-w-screen-xl mx-auto">
 					<div className="p-12">
-						<h3 className="text-3xl font-bold mb-4">Search</h3>
-						<div className="">
-							<Input
-								type="search"
-								placeholder="Search for public domain artworks and artifacts"
-								value={searchTerm}
-								onChange={(e) => setSearchTerm(e.target.value)}
-								className="w-full bg-white"
-							/>
+						{/* Search and Filter */}
+						<SearchAndFilter
+							visibleArtworks={visibleArtworks}
+							setVisibleArtworks={setVisibleArtworks}
+							artworks={artworks}
+						/>
+
+						{/* Grids */}
+						<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-6">
+							{/* Rendered Grids */}
+							{[0, 1, 2, 3].map((gridIndex) => (
+								<div key={gridIndex} className="grid grid-cols-1 gap-6">
+									{artworks
+										.slice(0, visibleArtworks) // Show only visible artworks
+										.filter((_, index) => index % 4 === gridIndex)
+										.map((artwork) => (
+											<Card
+												key={artwork.id}
+												className="cursor-pointer overflow-hidden transform transition-transform hover:shadow-right-bottom md:hover:scale-105 z-10"
+											>
+												<CardContent className="p-0">
+													<div className="relative w-full">
+														<Image
+															src={artwork.image}
+															alt={artwork.title}
+															width={500}
+															height={500}
+															objectFit="contain"
+														/>
+													</div>
+													<div className="p-4">
+														<h3 className="font-semibold text-sm mb-1">
+															{artwork.title}
+														</h3>
+														<p className="text-xs text-gray-600">
+															{artwork.date}
+														</p>
+													</div>
+												</CardContent>
+											</Card>
+										))}
+								</div>
+							))}
 						</div>
 
-						<div className="flex items-center space-x-2 mb-4">
-							<div className="bg-gray-100 text-gray-800 text-sm font-medium px-2.5 py-0.5 rounded-full flex items-center">
-								cats
-								<Button variant="ghost" size="sm" className="ml-1 h-4 w-4 p-0">
-									<span className="sr-only">Remove</span>
-									&times;
+						{/* View More Button */}
+						{visibleArtworks < artworks.length && (
+							<div className="mt-8 text-center">
+								<p className="text-sm text-gray-600 mb-4">
+									Showing {Math.min(visibleArtworks, artworks.length)} of{" "}
+									{artworks.length}
+								</p>
+								<Button variant="outline" className="w-full" onClick={loadMore}>
+									View More
 								</Button>
 							</div>
-							<Button variant="outline" size="sm">
-								<Plus className="h-4 w-4 mr-1" />
-								Add Filter
-							</Button>
-						</div>
-						<p className="text-sm text-gray-600 my-6">1,223 Works</p>
-
-						{/* Grids*/}
-						<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-6">
-							{/* Grid 1 */}
-							<div className="grid grid-cols-1 gap-6">
-								{artworks
-									.filter((_, index) => index % 4 === 0)
-									.map((artwork) => (
-										<Card
-											key={artwork.id}
-											className={
-												"cursor-pointer overflow-hidden transform transition-transform hover:shadow-right-bottom md:hover:scale-105 z-10"
-											}
-										>
-											<CardContent className="p-0">
-												<div className="relative w-full">
-													<Image
-														src={artwork.image}
-														alt={artwork.title}
-														width={500}
-														height={500}
-														objectFit="contain"
-													/>
-												</div>
-												<div className="p-4">
-													<h3 className="font-semibold text-sm mb-1">
-														{artwork.title}
-													</h3>
-													<p className="text-xs text-gray-600">
-														{artwork.date}
-													</p>
-												</div>
-											</CardContent>
-										</Card>
-									))}
-							</div>
-
-							{/* Grid 2 */}
-							<div className="grid grid-cols-1 gap-6">
-								{artworks
-									.filter((_, index) => index % 4 === 1)
-									.map((artwork) => (
-										<Card
-											key={artwork.id}
-											className="cursor-pointer overflow-hidden transform transition-transform hover:shadow-right-bottom md:hover:scale-105 z-10"
-										>
-											<CardContent className="p-0">
-												<div className="relative w-full">
-													<Image
-														src={artwork.image}
-														alt={artwork.title}
-														width={500}
-														height={500}
-														objectFit="contain"
-													/>
-												</div>
-												<div className="p-4">
-													<h3 className="font-semibold text-sm mb-1">
-														{artwork.title}
-													</h3>
-													<p className="text-xs text-gray-600">
-														{artwork.date}
-													</p>
-												</div>
-											</CardContent>
-										</Card>
-									))}
-							</div>
-
-							{/* Grid 3 */}
-							<div className="grid grid-cols-1 gap-6">
-								{artworks
-									.filter((_, index) => index % 4 === 2)
-									.map((artwork) => (
-										<Card
-											key={artwork.id}
-											className="cursor-pointer overflow-hidden transform transition-transform hover:shadow-right-bottom md:hover:scale-105 z-10"
-										>
-											<CardContent className="p-0">
-												<div className="relative w-full">
-													<Image
-														src={artwork.image}
-														alt={artwork.title}
-														width={500}
-														height={500}
-														objectFit="contain"
-													/>
-												</div>
-												<div className="p-4">
-													<h3 className="font-semibold text-sm mb-1">
-														{artwork.title}
-													</h3>
-													<p className="text-xs text-gray-600">
-														{artwork.date}
-													</p>
-												</div>
-											</CardContent>
-										</Card>
-									))}
-							</div>
-
-							{/* Grid 4 */}
-							<div className="grid grid-cols-1 gap-6">
-								{artworks
-									.filter((_, index) => index % 4 === 3)
-									.map((artwork) => (
-										<Card
-											key={artwork.id}
-											className="cursor-pointer overflow-hidden transform transition-transform hover:shadow-right-bottom md:hover:scale-105 z-10"
-										>
-											<CardContent className="p-0">
-												<div className="relative w-full">
-													<Image
-														src={artwork.image}
-														alt={artwork.title}
-														width={500}
-														height={500}
-														objectFit="contain"
-													/>
-												</div>
-												<div className="p-4">
-													<h3 className="font-semibold text-sm mb-1">
-														{artwork.title}
-													</h3>
-													<p className="text-xs text-gray-600">
-														{artwork.date}
-													</p>
-												</div>
-											</CardContent>
-										</Card>
-									))}
-							</div>
-						</div>
-
-						<div className="mt-8 text-center">
-							<p className="text-sm text-gray-600 mb-4">12 of {artworks.length}</p>
-							<Button variant="outline" className="w-full">
-								View More
-							</Button>
-						</div>
+						)}
 					</div>
 				</div>
 			</div>
