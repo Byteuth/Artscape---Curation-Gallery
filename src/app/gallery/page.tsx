@@ -291,7 +291,7 @@ export default function Gallery() {
 						<SearchAndFilter
 							visibleArtworks={visibleArtworks}
 							setVisibleArtworks={setVisibleArtworks}
-							artworks={artworks}
+							length={artworks.length}
 						/>
 
 						{/* Grids */}
@@ -300,7 +300,7 @@ export default function Gallery() {
 							{[0, 1, 2, 3].map((gridIndex) => (
 								<div key={gridIndex} className="grid grid-cols-1 gap-6">
 									{artworks
-										.slice(0, visibleArtworks) // Show only visible artworks
+										.slice(0, visibleArtworks)
 										.filter((_, index) => index % 4 === gridIndex)
 										.map((artwork) => (
 											<Card
@@ -333,7 +333,7 @@ export default function Gallery() {
 						</div>
 
 						{/* View More Button */}
-						{visibleArtworks < artworks.length && (
+						{visibleArtworks < artworks.length && visibleArtworks > 0 && (
 							<div className="mt-8 text-center">
 								<p className="text-sm text-gray-600 mb-4">
 									Showing {Math.min(visibleArtworks, artworks.length)} of{" "}

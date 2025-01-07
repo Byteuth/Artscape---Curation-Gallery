@@ -34,7 +34,9 @@ export default function NavigationBar() {
 						<Link href="/gallery">
 							<Button variant="ghost">Gallery</Button>
 						</Link>
-						<Button variant="ghost">Curated Collections</Button>
+						<Link href="/collections">
+							<Button variant="ghost">Curated Collections</Button>
+						</Link>
 					</div>
 				</div>
 				<SheetTrigger asChild>
