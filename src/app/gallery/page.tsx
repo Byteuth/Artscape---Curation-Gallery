@@ -270,7 +270,7 @@ export default function Gallery() {
 					Home
 				</Button>
 			</Link>
-			<div className="grid grid-cols-1 lg:grid-cols-[1fr,1fr] items-center bg-gradient-to-r from-white to-[#ebefe0] rounded-lg shadow-lg p-8 lg:p-12">
+			<div className="grid grid-cols-1 lg:grid-cols-[1fr,1fr] items-center bg-gradient-to-r from-white to-[#ebefe0] drop-shadow-lg p-8 lg:p-12 ">
 				<div>
 					<h1 className="text-8xl font-bold mb-8 pl-6  text-black">Gallery</h1>
 				</div>
@@ -280,73 +280,80 @@ export default function Gallery() {
 					to the beginnings of civilization.
 				</p>
 			</div>
-
 			<GalleryCarousel />
 
 			{/* Gallery */}
-			<div className="bg-[#ebefe0]">
-				<div className="max-w-screen-xl mx-auto">
-					<div className="p-12">
-						{/* Search and Filter */}
-						<SearchAndFilter
-							visibleArtworks={visibleArtworks}
-							setVisibleArtworks={setVisibleArtworks}
-							length={artworks.length}
-						/>
+			{/* <div className="bg-[#ebefe0] drop-shadow-lg rotate-180"> */}
+				<div className="bg-[#ebefe0] ">
+					<div className="max-w-screen-xl mx-auto ">
+						<div className="p-12">
+							{/* Search and Filter */}
+							<SearchAndFilter
+								visibleArtworks={visibleArtworks}
+								setVisibleArtworks={setVisibleArtworks}
+								length={artworks.length}
+							/>
 
-						{/* Grids */}
-						<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-6">
-							{/* Rendered Grids */}
-							{[0, 1, 2, 3].map((gridIndex) => (
-								<div key={gridIndex} className="grid grid-cols-1 gap-6">
-									{artworks
-										.slice(0, visibleArtworks)
-										.filter((_, index) => index % 4 === gridIndex)
-										.map((artwork) => (
-											<Card
-												key={artwork.id}
-												className="cursor-pointer overflow-hidden transform transition-transform hover:shadow-right-bottom md:hover:scale-105 z-10"
-											>
-												<CardContent className="p-0">
-													<div className="relative w-full">
-														<Image
-															src={artwork.image}
-															alt={artwork.title}
-															width={500}
-															height={500}
-															objectFit="contain"
-														/>
-													</div>
-													<div className="p-4">
-														<h3 className="font-semibold text-sm mb-1">
-															{artwork.title}
-														</h3>
-														<p className="text-xs text-gray-600">
-															{artwork.date}
-														</p>
-													</div>
-												</CardContent>
-											</Card>
-										))}
-								</div>
-							))}
-						</div>
-
-						{/* View More Button */}
-						{visibleArtworks < artworks.length && visibleArtworks > 0 && (
-							<div className="mt-8 text-center">
-								<p className="text-sm text-gray-600 mb-4">
-									Showing {Math.min(visibleArtworks, artworks.length)} of{" "}
-									{artworks.length}
-								</p>
-								<Button variant="outline" className="w-full" onClick={loadMore}>
-									View More
-								</Button>
+							{/* Grids */}
+							<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-6">
+								{/* Rendered Grids */}
+								{[0, 1, 2, 3].map((gridIndex) => (
+									<div key={gridIndex} className="grid grid-cols-1 gap-6">
+										{artworks
+											.slice(0, visibleArtworks)
+											.filter((_, index) => index % 4 === gridIndex)
+											.map((artwork) => (
+												<Link
+													key={artwork.id}
+													href={`/gallery/${artwork.title}`}
+												>
+													<Card className="cursor-pointer overflow-hidden transform transition-transform hover:shadow-right-bottom md:hover:scale-105 z-10">
+														<CardContent className="p-0">
+															<div className="relative w-full">
+																<Image
+																	src={artwork.image}
+																	alt={artwork.title}
+																	width={500}
+																	height={500}
+																	objectFit="contain"
+																/>
+															</div>
+															<div className="p-4">
+																<h3 className="font-semibold text-sm mb-1">
+																	{artwork.title}
+																</h3>
+																<p className="text-xs text-gray-600">
+																	{artwork.date}
+																</p>
+															</div>
+														</CardContent>
+													</Card>
+												</Link>
+											))}
+									</div>
+								))}
 							</div>
-						)}
+
+							{/* View More Button */}
+							{visibleArtworks < artworks.length && visibleArtworks > 0 && (
+								<div className="mt-8 text-center">
+									<p className="text-sm text-gray-600 mb-4">
+										Showing {Math.min(visibleArtworks, artworks.length)} of{" "}
+										{artworks.length}
+									</p>
+									<Button
+										variant="outline"
+										className="w-full"
+										onClick={loadMore}
+									>
+										View More
+									</Button>
+								</div>
+							)}
+						</div>
 					</div>
 				</div>
-			</div>
+			{/* </div> */}
 			<Footer />
 		</div>
 	);

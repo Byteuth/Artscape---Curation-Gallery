@@ -50,7 +50,7 @@ export default function GalleryCarousel() {
 	}, []);
 
 	return (
-		<div className="bg-[#ffffff] flex flex-col justify-center items-center p-4 w-full ">
+		<div className="bg-[#ffffff] flex flex-col justify-center items-center p-4 w-full  ">
 			<div className="container mx-auto px-4 sm:px-6 lg:px-8 ">
 				<Carousel
 					opts={{

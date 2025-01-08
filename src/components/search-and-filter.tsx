@@ -18,7 +18,7 @@ export default function SearchAndFilter({
 	const [searchTerm, setSearchTerm] = useState<string>("");
 	const [filterWords, setFilterWords] = useState<string[]>([]);
 	const pathName = usePathname();
-	const isGalleryPage = pathName === "/";
+	const isGalleryPage = pathName === "/gallery";
 
 	const addFilter = (word: string) => {
 		if (word && !filterWords.includes(word)) {

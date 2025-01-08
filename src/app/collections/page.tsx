@@ -779,7 +779,7 @@ export default function Collections() {
 					Home
 				</Button>
 			</Link>
-			<div className="grid grid-cols-1 lg:grid-cols-[1fr,1fr] items-center bg-gradient-to-r from-white to-[#ebefe0] rounded-lg shadow-lg p-8 lg:p-12">
+			<div className="grid grid-cols-1 lg:grid-cols-[1fr,1fr] items-center bg-gradient-to-r from-white to-[#ebefe0] drop-shadow-lg p-8 lg:p-12">
 				<div>
 					<h1 className="text-8xl font-bold mb-8 pl-6  text-black">
 						Curated Collections
