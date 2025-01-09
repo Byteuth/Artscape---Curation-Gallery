@@ -19,6 +19,7 @@ import {
 	SheetDescription,
 } from "@/components/ui/sheet";
 import Link from "next/link";
+import Image from "next/image";
 
 export default function NavigationBar() {
 	return (
@@ -26,9 +27,7 @@ export default function NavigationBar() {
 			<Sheet>
 				<div className="flex items-center space-x-4 ">
 					<Link href="/">
-						<h1 className="hidden lg-custom:block text-xl font-bold mr-6 text-center">
-							Through the Canvas
-						</h1>
+						<img src="/svg/ttc-logo.svg" alt="Logo" className=" mx-4 -translate-x-4 h-8 w-8" />
 					</Link>
 					<div className="hidden md:flex space-x-4">
 						<Link href="/gallery">
@@ -39,13 +38,20 @@ export default function NavigationBar() {
 						</Link>
 					</div>
 				</div>
-				<SheetTrigger asChild>
-					<Button variant="ghost" size="icon" className="md:hidden">
-						<Menu className="h-5 w-5" />
-					</Button>
-				</SheetTrigger>
+				<div className="flex w-full">
+					<SheetTrigger asChild>
+						<Button
+							variant="ghost"
+							size="icon"
+							className="md:hidden flex items-center justify-center ml-auto scale-[200%]"
+						>
+							<Menu className="h-5 w-5" />
+						</Button>
+					</SheetTrigger>
+				</div>
+
 				<SheetContent
-					side="left"
+					side="right"
 					className="bg-gradient-to-r from-[#ebefe0] to-[#B6B8A2] border-black"
 				>
 					<SheetHeader>
@@ -99,20 +105,24 @@ export function MobileMenu() {
 					<Palette className="mr-2 h-5 w-5" />
 					Home
 				</Button>
-				<Button
-					className="w-full justify-start hover:bg-primary/10 transition-colors  bg-[#ffffff]  text-black"
-					variant="outline"
-				>
-					<Palette className="mr-2 h-5 w-5" />
-					Artworks
-				</Button>
-				<Button
-					className="w-full justify-start hover:bg-primary/10 transition-colors  bg-[#ffffff] text-black"
-					variant="outline"
-				>
-					<Collection className="mr-2 h-5 w-5" />
-					Curated Collections
-				</Button>
+				<Link href="/gallery">
+					<Button
+						className="w-full justify-start hover:bg-primary/10 transition-colors  bg-[#ffffff]  text-black"
+						variant="outline"
+					>
+						<Palette className="mr-2 h-5 w-5" />
+						Gallery
+					</Button>
+				</Link>
+				<Link href="/collections">
+					<Button
+						className="w-full justify-start hover:bg-primary/10 transition-colors  bg-[#ffffff] text-black"
+						variant="outline"
+					>
+						<Collection className="mr-2 h-5 w-5" />
+						Curated Collections
+					</Button>
+				</Link>
 			</div>
 
 			{/* Log In and Create Account buttons */}

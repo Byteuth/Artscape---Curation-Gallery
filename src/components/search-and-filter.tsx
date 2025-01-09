@@ -35,6 +35,7 @@ export function Filter({
 	filterWords, // Selected filter words
 	addFilter, // Function to add a filter word to prev list
 	filterOptions, //  Array of filter options
+	setFilterWords, // Function to set the filter words
 }: FilterProps) {
 	const [open, setOpen] = React.useState<boolean>(false);
 	const [selectedCategory, setSelectedCategory] = React.useState<
@@ -61,7 +62,7 @@ export function Filter({
 					Add filter
 				</Button>
 			</PopoverTrigger>
-			<PopoverContent className="w-auto p-0 translate-x-14">
+			<PopoverContent className="md:w-auto p-0 translate-x-6 w-[365px]">
 				<Command>
 					<div className="flex gap-2 p-2 border-b">
 						{categoryKeys.map((category) => (
@@ -74,6 +75,17 @@ export function Filter({
 								{category}
 							</Button>
 						))}
+						<Button
+							className="ml-auto "
+							variant="outline"
+							size="sm"
+							onClick={() => {
+								setOpen(false);
+								setFilterWords([]);
+							}}
+						>
+							Clear All
+						</Button>
 					</div>
 
 					{selectedCategory === "Classification" && (
@@ -113,6 +125,70 @@ export function Filter({
 	);
 }
 
+interface Artwork {
+	copyright?: object;
+	contextualtextcount?: number;
+	creditline?: string;
+	accesslevel?: number;
+	dateoflastpageview?: string;
+	classificationid?: number;
+	division?: string;
+	markscount?: number;
+	publicationcount?: number;
+	totaluniquepageviews?: number;
+	contact?: string;
+	colorcount?: number;
+	rank?: number;
+	id?: number;
+	state?: object;
+	verificationleveldescription?: string;
+	period?: object;
+	images?: object;
+	worktypes?: object;
+	imagecount?: number;
+	totalpageviews?: number;
+	accessionyear?: number;
+	standardreferencenumber?: object;
+	signed?: object;
+	classification?: string;
+	relatedcount?: number;
+	verificationlevel?: number;
+	primaryimageurl?: string;
+	titlescount?: number;
+	peoplecount?: number;
+	style?: object;
+	lastupdate?: string;
+	commentary?: object;
+	periodid?: object;
+	technique?: string;
+	edition?: object;
+	description?: string;
+	medium?: string;
+	lendingpermissionlevel?: number;
+	title?: string;
+	accessionmethod?: string;
+	colors?: object;
+	provenance?: string;
+	groupcount?: number;
+	dated?: string;
+	department?: string;
+	dateend?: number;
+	people?: object;
+	url?: string;
+	dateoffirstpageview?: string;
+	century?: string;
+	objectnumber?: string;
+	labeltext?: object;
+	datebegin?: number;
+	culture?: string;
+	exhibitioncount?: number;
+	imagepermissionlevel?: number;
+	mediacount?: number;
+	objectid?: number;
+	techniqueid?: number;
+	dimensions?: string;
+	seeAlso?: object;
+}
 interface SearchObject {
 	keywords: string[];
 	hasImage: boolean;
@@ -122,7 +198,7 @@ interface searchAndFilterProps {
 	visibleArtworksAmount: number;
 	length: number;
 	setSearchObject: React.Dispatch<React.SetStateAction<SearchObject>>;
-	filteredArtworks: any[];
+	filteredArtworks: Artwork[];
 }
 
 {
@@ -136,7 +212,18 @@ export default function SearchAndFilter({
 }: searchAndFilterProps) {
 	const [searchTerm, setSearchTerm] = useState<string>("");
 
-	const [filterWords, setFilterWords] = useState<string[]>([]);
+	const [filterWords, setFilterWords] = useState<string[]>([
+		"test",
+		"tesopjadwjdawjdt2",
+		"big words with lots of things going on",
+		"even bigger more incdredement stuff",
+		"hoyldaya manda  thats a alot of",
+		"small stuff",
+		"maybe less",
+		"singleword",
+		"another",
+		"short",
+	]);
 	const [mustHaveImage, setMustHaveImage] = useState<boolean>(true);
 	const pathName = usePathname();
 	const isGalleryPage = pathName === "/gallery";
@@ -149,7 +236,7 @@ export default function SearchAndFilter({
 			new Set(
 				filteredArtworks
 					.map((artwork) => artwork.classification)
-					.filter(Boolean)
+					.filter((item): item is string => Boolean(item))
 			)
 		).map((item) => ({
 			label: `${item} (${
@@ -160,14 +247,20 @@ export default function SearchAndFilter({
 		})),
 		Technique: Array.from(
 			new Set(
-				filteredArtworks.map((artwork) => artwork.technique).filter(Boolean)
+				filteredArtworks
+					.map((artwork) => artwork.technique)
+					.filter((item): item is string => Boolean(item))
 			)
 		).map((item) => ({
 			label: item,
 			value: item,
 		})),
 		Material: Array.from(
-			new Set(filteredArtworks.map((artwork) => artwork.medium).filter(Boolean))
+			new Set(
+				filteredArtworks
+					.map((artwork) => artwork.medium)
+					.filter((item): item is string => Boolean(item))
+			)
 		).map((item) => ({
 			label: item,
 			value: item,
@@ -185,6 +278,7 @@ export default function SearchAndFilter({
 	};
 
 	const handleSearch = () => {
+		setFilterWords([]);
 		setSearchObject({
 			keywords: filterWords,
 			hasImage: mustHaveImage,
@@ -203,8 +297,11 @@ export default function SearchAndFilter({
 	return (
 		<>
 			<h3 className="text-3xl font-bold">Search</h3>
-			<p className="text-gray-600 mb-4"> Explore digital images from museums&lsquo; open access collections.</p>
-			<div className="flex items-center space-x-2 mb-4">
+			<p className="text-gray-600 mb-4">
+				{" "}
+				Explore digital images from museums&lsquo; open access collections.
+			</p>
+			<div className="flex items-center space-x-2 ">
 				<form
 					onSubmit={(e) => {
 						e.preventDefault();
@@ -214,7 +311,7 @@ export default function SearchAndFilter({
 				>
 					<Input
 						type="search"
-						placeholder="Search for public domain artworks and artifacts"
+						placeholder="Search for artworks"
 						value={searchTerm}
 						onChange={(e) => setSearchTerm(e.target.value)}
 						className="w-full bg-white"
@@ -227,43 +324,47 @@ export default function SearchAndFilter({
 
 			{/* Visible Selected Filters */}
 			{visibleArtworksAmount > 0 && isGalleryPage && (
-				<div className="flex items-center space-x-2 mb-4 mt-1">
-					{filterWords.map((word) => (
-						<div
-							key={word}
-							className="bg-gray-100 text-gray-800 text-sm font-medium px-2.5 py-0.5 rounded-full flex items-center"
-						>
-							{word}
-							<Button
-								variant="ghost"
-								size="sm"
-								className="ml-1 h-4 w-4 p-0"
-								onClick={() => removeFilterWord(word)}
-							>
-								<span className="sr-only">Remove</span>
-								&times;
-							</Button>
-						</div>
-					))}
-					{/* Add Filters */}
-					<Filter
-						filterWords={filterWords}
-						setFilterWords={setFilterWords}
-						addFilter={addFilter}
-						filterOptions={filterOptions}
-					/>
+				<>
+					<div className="flex flex-wrap items-center space-x-2 mb-2 mt-2 ">
+						{/* Add Filters */}
+						<Filter
+							filterWords={filterWords}
+							setFilterWords={setFilterWords}
+							addFilter={addFilter}
+							filterOptions={filterOptions}
+						/>
 
-					<Button
-						variant="outline"
-						size="sm"
-						onClick={() => setMustHaveImage(!mustHaveImage)}
-						className={`${mustHaveImage ? "border-black" : "border-none"}`}
-					>
-						{" "}
-						Must Have Image
-						{mustHaveImage ? <SquareCheckBig /> : <Square />}
-					</Button>
-				</div>
+						<Button
+							variant="outline"
+							size="sm"
+							onClick={() => setMustHaveImage(!mustHaveImage)}
+							className={` ${mustHaveImage ? "border-black" : "border-none"} `}
+						>
+							{" "}
+							Must Have Image
+							{mustHaveImage ? <SquareCheckBig /> : <Square />}
+						</Button>
+					</div>
+					<div className="flex flex-wrap items-center space-x-2 mb-2 mt-4 ">
+						{filterWords.map((word) => (
+							<div
+								key={word}
+								className="bg-gray-100 text-gray-800 text-sm font-medium px-2.5 py-1 mb-2 rounded-full flex items-center"
+							>
+								{word}
+								<Button
+									variant="ghost"
+									size="sm"
+									className="ml-2 h-4 w-4 p-0"
+									onClick={() => removeFilterWord(word)}
+								>
+									<span className="sr-only">Remove</span>
+									&times;
+								</Button>
+							</div>
+						))}
+					</div>
+				</>
 			)}
 
 			{visibleArtworksAmount > 0 && (

@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import { ArrowLeft } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -123,28 +124,28 @@ export default function Gallery() {
 		setFilteredArtworks(filtered);
 	}, [searchObject, artworks]);
 
-	useEffect(() => {
-		console.log(artworks, searchObject);
-	}, [artworks, searchObject]);
-
 	const loadMore = () => {
 		setVisibleArtworksAmount((prev) => prev + 12);
 	};
 
+	useEffect(() => {
+		console.log(filteredArtworks);
+	}, [filteredArtworks]);
+
 	return (
-		<div>
+		<div className="mx-auto overflow-x-hidden">
 			<NavigationBar />
 			<Link href="/">
-				<Button variant="ghost" className="mt-12 ml-12 scale-[150%] mb-6">
+				<Button variant="ghost" className="md:m-4 m-2">
 					<ArrowLeft className=" h-4 w-4" />
 					Home
 				</Button>
 			</Link>
-			<div className="grid grid-cols-1 lg:grid-cols-[1fr,1fr] items-center bg-gradient-to-r from-white to-[#ebefe0] drop-shadow-lg p-8 lg:p-12 ">
+			<div className="grid grid-cols-1 lg:grid-cols-[1fr,1fr] items-center bg-gradient-to-r from-white to-[#ebefe0] drop-shadow-lg text-center py-6 lg:p-12 ">
 				<div>
-					<h1 className="text-8xl font-bold mb-8 pl-6  text-black">Gallery</h1>
+					<h1 className="text-8xl font-bold mb-8   text-black">Gallery</h1>
 				</div>
-				<p className="text-gray-600 ">
+				<p className="text-gray-600 text-left px-4">
 					Search, enjoy and discover millions of public domain images of
 					artworks and cultural artifacts from around the world and dating back
 					to the beginnings of civilization.
@@ -154,7 +155,7 @@ export default function Gallery() {
 
 			<div className="bg-[#ebefe0] ">
 				<div className="max-w-screen-xl mx-auto ">
-					<div className="p-12">
+					<div className="px-6 py-12">
 						<SearchAndFilter
 							visibleArtworksAmount={visibleArtworksAmount}
 							length={filteredArtworks.length}
@@ -163,7 +164,31 @@ export default function Gallery() {
 						/>
 
 						{loading ? (
-							<p className="text-center text-gray-600">Loading artworks...</p>
+							<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-6">
+								{[...Array(12)].map((_, gridIndex) => (
+									<div key={gridIndex} className="grid grid-cols-1 gap-6">
+										<Card className="overflow-hidden">
+											<CardContent className="p-0">
+												<div className="relative w-full pt-[100%]">
+													<Skeleton className="absolute inset-0" />
+												</div>
+												<div className="p-4">
+													<Skeleton className="h-4 w-3/4 mb-2" />
+													<Skeleton className="h-3 w-1/2" />
+												</div>
+											</CardContent>
+										</Card>
+									</div>
+								))}
+							</div>
+						) : !loading &&
+						  filteredArtworks.length === 0 &&
+						  searchObject.searchKey !== "" ? (
+							<div className="text-center py-8">
+								<p className="text-lg text-gray-600">
+									No artworks found for &quot;{searchObject.searchKey}&quot;
+								</p>
+							</div>
 						) : (
 							<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-6">
 								{[0, 1, 2, 3].map((gridIndex) => (
@@ -180,7 +205,7 @@ export default function Gallery() {
 													)}`;
 												const artworkImage =
 													artwork.primaryimageurl ??
-													"/images/artwork-frame-placeholder.jpg";
+													"/images/placeholder-image.png";
 												const artworkAlt = artwork.title ?? "Placeholder image";
 
 												return (

@@ -93,7 +93,7 @@ const collections = [
 
 export default function Home() {
 	return (
-		<main className="">
+		<main className="mx-auto overflow-x-hidden">
 			<NavigationBar />
 			<section id="hero">
 				<Hero />
@@ -103,6 +103,7 @@ export default function Home() {
 					<h2 className="text-4xl font-bold mb-2">Gallery</h2>
 					<p className="text-lg text-gray-600">
 						Explore digital images from museums open access collections.
+						Discover the world through the lens of cultural heritage.
 					</p>
 					<Link href="/gallery">
 						<p className="inline-block underline font-medium py-2 rounded-md cursor-pointer duration-300">
