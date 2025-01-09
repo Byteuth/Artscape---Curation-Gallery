@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Plus, Check } from "lucide-react";
+import { Plus, Check, Square, SquareCheckBig } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -18,20 +18,32 @@ import {
 } from "@/components/ui/popover";
 import { usePathname } from "next/navigation";
 
-
 interface FilterProps {
 	filterWords: string[];
 	setFilterWords: React.Dispatch<React.SetStateAction<string[]>>;
 	addFilter: (word: string) => void;
-	filterOptions: { label: string; value: string }[];
+	filterOptions: {
+		Material: { label: string; value: string }[];
+		Classification: { label: string; value: string }[];
+		Technique: { label: string; value: string }[];
+	};
 }
-
+{
+	/* Handles the filter button functionality */
+}
 export function Filter({
-	filterWords,
-	addFilter,
-	filterOptions,
+	filterWords, // Selected filter words
+	addFilter, // Function to add a filter word to prev list
+	filterOptions, //  Array of filter options
 }: FilterProps) {
 	const [open, setOpen] = React.useState<boolean>(false);
+	const [selectedCategory, setSelectedCategory] = React.useState<
+		"Technique" | "Classification" | "Material"
+	>("Classification");
+
+	const categoryKeys = Object.keys(filterOptions) as Array<
+		"Technique" | "Classification" | "Material"
+	>;
 
 	return (
 		<Popover open={open} onOpenChange={setOpen}>
@@ -40,7 +52,9 @@ export function Filter({
 					variant="outline"
 					role="combobox"
 					aria-expanded={open}
-					className="w-auto justify-between"
+					className={` w-auto justify-between ${
+						filterWords.length > 0 ? "border-black" : "border-none"
+					}`}
 					size="sm"
 				>
 					<Plus className="h-4 w-4 mr-1" />
@@ -49,17 +63,33 @@ export function Filter({
 			</PopoverTrigger>
 			<PopoverContent className="w-auto p-0 translate-x-14">
 				<Command>
-					<CommandInput placeholder="Search all filters" className="h-9" />
+					<div className="flex gap-2 p-2 border-b">
+						{categoryKeys.map((category) => (
+							<Button
+								key={category}
+								variant={selectedCategory === category ? "default" : "outline"}
+								size="sm"
+								onClick={() => setSelectedCategory(category)}
+							>
+								{category}
+							</Button>
+						))}
+					</div>
+
+					<CommandInput
+						placeholder={`Search ${selectedCategory.toLowerCase()}`}
+						className="h-9"
+					/>
 					<CommandList>
 						<CommandEmpty>No filters found.</CommandEmpty>
 						<CommandGroup>
-							{filterOptions.map((filter) => (
+							{filterOptions[selectedCategory].map((filter) => (
 								<CommandItem
 									key={filter.value}
 									value={filter.value}
 									onSelect={(currentValue) => {
 										setOpen(false);
-										addFilter(currentValue); // Add selected filter
+										addFilter(currentValue);
 									}}
 								>
 									{filter.label}
@@ -81,33 +111,54 @@ export function Filter({
 	);
 }
 
-
-
-
-
 interface searchAndFilterProps {
 	visibleArtworks: number;
 	length: number;
-	artworks: { medium?: string }[];
+	artworks: any[];
 }
-
+{
+	/*Main search component, handles adding and removing of filters */
+}
 export default function SearchAndFilter({
-	visibleArtworks,
-	length,
-	artworks,
+	visibleArtworks, // Number of visible artworks
+	length, // Total number of artworks
+	artworks, // Array of artworks
 }: searchAndFilterProps) {
 	const [searchTerm, setSearchTerm] = useState<string>("");
 	const [filterWords, setFilterWords] = useState<string[]>([]);
+	const [mustHaveImage, setMustHaveImage] = useState<boolean>(false);
 	const pathName = usePathname();
 	const isGalleryPage = pathName === "/gallery";
 
-	const filterOptions = Array.from(
-		new Set(
-			artworks
-				.map((artwork) => artwork.medium)
-				.filter((medium): medium is string => Boolean(medium))
-		)
-	).map((medium) => ({ label: medium, value: medium }));
+	const filterOptions: Record<
+		"Technique" | "Classification" | "Material",
+		{ label: string; value: string }[]
+	> = {
+		Classification: Array.from(
+			new Set(artworks.map((artwork) => artwork.classification).filter(Boolean))
+		).map((item) => ({
+			label: `${item} (${
+				artworks.filter((artwork) => artwork.classification === item).length
+			})`,
+			value: item,
+		})),
+		Technique: Array.from(
+			new Set(artworks.map((artwork) => artwork.technique).filter(Boolean))
+		).map((item) => ({
+			label: `${item} (${
+				artworks.filter((artwork) => artwork.technique === item).length
+			})`,
+			value: item,
+		})),
+		Material: Array.from(
+			new Set(artworks.map((artwork) => artwork.medium).filter(Boolean))
+		).map((item) => ({
+			label: `${item} (${
+				artworks.filter((artwork) => artwork.medium === item).length
+			})`,
+			value: item,
+		})),
+	};
 
 	const removeFilterWord = (word: string) => {
 		setFilterWords((prev) => prev.filter((w) => w !== word));
@@ -120,8 +171,8 @@ export default function SearchAndFilter({
 	};
 
 	useEffect(() => {
-		console.log("Selected Filter Words:", filterWords);
-	}, [filterWords]);
+		console.log("Selected Filter Words:", filterWords, mustHaveImage);
+	}, [filterWords, mustHaveImage]);
 
 	return (
 		<>
@@ -136,7 +187,7 @@ export default function SearchAndFilter({
 				/>
 			</div>
 
-			{/* Filters */}
+			{/* Visible Selected Filters */}
 			{visibleArtworks > 0 && isGalleryPage && (
 				<div className="flex items-center space-x-2 mb-4 mt-1">
 					{filterWords.map((word) => (
@@ -162,7 +213,19 @@ export default function SearchAndFilter({
 						setFilterWords={setFilterWords}
 						addFilter={addFilter}
 						filterOptions={filterOptions}
+						
 					/>
+
+					<Button
+						variant="outline"
+						size="sm"
+						onClick={() => setMustHaveImage(!mustHaveImage)}
+						className={`${mustHaveImage ? "border-black" : "border-none"}`}
+					>
+						{" "}
+						Must Have Image
+						{mustHaveImage ? <SquareCheckBig /> : <Square />}
+					</Button>
 				</div>
 			)}
 
