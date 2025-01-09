@@ -7,6 +7,7 @@ import Image from "next/image";
 import Link from "next/link";
 
 import { getArtworks } from "../actions/getArtworks";
+import { applyFilters } from "../utils/applyFilters";
 
 import NavigationBar from "@/components/navigation-bar";
 import GalleryCarousel from "@/components/gallery-carousel";
@@ -77,18 +78,35 @@ interface Artwork {
 	dimensions?: string;
 	seeAlso?: object;
 }
+interface SearchObject {
+	keywords: string[];
+	hasImage: boolean;
+	searchKey: string;
+}
 
 export default function Gallery() {
-	const [visibleArtworks, setVisibleArtworks] = useState<number>(12);
+	const [visibleArtworksAmount, setVisibleArtworksAmount] =
+		useState<number>(12);
 	const [artworks, setArtworks] = useState<Artwork[]>([]);
-	// const [filteredArtworks, setFilteredArtworks] = useState<Artwork[]>([]);
+	const [searchObject, setSearchObject] = useState<SearchObject>({
+		keywords: [],
+		hasImage: false,
+		searchKey: "",
+	});
+
+	const [filteredArtworks, setFilteredArtworks] = useState<Artwork[]>([]);
 	const [loading, setLoading] = useState<boolean>(false);
 
 	useEffect(() => {
 		async function fetchArtworks() {
+			if (searchObject.searchKey.trim() === "") {
+				setArtworks([]);
+				return;
+			}
+
 			setLoading(true);
 			try {
-				const data = await getArtworks();
+				const data = await getArtworks(searchObject.searchKey);
 				setArtworks(data);
 			} catch (error) {
 				console.error("Failed to fetch artworks:", error);
@@ -98,10 +116,19 @@ export default function Gallery() {
 		}
 
 		fetchArtworks();
-	}, []);
+	}, [searchObject.searchKey]);
+
+	useEffect(() => {
+		const filtered = applyFilters(artworks, searchObject);
+		setFilteredArtworks(filtered);
+	}, [searchObject, artworks]);
+
+	useEffect(() => {
+		console.log(artworks, searchObject);
+	}, [artworks, searchObject]);
 
 	const loadMore = () => {
-		setVisibleArtworks((prev) => prev + 12);
+		setVisibleArtworksAmount((prev) => prev + 12);
 	};
 
 	return (
@@ -129,11 +156,10 @@ export default function Gallery() {
 				<div className="max-w-screen-xl mx-auto ">
 					<div className="p-12">
 						<SearchAndFilter
-							visibleArtworks={visibleArtworks}
-							length={artworks.length}
-							artworks={artworks.filter(
-								(artwork) => artwork.medium !== undefined
-							)}
+							visibleArtworksAmount={visibleArtworksAmount}
+							length={filteredArtworks.length}
+							filteredArtworks={filteredArtworks}
+							setSearchObject={setSearchObject}
 						/>
 
 						{loading ? (
@@ -142,8 +168,8 @@ export default function Gallery() {
 							<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-6">
 								{[0, 1, 2, 3].map((gridIndex) => (
 									<div key={gridIndex} className="grid grid-cols-1 gap-6">
-										{artworks
-											.slice(0, visibleArtworks)
+										{filteredArtworks
+											.slice(0, visibleArtworksAmount)
 											.filter((_, index) => index % 4 === gridIndex)
 											.map((artwork, index) => {
 												// Fallback values
@@ -191,17 +217,23 @@ export default function Gallery() {
 							</div>
 						)}
 
-						{visibleArtworks < artworks.length && visibleArtworks > 0 && (
-							<div className="mt-8 text-center">
-								<p className="text-sm text-gray-600 mb-4">
-									Showing {Math.min(visibleArtworks, artworks.length)} of{" "}
-									{artworks.length}
-								</p>
-								<Button variant="outline" className="w-full" onClick={loadMore}>
-									View More
-								</Button>
-							</div>
-						)}
+						{visibleArtworksAmount < filteredArtworks.length &&
+							visibleArtworksAmount > 0 && (
+								<div className="mt-8 text-center">
+									<p className="text-sm text-gray-600 mb-4">
+										Showing{" "}
+										{Math.min(visibleArtworksAmount, filteredArtworks.length)}{" "}
+										of {filteredArtworks.length}
+									</p>
+									<Button
+										variant="outline"
+										className="w-full"
+										onClick={loadMore}
+									>
+										View More
+									</Button>
+								</div>
+							)}
 					</div>
 				</div>
 			</div>

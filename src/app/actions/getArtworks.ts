@@ -1,6 +1,6 @@
 'use server';
 
-export async function getArtworks(query: string = "dog") {
+export async function getArtworks(query: string = "") {
 	try {
         const apiKey = process.env.HARVARD_API_KEY
 		const searchUrl = `https://api.harvardartmuseums.org/object?apikey=${apiKey}&size=100&q=${encodeURIComponent(
@@ -13,7 +13,8 @@ export async function getArtworks(query: string = "dog") {
 		}
 
 		const data = await response.json();
-		// console.log("🖼️ Fetched Artworks Data:", JSON.stringify(data, null, 2));
+
+		console.log("🖼️ Fetched Artworks Data:", JSON.stringify(data, null, 2));
 		// const artworks = data.records.map((artwork: any) => ({
 		// 	id: artwork.id,
 		// 	title: artwork.title || "Unknown Title",

@@ -76,10 +76,12 @@ export function Filter({
 						))}
 					</div>
 
-					<CommandInput
-						placeholder={`Search ${selectedCategory.toLowerCase()}`}
-						className="h-9"
-					/>
+					{selectedCategory === "Classification" && (
+						<CommandInput
+							placeholder={`Search ${selectedCategory.toLowerCase()}`}
+							className="h-9"
+						/>
+					)}
 					<CommandList>
 						<CommandEmpty>No filters found.</CommandEmpty>
 						<CommandGroup>
@@ -111,22 +113,31 @@ export function Filter({
 	);
 }
 
-interface searchAndFilterProps {
-	visibleArtworks: number;
-	length: number;
-	artworks: any[];
+interface SearchObject {
+	keywords: string[];
+	hasImage: boolean;
+	searchKey: string;
 }
+interface searchAndFilterProps {
+	visibleArtworksAmount: number;
+	length: number;
+	setSearchObject: React.Dispatch<React.SetStateAction<SearchObject>>;
+	filteredArtworks: any[];
+}
+
 {
 	/*Main search component, handles adding and removing of filters */
 }
 export default function SearchAndFilter({
-	visibleArtworks, // Number of visible artworks
+	visibleArtworksAmount, // Number of visible artworks
 	length, // Total number of artworks
-	artworks, // Array of artworks
+	setSearchObject, // Function to set the search object
+	filteredArtworks, // Array of filtered artworks
 }: searchAndFilterProps) {
 	const [searchTerm, setSearchTerm] = useState<string>("");
+
 	const [filterWords, setFilterWords] = useState<string[]>([]);
-	const [mustHaveImage, setMustHaveImage] = useState<boolean>(false);
+	const [mustHaveImage, setMustHaveImage] = useState<boolean>(true);
 	const pathName = usePathname();
 	const isGalleryPage = pathName === "/gallery";
 
@@ -135,27 +146,30 @@ export default function SearchAndFilter({
 		{ label: string; value: string }[]
 	> = {
 		Classification: Array.from(
-			new Set(artworks.map((artwork) => artwork.classification).filter(Boolean))
+			new Set(
+				filteredArtworks
+					.map((artwork) => artwork.classification)
+					.filter(Boolean)
+			)
 		).map((item) => ({
 			label: `${item} (${
-				artworks.filter((artwork) => artwork.classification === item).length
+				filteredArtworks.filter((artwork) => artwork.classification === item)
+					.length
 			})`,
 			value: item,
 		})),
 		Technique: Array.from(
-			new Set(artworks.map((artwork) => artwork.technique).filter(Boolean))
+			new Set(
+				filteredArtworks.map((artwork) => artwork.technique).filter(Boolean)
+			)
 		).map((item) => ({
-			label: `${item} (${
-				artworks.filter((artwork) => artwork.technique === item).length
-			})`,
+			label: item,
 			value: item,
 		})),
 		Material: Array.from(
-			new Set(artworks.map((artwork) => artwork.medium).filter(Boolean))
+			new Set(filteredArtworks.map((artwork) => artwork.medium).filter(Boolean))
 		).map((item) => ({
-			label: `${item} (${
-				artworks.filter((artwork) => artwork.medium === item).length
-			})`,
+			label: item,
 			value: item,
 		})),
 	};
@@ -170,25 +184,49 @@ export default function SearchAndFilter({
 		}
 	};
 
+	const handleSearch = () => {
+		setSearchObject({
+			keywords: filterWords,
+			hasImage: mustHaveImage,
+			searchKey: searchTerm,
+		});
+	};
+
 	useEffect(() => {
-		console.log("Selected Filter Words:", filterWords, mustHaveImage);
-	}, [filterWords, mustHaveImage]);
+		setSearchObject({
+			keywords: filterWords,
+			hasImage: mustHaveImage,
+			searchKey: searchTerm,
+		});
+	}, [filterWords, mustHaveImage, setSearchObject]);
 
 	return (
 		<>
-			<h3 className="text-3xl font-bold mb-4">Search</h3>
-			<div>
-				<Input
-					type="search"
-					placeholder="Search for public domain artworks and artifacts"
-					value={searchTerm}
-					onChange={(e) => setSearchTerm(e.target.value)}
-					className="w-full bg-white"
-				/>
+			<h3 className="text-3xl font-bold">Search</h3>
+			<p className="text-gray-600 mb-4"> Explore digital images from museums&lsquo; open access collections.</p>
+			<div className="flex items-center space-x-2 mb-4">
+				<form
+					onSubmit={(e) => {
+						e.preventDefault();
+						handleSearch();
+					}}
+					className="flex items-center w-full space-x-2"
+				>
+					<Input
+						type="search"
+						placeholder="Search for public domain artworks and artifacts"
+						value={searchTerm}
+						onChange={(e) => setSearchTerm(e.target.value)}
+						className="w-full bg-white"
+					/>
+					<Button type="submit" size="sm">
+						Search
+					</Button>
+				</form>
 			</div>
 
 			{/* Visible Selected Filters */}
-			{visibleArtworks > 0 && isGalleryPage && (
+			{visibleArtworksAmount > 0 && isGalleryPage && (
 				<div className="flex items-center space-x-2 mb-4 mt-1">
 					{filterWords.map((word) => (
 						<div
@@ -213,7 +251,6 @@ export default function SearchAndFilter({
 						setFilterWords={setFilterWords}
 						addFilter={addFilter}
 						filterOptions={filterOptions}
-						
 					/>
 
 					<Button
@@ -229,9 +266,9 @@ export default function SearchAndFilter({
 				</div>
 			)}
 
-			{visibleArtworks > 0 && (
+			{visibleArtworksAmount > 0 && (
 				<p className="text-sm text-gray-600 my-6">
-					{Math.min(visibleArtworks, length)} of {length} Works
+					{Math.min(visibleArtworksAmount, length)} of {length} Works
 				</p>
 			)}
 		</>
