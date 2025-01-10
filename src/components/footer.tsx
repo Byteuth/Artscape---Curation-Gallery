@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 
 export default function Footer() {
 	return (
-		<footer className="bg-[#B6B8A2] flex flex-col justify-center items-center p-16 w-full">
+		<footer className="bg-[#B6B8A2] flex flex-col justify-center items-center p-16 w-full border-t-2 border-black">
 			<div className="container mx-auto">
 				<div className="grid grid-cols-1 md:grid-cols-2 md:gap-44 gap-16">
 					{/* Left side */}

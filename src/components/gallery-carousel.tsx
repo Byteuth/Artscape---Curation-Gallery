@@ -51,7 +51,7 @@ export default function GalleryCarousel() {
 
 	return (
 		<div className="bg-[#ffffff] flex flex-col justify-center items-center pb-12 pt-14 px-12 w-full  ">
-			<div className="container mx-auto px-4  lg:px-8 ">
+			<div className="container mx-auto px-4 lg:px-8 ">
 				<Carousel
 					opts={{
 						align: "start",
@@ -67,7 +67,7 @@ export default function GalleryCarousel() {
 						{gallerySample.map((imageSrc, index) => (
 							<CarouselItem
 								key={index}
-								className="carousel-item md:basis-1/4 lg:basis-1/6 "
+								className="carousel-item md:basis-1/4 lg:basis-1/6 py-7"
 							>
 								<div className="p-1">
 									<Card
@@ -85,9 +85,7 @@ export default function GalleryCarousel() {
 											height={300}
 											className="rounded-lg shadow-md"
 										/>
-										<span className="text-sm relative left-1/2">
-											{index + 1}
-										</span>
+									
 									</Card>
 								</div>
 							</CarouselItem>

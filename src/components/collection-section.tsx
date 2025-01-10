@@ -34,8 +34,8 @@ export default function CollectionSection({
 	};
 
 	return (
-		<div className="bg-[#ffffff] flex flex-col justify-center items-center p-16 w-full ">
-			<div className=" grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-16  w-full max-w-[1200px] mx-auto">
+		<div className="bg-[#ffffff] flex flex-col justify-center items-center pb-12  w-full ">
+			<div className=" grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8  w-full max-w-[1200px] mx-auto">
 			{collections.slice(0, visibleArtworks).map((collection, index) => (
 					<CollectionGrid
 						key={index}

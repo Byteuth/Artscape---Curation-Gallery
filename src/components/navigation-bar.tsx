@@ -19,11 +19,10 @@ import {
 	SheetDescription,
 } from "@/components/ui/sheet";
 import Link from "next/link";
-import Image from "next/image";
 
 export default function NavigationBar() {
 	return (
-		<nav className="bg-[#B6B8A2] flex items-center justify-between p-2 w-full shadow-lg">
+		<nav className="bg-[#B6B8A2] border-b-2 border-black flex items-center justify-between p-2 w-full ">
 			<Sheet>
 				<div className="flex items-center space-x-4 ">
 					<Link href="/">

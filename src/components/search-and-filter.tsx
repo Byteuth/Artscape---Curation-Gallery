@@ -62,7 +62,7 @@ export function Filter({
 					Add filter
 				</Button>
 			</PopoverTrigger>
-			<PopoverContent className="md:w-auto p-0 translate-x-6 w-[365px]">
+			<PopoverContent className="md:w-auto p-0 translate-x-6 w-70">
 				<Command>
 					<div className="flex gap-2 p-2 border-b">
 						{categoryKeys.map((category) => (
@@ -72,11 +72,11 @@ export function Filter({
 								size="sm"
 								onClick={() => setSelectedCategory(category)}
 							>
-								{category}
+								{category === "Classification" ? "Medium" : category}
 							</Button>
 						))}
 						<Button
-							className="ml-auto "
+							className="ml-auto border-dashed border-black"
 							variant="outline"
 							size="sm"
 							onClick={() => {
@@ -89,10 +89,7 @@ export function Filter({
 					</div>
 
 					{selectedCategory === "Classification" && (
-						<CommandInput
-							placeholder={`Search ${selectedCategory.toLowerCase()}`}
-							className="h-9"
-						/>
+						<CommandInput placeholder={`Search Medium...`} className="h-9" />
 					)}
 					<CommandList>
 						<CommandEmpty>No filters found.</CommandEmpty>
@@ -212,18 +209,7 @@ export default function SearchAndFilter({
 }: searchAndFilterProps) {
 	const [searchTerm, setSearchTerm] = useState<string>("");
 
-	const [filterWords, setFilterWords] = useState<string[]>([
-		"test",
-		"tesopjadwjdawjdt2",
-		"big words with lots of things going on",
-		"even bigger more incdredement stuff",
-		"hoyldaya manda  thats a alot of",
-		"small stuff",
-		"maybe less",
-		"singleword",
-		"another",
-		"short",
-	]);
+	const [filterWords, setFilterWords] = useState<string[]>([]);
 	const [mustHaveImage, setMustHaveImage] = useState<boolean>(true);
 	const pathName = usePathname();
 	const isGalleryPage = pathName === "/gallery";

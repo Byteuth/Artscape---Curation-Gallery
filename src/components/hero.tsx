@@ -2,17 +2,17 @@ import Image from "next/image";
 
 export default function Hero() {
 	return (
-		<div className="bg-[#ebefe0] flex flex-col justify-center items-center p-16 w-full">
-			<div className="container mx-auto px-4 sm:px-6 lg:px-8">
+		<div className="bg-[#ebefe0] flex flex-col justify-center items-center py-16 px-6 w-full shadow-lg">
+			<div className="mx-auto lg:px-8">
 				<div className="text-center mb-12">
-					<h1 className="text-8xl md:text-12xl font-bold mb-2">
+					<h1 className="md:text-8xl text-4xl  font-bold mb-2">
 						Through the Canvas
 					</h1>
-					<p className="text-2xl md:text-4xl text-center mx-auto md:translate-x-12 lg:translate-x-24">
+					<p className="text-l md:text-4xl text-center mx-auto md:translate-x-12 lg:translate-x-24">
 						by -t Uth
 					</p>
 				</div>
-				<div className="flex flex-col md:flex-row items-center gap-8 w-full">
+				<div className="flex flex-col md:flex-row items-center gap-8 ">
 					<div className="w-full md:w-1/2 flex justify-center relative">
 						<div className="relative">
 							<Image
@@ -20,12 +20,12 @@ export default function Hero() {
 								alt="Through the Canvas"
 								width={600}
 								height={300}
-								className="rounded-lg shadow-md"
+								className="rounded-lg shadow-right-bottom"
 							/>
-							<div className="absolute top-0 left-0 text-sm -translate-y-5  translate-x-1 rounded-sm">
+							<div className="absolute top-0 left-0 lg:text-sm text-xs lg:-translate-y-5 -translate-y-3  translate-x-1 rounded-sm ">
 								PAINTING
 							</div>
-							<div className="absolute top-0 right-0 text-sm -translate-y-5  -translate-x-1 selection:rounded-sm">
+							<div className="absolute top-0 right-0 lg:text-sm text-xs lg:-translate-y-5 -translate-y-3  -translate-x-1 selection:rounded-sm">
 								BASED IN ITALY
 							</div>
 						</div>

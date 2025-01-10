@@ -93,13 +93,14 @@ const collections = [
 
 export default function Home() {
 	return (
-		<main className="mx-auto overflow-x-hidden">
+		<main className="mx-auto overflow-x-hidden ">
 			<NavigationBar />
 			<section id="hero">
 				<Hero />
 			</section>
+
 			<section id="gallery">
-				<div className="container mx-auto sm:px-6 lg:px-8 pt-16 px-12 ">
+				<div className="container mx-auto sm:px-6 lg:px-8 pt-16 px-6 ">
 					<h2 className="text-4xl font-bold mb-2">Gallery</h2>
 					<p className="text-lg text-gray-600">
 						Explore digital images from museums open access collections.
@@ -113,11 +114,13 @@ export default function Home() {
 				</div>
 				<GalleryCarousel />
 			</section>
-			<section id="singular-Image">
-				<ArtworkDisplay />
-			</section>
-			<section id="collection-Section">
-				<div className="container mx-auto px-4 sm:px-6 lg:px-8 pt-16">
+			<div className="shadow-lg rotate-180">
+				<section id="singular-Image" className="shadow-lg rotate-180" >
+					<ArtworkDisplay />
+				</section>
+			</div>
+			<section id="collection-Section " className="shadow-lg">
+				<div className="container mx-auto  px-6 pt-16 ">
 					<div className="mb-8 text-left ">
 						<h2 className="text-4xl font-bold mb-2">Curated Collections</h2>
 						<p className="text-lg text-gray-600">
@@ -131,8 +134,8 @@ export default function Home() {
 							</p>
 						</Link>
 					</div>
+				<CollectionSection collections={collections} />
 				</div>
-				<CollectionSection collections={collections}/>
 			</section>
 			<section id="footer">
 				<Footer />
