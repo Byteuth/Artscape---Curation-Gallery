@@ -8,7 +8,7 @@ export default function Hero() {
 					<h1 className="md:text-8xl text-4xl  font-bold mb-2">
 						Through the Canvas
 					</h1>
-					<p className="text-l md:text-4xl text-center mx-auto md:translate-x-12 lg:translate-x-24">
+					<p className="text-l md:text-4xl text-center mx-auto md:translate-x-12 lg:translate-x-24 text-gray-600">
 						by -t Uth
 					</p>
 				</div>

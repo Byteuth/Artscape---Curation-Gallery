@@ -208,7 +208,6 @@ export default function SearchAndFilter({
 	filteredArtworks, // Array of filtered artworks
 }: searchAndFilterProps) {
 	const [searchTerm, setSearchTerm] = useState<string>("");
-
 	const [filterWords, setFilterWords] = useState<string[]>([]);
 	const [mustHaveImage, setMustHaveImage] = useState<boolean>(true);
 	const pathName = usePathname();
