@@ -2,11 +2,10 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
-import { useState } from "react";
 
 import CollectionSection from "@/components/collection-section";
 import NavigationBar from "@/components/navigation-bar";
-import SearchAndFilter from "@/components/search-and-filter";
+import Footer from "@/components/footer";
 
 const collections = [
 	{
@@ -768,39 +767,30 @@ const collections = [
 ];
 
 export default function Collections() {
-	const [visibleArtworks, setVisibleArtworks] = useState<number>(12);
-
 	return (
-		<>
+		<div className="mx-auto overflow-x-hidden">
 			<NavigationBar />
 			<Link href="/">
-				<Button variant="ghost" className="mt-12 ml-12 scale-[150%] mb-6">
+				<Button variant="ghost" className="md:m-4 m-2">
 					<ArrowLeft className=" h-4 w-4" />
 					Home
 				</Button>
 			</Link>
-			<div className="grid grid-cols-1 lg:grid-cols-[1fr,1fr] items-center bg-gradient-to-r from-white to-[#ebefe0] drop-shadow-lg p-8 lg:p-12">
+			<div className="grid grid-cols-1 lg:grid-cols-[1fr,1fr] items-center bg-gradient-to-r from-white to-[#ebefe0] drop-shadow-lg text-center py-6 lg:p-12 ">
 				<div>
-					<h1 className="text-8xl font-bold mb-8 pl-6  text-black">
+					<h1 className="lg:text-8xl text-4xl font-bold mb-8 px-4 lg:text-left text-center text-black">
 						Curated Collections
 					</h1>
 				</div>
-				<p className="text-gray-600 ">
+				<p className="text-gray-600 text-left px-4">
 					Our editorial team and collaborators curate collections from the
 					archive to unearth and highlight connections between cultural objects
 					across institutions.
 				</p>
 			</div>
-			<div className="max-w-screen-xl mx-auto">
-				<div className="p-12">
-					<SearchAndFilter
-						visibleArtworks={visibleArtworks}
-						setVisibleArtworks={setVisibleArtworks}
-						length={collections.length}
-					/>
-				</div>
-			</div>
+
 			<CollectionSection collections={collections} />
-		</>
+			<Footer />
+		</div>
 	);
 }

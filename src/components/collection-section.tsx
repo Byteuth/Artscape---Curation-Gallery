@@ -1,4 +1,4 @@
-'use client';
+"use client";
 import React, { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
@@ -34,9 +34,9 @@ export default function CollectionSection({
 	};
 
 	return (
-		<div className="bg-[#ffffff] flex flex-col justify-center items-center pb-12  w-full ">
-			<div className=" grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8  w-full max-w-[1200px] mx-auto">
-			{collections.slice(0, visibleArtworks).map((collection, index) => (
+		<div className="bg-[#ffffff] flex flex-col justify-center items-center py-16  w-full ">
+			<div className=" grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6  w-full max-w-[1200px] mx-auto">
+				{collections.slice(0, visibleArtworks).map((collection, index) => (
 					<CollectionGrid
 						key={index}
 						id={collection.id}
@@ -70,8 +70,8 @@ export function CollectionGrid({
 	sideImages,
 }: CuratedCollectionProps) {
 	return (
-		<div className="relative w-full min-w-[300px] max-w-[450px]">
-			<div className="relative min-w-[300px] max-w-[450px]">
+		<div className="bg-[#ffffff] flex flex-col lg:p-2 py-4 px-6 w-auto ">
+			<div className="relative w-full ">
 				<Link href={`/collection/${id}`}>
 					<div className="grid grid-cols-4 gap-2 w-full h-[300px] mb-4">
 						<div className="relative col-span-3">
@@ -124,7 +124,7 @@ export function CollectionGrid({
 						</div>
 					</div>
 					<div className="max-w-[300px]">
-						<p className="font-surrealism text-md mb-2 text-gray-900 !leading-[120%]">
+						<p className="font-surrealism text-md  text-gray-900 !leading-[120%]">
 							<span>{title}</span>
 						</p>
 						<div className="font-rococo text-sm text-gray-600 opacity-0">

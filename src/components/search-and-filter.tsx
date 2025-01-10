@@ -335,7 +335,7 @@ export default function SearchAndFilter({
 						{filterWords.map((word) => (
 							<div
 								key={word}
-								className="bg-gray-100 text-gray-800 text-sm font-medium px-2.5 py-1 mb-2 rounded-full flex items-center"
+								className="bg-gray-100 border-dashed border border-gray-500 text-gray-800 text-sm font-medium px-2.5 py-1 mb-2 rounded-full flex items-center"
 							>
 								{word}
 								<Button
