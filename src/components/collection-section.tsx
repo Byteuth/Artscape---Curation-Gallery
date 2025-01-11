@@ -79,9 +79,8 @@ export function CollectionGrid({
 								src={mainImage.src}
 								alt={mainImage.alt}
 								layout="fill"
-								objectFit="cover"
 								objectPosition="top"
-								className="rounded-lg"
+								className="rounded-lg object-cover"
 							/>
 						</div>
 						<div className="flex flex-col gap-2">
@@ -94,8 +93,8 @@ export function CollectionGrid({
 										src={image.src}
 										alt={image.alt}
 										layout="fill"
-										objectFit="cover"
 										sizes="10vw"
+										className="rounded-lg object-cover"
 									/>
 									{index === sideImages.length - 1 && (
 										<div className="relative bg-gray-900/70 w-full h-full">

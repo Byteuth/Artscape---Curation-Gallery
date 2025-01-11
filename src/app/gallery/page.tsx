@@ -89,6 +89,7 @@ export default function Gallery() {
 	const [visibleArtworksAmount, setVisibleArtworksAmount] =
 		useState<number>(12);
 	const [artworks, setArtworks] = useState<Artwork[]>([]);
+	const [artworksInfo, setArtworksInfo] = useState<object>({});
 	const [searchObject, setSearchObject] = useState<SearchObject>({
 		keywords: [],
 		hasImage: false,
@@ -97,6 +98,55 @@ export default function Gallery() {
 
 	const [filteredArtworks, setFilteredArtworks] = useState<Artwork[]>([]);
 	const [loading, setLoading] = useState<boolean>(false);
+
+	const LOCAL_STORAGE_KEY = "gallery-search-state";
+
+	useEffect(() => {
+		const savedState = localStorage.getItem(LOCAL_STORAGE_KEY);
+		if (savedState) {
+			const { searchObject: restoredSearchObject, filteredArtworks } =
+				JSON.parse(savedState);
+			setSearchObject(restoredSearchObject);
+
+			// If there's a valid search key, fetch artworks and apply filters
+			if (restoredSearchObject.searchKey.trim() !== "") {
+				async function restoreArtworks() {
+					setLoading(true);
+					try {
+						const data = await getArtworks(restoredSearchObject.searchKey);
+						setArtworks(data);
+					} catch (error) {
+						console.error("Failed to fetch artworks during restore:", error);
+					} finally {
+						setLoading(false);
+					}
+				}
+
+				restoreArtworks();
+			} else {
+				// No search key, restore empty filtered artworks
+				setFilteredArtworks(filteredArtworks);
+			}
+		}
+	}, [])	;
+
+	useEffect(() => {
+		const savedState = localStorage.getItem(LOCAL_STORAGE_KEY);
+		if (savedState) {
+			const { searchObject: restoredSearchObject } =
+				JSON.parse(savedState);
+			setSearchObject(restoredSearchObject);
+			console.log(restoredSearchObject)
+		}
+
+	}, []);
+
+	useEffect(() => {
+		localStorage.setItem(
+			LOCAL_STORAGE_KEY,
+			JSON.stringify({ searchObject, filteredArtworks })
+		);
+	}, [searchObject, filteredArtworks]);
 
 	useEffect(() => {
 		async function fetchArtworks() {
@@ -108,7 +158,8 @@ export default function Gallery() {
 			setLoading(true);
 			try {
 				const data = await getArtworks(searchObject.searchKey);
-				setArtworks(data);
+				setArtworks(data.records);
+				setArtworksInfo(data.info);
 			} catch (error) {
 				console.error("Failed to fetch artworks:", error);
 			} finally {
@@ -129,8 +180,8 @@ export default function Gallery() {
 	};
 
 	useEffect(() => {
-		console.log(filteredArtworks);
-	}, [filteredArtworks]);
+		console.log(artworksInfo);
+	}, [artworksInfo]);
 
 	return (
 		<div className="mx-auto overflow-x-hidden">
@@ -143,7 +194,9 @@ export default function Gallery() {
 			</Link>
 			<div className="grid grid-cols-1 lg:grid-cols-[1fr,1fr] items-center bg-gradient-to-r from-white to-[#ebefe0] drop-shadow-lg text-center py-6 lg:p-12 ">
 				<div>
-					<h1 className="lg:text-8xl text-4xl  font-bold mb-8 px-4 lg:text-left text-center text-black">Gallery</h1>
+					<h1 className="lg:text-8xl text-4xl  font-bold mb-8 px-4 lg:text-left text-center text-black">
+						Gallery
+					</h1>
 				</div>
 				<p className="text-gray-600 text-left px-4">
 					Search, enjoy and discover millions of public domain images of

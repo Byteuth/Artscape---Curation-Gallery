@@ -5,7 +5,7 @@ export async function getArtworks(query: string = "") {
         const apiKey = process.env.HARVARD_API_KEY
 		const searchUrl = `https://api.harvardartmuseums.org/object?apikey=${apiKey}&size=100&q=${encodeURIComponent(
 			query
-		)}&hasimage=1&imagepermissionlevel=0`;
+		)}&imagepermissionlevel=0`;
 
 		const response = await fetch(searchUrl);
 		if (!response.ok) {
@@ -14,15 +14,7 @@ export async function getArtworks(query: string = "") {
 
 		const data = await response.json();
 
-		console.log("🖼️ Fetched Artworks Data:", JSON.stringify(data, null, 2));
-		// const artworks = data.records.map((artwork: any) => ({
-		// 	id: artwork.id,
-		// 	title: artwork.title || "Unknown Title",
-		// 	image: artwork.primaryimageurl || "/images/artwork-frame-placeholder.jpg",
-		// 	date: artwork.dated || "Unknown Date",
-		// }));
-
-		return data.records;
+		return { records: data.records, info: data.info };
 	} catch (error) {
 		console.error("Error fetching artworks:", error);
 		return [];

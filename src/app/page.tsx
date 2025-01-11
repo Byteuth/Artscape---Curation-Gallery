@@ -116,7 +116,7 @@ export default function Home() {
 			</section>
 			<div className="shadow-lg rotate-180">
 				<section id="singular-Image" className="shadow-lg rotate-180" >
-					<ArtworkDisplay />
+					{/* <ArtworkDisplay /> */}
 				</section>
 			</div>
 			<section id="collection-Section " className="shadow-lg">

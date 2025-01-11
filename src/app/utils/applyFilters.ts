@@ -72,24 +72,13 @@ export function applyFilters(
 	artworks: Artwork[],
 	searchObject: SearchObject
 ): Artwork[] {
-	const { keywords, hasImage, searchKey } = searchObject;
+	const { keywords, hasImage } = searchObject;
 
 	return artworks.filter((artwork) => {
-		const matchesSearchKey =
-			!searchKey ||
-			artwork.title?.toLowerCase().includes(searchKey.toLowerCase()) ||
-			artwork.division?.toLowerCase().includes(searchKey.toLowerCase());
+		// Ensure `artwork.images` exists and is non-empty if `hasImage` is true
+		const hasImages = hasImage ? artwork.images?.length > 0 : true;
 
-		const matchesHasImage = hasImage ? !!artwork.primaryimageurl : true;
-
-		const matchesKeywords = keywords.every((keyword) => {
-			return (
-				artwork.classification?.toLowerCase().includes(keyword.toLowerCase()) ||
-				artwork.medium?.toLowerCase().includes(keyword.toLowerCase()) ||
-				artwork.technique?.toLowerCase().includes(keyword.toLowerCase())
-			);
-		});
-
-		return matchesSearchKey && matchesHasImage && matchesKeywords;
+		// console.log(`Artwork ID: ${artwork.id}, hasImages: ${hasImages}`);
+		return hasImages;
 	});
 }
