@@ -1,10 +1,14 @@
-'use server';
+"use server";
 
-export async function getArtworks(query: string = "") {
+import { ArtworksResponse } from "@/types/index";
+
+export async function getArtworksByKeyword(
+	searchKey: string
+): Promise<ArtworksResponse> {
 	try {
-        const apiKey = process.env.HARVARD_API_KEY
+		const apiKey = process.env.HARVARD_API_KEY;
 		const searchUrl = `https://api.harvardartmuseums.org/object?apikey=${apiKey}&size=100&q=${encodeURIComponent(
-			query
+			searchKey
 		)}&imagepermissionlevel=0`;
 
 		const response = await fetch(searchUrl);
@@ -14,10 +18,9 @@ export async function getArtworks(query: string = "") {
 
 		const data = await response.json();
 
-		return { records: data.records, info: data.info };
+		return data;
 	} catch (error) {
 		console.error("Error fetching artworks:", error);
-		return [];
+		throw error;
 	}
-
 }

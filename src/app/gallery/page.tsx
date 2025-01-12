@@ -7,138 +7,36 @@ import { ArrowLeft } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
-import { getArtworks } from "../actions/getArtworks";
-import { applyFilters } from "../utils/applyFilters";
-
 import NavigationBar from "@/components/navigation-bar";
 import GalleryCarousel from "@/components/gallery-carousel";
 import SearchAndFilter from "@/components/search-and-filter";
 import Footer from "@/components/footer";
 
-interface Artwork {
-	copyright?: object;
-	contextualtextcount?: number;
-	creditline?: string;
-	accesslevel?: number;
-	dateoflastpageview?: string;
-	classificationid?: number;
-	division?: string;
-	markscount?: number;
-	publicationcount?: number;
-	totaluniquepageviews?: number;
-	contact?: string;
-	colorcount?: number;
-	rank?: number;
-	id?: number;
-	state?: object;
-	verificationleveldescription?: string;
-	period?: object;
-	images?: object;
-	worktypes?: object;
-	imagecount?: number;
-	totalpageviews?: number;
-	accessionyear?: number;
-	standardreferencenumber?: object;
-	signed?: object;
-	classification?: string;
-	relatedcount?: number;
-	verificationlevel?: number;
-	primaryimageurl?: string;
-	titlescount?: number;
-	peoplecount?: number;
-	style?: object;
-	lastupdate?: string;
-	commentary?: object;
-	periodid?: object;
-	technique?: string;
-	edition?: object;
-	description?: string;
-	medium?: string;
-	lendingpermissionlevel?: number;
-	title?: string;
-	accessionmethod?: string;
-	colors?: object;
-	provenance?: string;
-	groupcount?: number;
-	dated?: string;
-	department?: string;
-	dateend?: number;
-	people?: object;
-	url?: string;
-	dateoffirstpageview?: string;
-	century?: string;
-	objectnumber?: string;
-	labeltext?: object;
-	datebegin?: number;
-	culture?: string;
-	exhibitioncount?: number;
-	imagepermissionlevel?: number;
-	mediacount?: number;
-	objectid?: number;
-	techniqueid?: number;
-	dimensions?: string;
-	seeAlso?: object;
-}
-interface SearchObject {
-	keywords: string[];
-	hasImage: boolean;
-	searchKey: string;
-}
+import { getArtworksByKeyword } from "../actions/getArtworksByKeyword";
+import { applyFilters } from "../utils/applyFilters";
+import { Artwork, SearchObject, ArtworksResponse } from "@/types/index";
 
 export default function Gallery() {
 	const [visibleArtworksAmount, setVisibleArtworksAmount] =
 		useState<number>(12);
-	const [artworks, setArtworks] = useState<Artwork[]>([]);
-	const [artworksInfo, setArtworksInfo] = useState<object>({});
+	const [artworkResponse, setArtworkResponse] =
+		useState<ArtworksResponse | null>(null);
+
 	const [searchObject, setSearchObject] = useState<SearchObject>({
 		keywords: [],
 		hasImage: false,
 		searchKey: "",
 	});
-
 	const [filteredArtworks, setFilteredArtworks] = useState<Artwork[]>([]);
 	const [loading, setLoading] = useState<boolean>(false);
-
 	const LOCAL_STORAGE_KEY = "gallery-search-state";
 
 	useEffect(() => {
 		const savedState = localStorage.getItem(LOCAL_STORAGE_KEY);
 		if (savedState) {
-			const { searchObject: restoredSearchObject, filteredArtworks } =
-				JSON.parse(savedState);
+			const { searchObject: restoredSearchObject } = JSON.parse(savedState);
 			setSearchObject(restoredSearchObject);
-
-			// If there's a valid search key, fetch artworks and apply filters
-			if (restoredSearchObject.searchKey.trim() !== "") {
-				async function restoreArtworks() {
-					setLoading(true);
-					try {
-						const data = await getArtworks(restoredSearchObject.searchKey);
-						setArtworks(data);
-					} catch (error) {
-						console.error("Failed to fetch artworks during restore:", error);
-					} finally {
-						setLoading(false);
-					}
-				}
-
-				restoreArtworks();
-			} else {
-				// No search key, restore empty filtered artworks
-				setFilteredArtworks(filteredArtworks);
-			}
 		}
-	}, [])	;
-
-	useEffect(() => {
-		const savedState = localStorage.getItem(LOCAL_STORAGE_KEY);
-		if (savedState) {
-			const { searchObject: restoredSearchObject } =
-				JSON.parse(savedState);
-			setSearchObject(restoredSearchObject);
-			console.log(restoredSearchObject)
-		}
-
 	}, []);
 
 	useEffect(() => {
@@ -150,38 +48,33 @@ export default function Gallery() {
 
 	useEffect(() => {
 		async function fetchArtworks() {
-			if (searchObject.searchKey.trim() === "") {
-				setArtworks([]);
-				return;
-			}
-
+			if (searchObject.searchKey.trim() === "") return
 			setLoading(true);
 			try {
-				const data = await getArtworks(searchObject.searchKey);
-				setArtworks(data.records);
-				setArtworksInfo(data.info);
+				const data = await getArtworksByKeyword(searchObject.searchKey);
+				setArtworkResponse(data);
 			} catch (error) {
 				console.error("Failed to fetch artworks:", error);
 			} finally {
 				setLoading(false);
 			}
 		}
-
 		fetchArtworks();
 	}, [searchObject.searchKey]);
 
 	useEffect(() => {
+		const artworks = artworkResponse?.records || [];
 		const filtered = applyFilters(artworks, searchObject);
 		setFilteredArtworks(filtered);
-	}, [searchObject, artworks]);
+	}, [searchObject, artworkResponse]);
 
 	const loadMore = () => {
 		setVisibleArtworksAmount((prev) => prev + 12);
 	};
 
 	useEffect(() => {
-		console.log(artworksInfo);
-	}, [artworksInfo]);
+		console.log(artworkResponse);
+	}, [artworkResponse]);
 
 	return (
 		<div className="mx-auto overflow-x-hidden">
@@ -250,7 +143,6 @@ export default function Gallery() {
 											.slice(0, visibleArtworksAmount)
 											.filter((_, index) => index % 4 === gridIndex)
 											.map((artwork, index) => {
-												// Fallback values
 												const artworkId =
 													artwork.id ??
 													`placeholder-${index}-${Math.floor(
@@ -302,6 +194,7 @@ export default function Gallery() {
 										Showing{" "}
 										{Math.min(visibleArtworksAmount, filteredArtworks.length)}{" "}
 										of {filteredArtworks.length}
+										{/* {artworkResponse?.info.totalrecords} */}
 									</p>
 									<Button
 										variant="outline"
