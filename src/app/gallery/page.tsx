@@ -1,9 +1,18 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Card, CardContent } from "@/components/ui/card";
 import { ArrowLeft } from "lucide-react";
+import {
+	Pagination,
+	PaginationContent,
+	PaginationEllipsis,
+	PaginationItem,
+	PaginationLink,
+	PaginationNext,
+	PaginationPrevious,
+} from "@/components/ui/pagination";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -13,20 +22,25 @@ import SearchAndFilter from "@/components/search-and-filter";
 import Footer from "@/components/footer";
 
 import { getArtworksByKeyword } from "../actions/getArtworksByKeyword";
+import { getArtworksPageChange } from "../actions/getArtworksPageChange";
 import { applyFilters } from "../utils/applyFilters";
 import { Artwork, SearchObject, ArtworksResponse } from "@/types/index";
 
 export default function Gallery() {
 	const [visibleArtworksAmount, setVisibleArtworksAmount] =
-		useState<number>(12);
-	const [artworkResponse, setArtworkResponse] =
-		useState<ArtworksResponse | null>(null);
+		useState<number>(100);
 
+	const [allRecords, setAllRecords] = useState<Artwork[]>([]);
+	const [artworksRecords, setArtworksRecords] = useState<Artwork[]>([]);
+	const [artworksInfo, setArtworksInfo] = useState<
+		ArtworksResponse["info"] | null
+	>(null);
 	const [searchObject, setSearchObject] = useState<SearchObject>({
 		keywords: [],
 		hasImage: false,
 		searchKey: "",
 	});
+	const [currentPage, setCurrentPage] = useState<number>(1);
 	const [filteredArtworks, setFilteredArtworks] = useState<Artwork[]>([]);
 	const [loading, setLoading] = useState<boolean>(false);
 	const LOCAL_STORAGE_KEY = "gallery-search-state";
@@ -46,13 +60,15 @@ export default function Gallery() {
 		);
 	}, [searchObject, filteredArtworks]);
 
+
 	useEffect(() => {
 		async function fetchArtworks() {
-			if (searchObject.searchKey.trim() === "") return
+			if (searchObject.searchKey.trim() === "") return;
 			setLoading(true);
 			try {
 				const data = await getArtworksByKeyword(searchObject.searchKey);
-				setArtworkResponse(data);
+				setArtworksRecords(data.records);
+				setArtworksInfo(data.info);
 			} catch (error) {
 				console.error("Failed to fetch artworks:", error);
 			} finally {
@@ -60,21 +76,26 @@ export default function Gallery() {
 			}
 		}
 		fetchArtworks();
-	}, [searchObject.searchKey]);
+	}, [searchObject]);
 
 	useEffect(() => {
-		const artworks = artworkResponse?.records || [];
-		const filtered = applyFilters(artworks, searchObject);
+		const filtered = applyFilters(artworksRecords, searchObject);
+		// console.log(searchObject)
 		setFilteredArtworks(filtered);
-	}, [searchObject, artworkResponse]);
-
-	const loadMore = () => {
-		setVisibleArtworksAmount((prev) => prev + 12);
-	};
+	}, [searchObject, artworksRecords, artworksInfo]);
 
 	useEffect(() => {
-		console.log(artworkResponse);
-	}, [artworkResponse]);
+		// console.log(artworksInfo, artworksRecords);
+	}, [artworksInfo, artworksRecords]);
+
+	const handlePageChange = async (page: number, url: string | undefined) => {
+		if (!url) console.log("error no url");
+		setCurrentPage(page +1);
+		const response = await getArtworksPageChange(page, url as string);
+		setArtworksRecords(response.records);
+		setArtworksInfo(response.info);
+		console.log(response)
+	};
 
 	return (
 		<div className="mx-auto overflow-x-hidden">
@@ -108,7 +129,7 @@ export default function Gallery() {
 							filteredArtworks={filteredArtworks}
 							setSearchObject={setSearchObject}
 						/>
-
+						{/* Artworks card */}
 						{loading ? (
 							<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-6">
 								{[...Array(12)].map((_, gridIndex) => (
@@ -187,24 +208,36 @@ export default function Gallery() {
 							</div>
 						)}
 
-						{visibleArtworksAmount < filteredArtworks.length &&
-							visibleArtworksAmount > 0 && (
-								<div className="mt-8 text-center">
-									<p className="text-sm text-gray-600 mb-4">
-										Showing{" "}
-										{Math.min(visibleArtworksAmount, filteredArtworks.length)}{" "}
-										of {filteredArtworks.length}
-										{/* {artworkResponse?.info.totalrecords} */}
-									</p>
-									<Button
-										variant="outline"
-										className="w-full"
-										onClick={loadMore}
+						{/* Pagination */}
+						<Pagination>
+							<PaginationContent>
+								<PaginationItem>
+									<PaginationPrevious
+										href="#"
+										// onClick={() => handlePreviousPage()}
+										className="border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground"
+									/>
+								</PaginationItem>
+								<PaginationItem>
+									<PaginationLink
+										href="#"
+										className="border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground"
 									>
-										View More
-									</Button>
-								</div>
-							)}
+										1
+									</PaginationLink>
+								</PaginationItem>
+								<PaginationItem>
+									<PaginationEllipsis className="border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground" />
+								</PaginationItem>
+								<PaginationItem>
+									<PaginationNext
+										href="#"
+										onClick={() => handlePageChange(1, artworksInfo?.next)}
+										className="border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground"
+									/>
+								</PaginationItem>
+							</PaginationContent>
+						</Pagination>
 					</div>
 				</div>
 			</div>

@@ -323,11 +323,11 @@ export default function SearchAndFilter({
 							variant="outline"
 							size="sm"
 							onClick={() => setMustHaveImage(!mustHaveImage)}
-							className={` ${mustHaveImage ? "border-black" : "border-none"} `}
+							className={` ${mustHaveImage ?  "border-none": "border-black" } `}
 						>
 							{" "}
 							Must Have Image
-							{mustHaveImage ? <SquareCheckBig /> : <Square />}
+							{mustHaveImage ? <Square /> : <SquareCheckBig />}
 						</Button>
 					</div>
 					<div className="flex flex-wrap items-center space-x-2 mb-2 mt-4 ">

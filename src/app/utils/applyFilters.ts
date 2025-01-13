@@ -76,9 +76,10 @@ export function applyFilters(
 
 	return artworks.filter((artwork) => {
 		// Ensure `artwork.images` exists and is non-empty if `hasImage` is true
-		const hasImages = hasImage ? artwork.images?.length > 0 : true;
+		
+		const response = !hasImage ? artwork.images?.length > 0 : true;
 
 		// console.log(`Artwork ID: ${artwork.id}, hasImages: ${hasImages}`);
-		return hasImages;
+		return response;
 	});
 }
