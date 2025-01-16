@@ -22,53 +22,48 @@ import SearchAndFilter from "@/components/search-and-filter";
 import Footer from "@/components/footer";
 
 import { getArtworksByKeyword } from "../actions/getArtworksByKeyword";
-import { getArtworksPageChange } from "../actions/getArtworksPageChange";
-import { applyFilters } from "../utils/applyFilters";
-import { Artwork, SearchObject, ArtworksResponse } from "@/types/index";
+import { Artwork, SearchObject } from "@/types/index";
 
 export default function Gallery() {
 	const [visibleArtworksAmount, setVisibleArtworksAmount] =
 		useState<number>(100);
-
-	const [allRecords, setAllRecords] = useState<Artwork[]>([]);
-	const [artworksRecords, setArtworksRecords] = useState<Artwork[]>([]);
-	const [artworksInfo, setArtworksInfo] = useState<
-		ArtworksResponse["info"] | null
-	>(null);
+	const [artworks, setArtworks] = useState<any[]>([]);
+	const [totalArtworks, setTotalArtworks] = useState<number>(0)
 	const [searchObject, setSearchObject] = useState<SearchObject>({
 		keywords: [],
 		hasImage: false,
 		searchKey: "",
 	});
-	const [currentPage, setCurrentPage] = useState<number>(1);
-	const [filteredArtworks, setFilteredArtworks] = useState<Artwork[]>([]);
 	const [loading, setLoading] = useState<boolean>(false);
-	const LOCAL_STORAGE_KEY = "gallery-search-state";
-
-	useEffect(() => {
-		const savedState = localStorage.getItem(LOCAL_STORAGE_KEY);
-		if (savedState) {
-			const { searchObject: restoredSearchObject } = JSON.parse(savedState);
-			setSearchObject(restoredSearchObject);
-		}
-	}, []);
-
-	useEffect(() => {
-		localStorage.setItem(
-			LOCAL_STORAGE_KEY,
-			JSON.stringify({ searchObject, filteredArtworks })
-		);
-	}, [searchObject, filteredArtworks]);
-
 
 	useEffect(() => {
 		async function fetchArtworks() {
-			if (searchObject.searchKey.trim() === "") return;
+			if (!searchObject.searchKey.trim()) return;
 			setLoading(true);
 			try {
-				const data = await getArtworksByKeyword(searchObject.searchKey);
-				setArtworksRecords(data.records);
-				setArtworksInfo(data.info);
+				const { harvardResponse, metResponse } = await getArtworksByKeyword(
+					searchObject.searchKey
+				);
+
+			
+				const combinedArtworks = [
+					...harvardResponse.data.map((item) => ({
+						id: item.id,
+						title: item.title,
+						dated: item.dated,
+						primaryImage: item.primaryimageurl,
+						source: "Harvard",
+					})),
+					...metResponse.data.map((item) => ({
+						id: item.objectID,
+						title: item.title,
+						dated: item.objectDate,
+						primaryImage: item.primaryImage,
+						source: "Met",
+					})),
+				];
+				setArtworks(combinedArtworks);
+				setTotalArtworks(harvardResponse.total + metResponse.total);
 			} catch (error) {
 				console.error("Failed to fetch artworks:", error);
 			} finally {
@@ -76,26 +71,11 @@ export default function Gallery() {
 			}
 		}
 		fetchArtworks();
-	}, [searchObject]);
+	}, [searchObject.searchKey]);
 
 	useEffect(() => {
-		const filtered = applyFilters(artworksRecords, searchObject);
-		// console.log(searchObject)
-		setFilteredArtworks(filtered);
-	}, [searchObject, artworksRecords, artworksInfo]);
-
-	useEffect(() => {
-		// console.log(artworksInfo, artworksRecords);
-	}, [artworksInfo, artworksRecords]);
-
-	const handlePageChange = async (page: number, url: string | undefined) => {
-		if (!url) console.log("error no url");
-		setCurrentPage(page +1);
-		const response = await getArtworksPageChange(page, url as string);
-		setArtworksRecords(response.records);
-		setArtworksInfo(response.info);
-		console.log(response)
-	};
+		console.log(artworks);
+	}, [artworks]);
 
 	return (
 		<div className="mx-auto overflow-x-hidden">
@@ -125,8 +105,8 @@ export default function Gallery() {
 					<div className="px-6 py-12">
 						<SearchAndFilter
 							visibleArtworksAmount={visibleArtworksAmount}
-							length={filteredArtworks.length}
-							filteredArtworks={filteredArtworks}
+							totalArtworks={totalArtworks}
+							filteredArtworks={artworks}
 							setSearchObject={setSearchObject}
 						/>
 						{/* Artworks card */}
@@ -148,19 +128,17 @@ export default function Gallery() {
 									</div>
 								))}
 							</div>
-						) : !loading &&
-						  filteredArtworks.length === 0 &&
-						  searchObject.searchKey !== "" ? (
-							<div className="text-center py-8">
-								<p className="text-lg text-gray-600">
-									No artworks found for &quot;{searchObject.searchKey}&quot;
-								</p>
-							</div>
 						) : (
 							<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-6">
 								{[0, 1, 2, 3].map((gridIndex) => (
 									<div key={gridIndex} className="grid grid-cols-1 gap-6">
-										{filteredArtworks
+										{artworks
+											.filter(
+												(artwork) =>
+													searchObject.hasImage ||
+													(artwork.primaryImage &&
+														artwork.primaryImage.trim() !== "")
+											)
 											.slice(0, visibleArtworksAmount)
 											.filter((_, index) => index % 4 === gridIndex)
 											.map((artwork, index) => {
@@ -170,7 +148,7 @@ export default function Gallery() {
 														Math.random() * 10000
 													)}`;
 												const artworkImage =
-													artwork.primaryimageurl ??
+													artwork.primaryImage ??
 													"/images/placeholder-image.png";
 												const artworkAlt = artwork.title ?? "Placeholder image";
 

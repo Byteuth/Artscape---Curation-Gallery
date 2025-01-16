@@ -193,7 +193,7 @@ interface SearchObject {
 }
 interface searchAndFilterProps {
 	visibleArtworksAmount: number;
-	length: number;
+	totalArtworks: number;
 	setSearchObject: React.Dispatch<React.SetStateAction<SearchObject>>;
 	filteredArtworks: Artwork[];
 }
@@ -203,7 +203,7 @@ interface searchAndFilterProps {
 }
 export default function SearchAndFilter({
 	visibleArtworksAmount, // Number of visible artworks
-	length, // Total number of artworks
+	totalArtworks, // Total number of artworks
 	setSearchObject, // Function to set the search object
 	filteredArtworks, // Array of filtered artworks
 }: searchAndFilterProps) {
@@ -354,7 +354,8 @@ export default function SearchAndFilter({
 
 			{visibleArtworksAmount > 0 && (
 				<p className="text-sm text-gray-600 my-6">
-					{Math.min(visibleArtworksAmount, length)} of {length} Works
+					{/* {Math.min(visibleArtworksAmount, length)} of {length} Works */}
+					{totalArtworks} Artworks
 				</p>
 			)}
 		</>

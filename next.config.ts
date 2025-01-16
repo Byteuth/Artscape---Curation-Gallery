@@ -13,6 +13,11 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: 'nrs.harvard.edu',
         pathname: '/**'
+      },
+      {
+        protocol: "https",
+        hostname: 'images.metmuseum.org',
+        pathname: '/**'
       }
       
     ]
