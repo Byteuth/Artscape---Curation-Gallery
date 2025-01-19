@@ -17,6 +17,7 @@ import {
 	PopoverTrigger,
 } from "@/components/ui/popover";
 import { usePathname } from "next/navigation";
+import { Artwork } from "@/types";
 
 interface FilterProps {
 	filterWords: string[];
@@ -122,70 +123,6 @@ export function Filter({
 	);
 }
 
-interface Artwork {
-	copyright?: object;
-	contextualtextcount?: number;
-	creditline?: string;
-	accesslevel?: number;
-	dateoflastpageview?: string;
-	classificationid?: number;
-	division?: string;
-	markscount?: number;
-	publicationcount?: number;
-	totaluniquepageviews?: number;
-	contact?: string;
-	colorcount?: number;
-	rank?: number;
-	id?: number;
-	state?: object;
-	verificationleveldescription?: string;
-	period?: object;
-	images?: object;
-	worktypes?: object;
-	imagecount?: number;
-	totalpageviews?: number;
-	accessionyear?: number;
-	standardreferencenumber?: object;
-	signed?: object;
-	classification?: string;
-	relatedcount?: number;
-	verificationlevel?: number;
-	primaryimageurl?: string;
-	titlescount?: number;
-	peoplecount?: number;
-	style?: object;
-	lastupdate?: string;
-	commentary?: object;
-	periodid?: object;
-	technique?: string;
-	edition?: object;
-	description?: string;
-	medium?: string;
-	lendingpermissionlevel?: number;
-	title?: string;
-	accessionmethod?: string;
-	colors?: object;
-	provenance?: string;
-	groupcount?: number;
-	dated?: string;
-	department?: string;
-	dateend?: number;
-	people?: object;
-	url?: string;
-	dateoffirstpageview?: string;
-	century?: string;
-	objectnumber?: string;
-	labeltext?: object;
-	datebegin?: number;
-	culture?: string;
-	exhibitioncount?: number;
-	imagepermissionlevel?: number;
-	mediacount?: number;
-	objectid?: number;
-	techniqueid?: number;
-	dimensions?: string;
-	seeAlso?: object;
-}
 interface SearchObject {
 	keywords: string[];
 	hasImage: boolean;
@@ -195,7 +132,7 @@ interface searchAndFilterProps {
 	visibleArtworksAmount: number;
 	totalArtworks: number;
 	setSearchObject: React.Dispatch<React.SetStateAction<SearchObject>>;
-	filteredArtworks: Artwork[];
+	artworks: Artwork[];
 }
 
 {
@@ -205,7 +142,7 @@ export default function SearchAndFilter({
 	visibleArtworksAmount, // Number of visible artworks
 	totalArtworks, // Total number of artworks
 	setSearchObject, // Function to set the search object
-	filteredArtworks, // Array of filtered artworks
+	artworks, // Array of filtered artworks
 }: searchAndFilterProps) {
 	const [searchTerm, setSearchTerm] = useState<string>("");
 	const [filterWords, setFilterWords] = useState<string[]>([]);
@@ -213,43 +150,41 @@ export default function SearchAndFilter({
 	const pathName = usePathname();
 	const isGalleryPage = pathName === "/gallery";
 
-	const filterOptions: Record<
-		"Technique" | "Classification" | "Material",
-		{ label: string; value: string }[]
-	> = {
+	const filterOptions = {
 		Classification: Array.from(
 			new Set(
-				filteredArtworks
+				artworks
 					.map((artwork) => artwork.classification)
 					.filter((item): item is string => Boolean(item))
 			)
 		).map((item) => ({
 			label: `${item} (${
-				filteredArtworks.filter((artwork) => artwork.classification === item)
-					.length
+				artworks.filter((artwork) => artwork.classification === item).length
 			})`,
 			value: item,
-		})),
+		})) as { label: string; value: string }[],
+
 		Technique: Array.from(
 			new Set(
-				filteredArtworks
+				artworks
 					.map((artwork) => artwork.technique)
 					.filter((item): item is string => Boolean(item))
 			)
 		).map((item) => ({
 			label: item,
 			value: item,
-		})),
+		})) as { label: string; value: string }[],
+
 		Material: Array.from(
 			new Set(
-				filteredArtworks
+				artworks
 					.map((artwork) => artwork.medium)
 					.filter((item): item is string => Boolean(item))
 			)
 		).map((item) => ({
 			label: item,
 			value: item,
-		})),
+		})) as { label: string; value: string }[],
 	};
 
 	const removeFilterWord = (word: string) => {
@@ -263,7 +198,6 @@ export default function SearchAndFilter({
 	};
 
 	const handleSearch = () => {
-		setFilterWords([]);
 		setSearchObject({
 			keywords: filterWords,
 			hasImage: mustHaveImage,
@@ -272,11 +206,11 @@ export default function SearchAndFilter({
 	};
 
 	useEffect(() => {
-		setSearchObject({
+		setSearchObject((prev) => ({
+			...prev,
 			keywords: filterWords,
 			hasImage: mustHaveImage,
-			searchKey: searchTerm,
-		});
+		}));
 	}, [filterWords, mustHaveImage, setSearchObject]);
 
 	return (
@@ -323,7 +257,7 @@ export default function SearchAndFilter({
 							variant="outline"
 							size="sm"
 							onClick={() => setMustHaveImage(!mustHaveImage)}
-							className={` ${mustHaveImage ?  "border-none": "border-black" } `}
+							className={` ${mustHaveImage ? "border-none" : "border-black"} `}
 						>
 							{" "}
 							Must Have Image
@@ -353,10 +287,7 @@ export default function SearchAndFilter({
 			)}
 
 			{visibleArtworksAmount > 0 && (
-				<p className="text-sm text-gray-600 my-6">
-					{/* {Math.min(visibleArtworksAmount, length)} of {length} Works */}
-					{totalArtworks} Artworks
-				</p>
+				<p className="text-sm text-gray-600 my-6">{totalArtworks} Artworks</p>
 			)}
 		</>
 	);
