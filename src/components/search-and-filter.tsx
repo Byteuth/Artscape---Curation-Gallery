@@ -286,7 +286,7 @@ export default function SearchAndFilter({
 				</>
 			)}
 
-			{visibleArtworksAmount > 0 && (
+			{totalArtworks > 0 && (
 				<p className="text-sm text-gray-600 my-6">{totalArtworks} Artworks</p>
 			)}
 		</>

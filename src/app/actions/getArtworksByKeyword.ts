@@ -3,7 +3,7 @@
 export async function getArtworksByKeyword(
 	searchKey: string,
 	page: number = 1,
-	itemsPerPage: number = 0
+	itemsPerPage: number = 10 // Default to a reasonable value
 ) {
 	const apiKey = process.env.HARVARD_API_KEY;
 
@@ -28,6 +28,22 @@ export async function getArtworksByKeyword(
 		const metResponse = await fetch(metUrl);
 		const metData = await metResponse.json();
 
+		// Ensure objectIDs is valid
+		if (!metData || !metData.objectIDs || !Array.isArray(metData.objectIDs)) {
+			console.warn(
+				"No objectIDs found for the Met API response. Returning empty results."
+			);
+			return {
+				harvardResponse: {
+					data: harvardData.records || [],
+					total: harvardData.info.totalrecords || 0,
+				},
+				metResponse: {
+					data: [],
+					total: metData.total || 0,
+				},
+			};
+		}
 
 		const startIndex = (page - 1) * itemsPerPage;
 		const objectIDsBatch = metData.objectIDs.slice(
@@ -35,23 +51,29 @@ export async function getArtworksByKeyword(
 			startIndex + itemsPerPage
 		);
 
+		// Fetch details for each object ID
 		const metArtworks = await Promise.all(
 			objectIDsBatch.map(async (id: number) => {
-				const metDetailUrl = `https://collectionapi.metmuseum.org/public/collection/v1/objects/${id}`;
-				const detailResponse = await fetch(metDetailUrl);
-				if (!detailResponse.ok) return null;
-				return await detailResponse.json();
+				try {
+					const metDetailUrl = `https://collectionapi.metmuseum.org/public/collection/v1/objects/${id}`;
+					const detailResponse = await fetch(metDetailUrl);
+					if (!detailResponse.ok) return null;
+					return await detailResponse.json();
+				} catch (error) {
+					console.error(`Error fetching details for object ID ${id}:`, error);
+					return null;
+				}
 			})
 		);
 
 		return {
 			harvardResponse: {
-				data: harvardData.records,
-				total: harvardData.info.totalrecords,
+				data: harvardData.records || [],
+				total: harvardData.info.totalrecords || 0,
 			},
 			metResponse: {
-				data: metArtworks.filter(Boolean),
-				total: metData.total,
+				data: metArtworks.filter(Boolean), 
+				total: metData.total || 0,
 			},
 		};
 	} catch (error) {
