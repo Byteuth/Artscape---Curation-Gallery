@@ -3,7 +3,7 @@
 export async function getArtworksByKeyword(
 	searchKey: string,
 	page: number = 1,
-	itemsPerPage: number = 25
+	itemsPerPage: number = 0
 ) {
 	const apiKey = process.env.HARVARD_API_KEY;
 
@@ -28,7 +28,7 @@ export async function getArtworksByKeyword(
 		const metResponse = await fetch(metUrl);
 		const metData = await metResponse.json();
 
-		// Slice based on the current "page"
+
 		const startIndex = (page - 1) * itemsPerPage;
 		const objectIDsBatch = metData.objectIDs.slice(
 			startIndex,

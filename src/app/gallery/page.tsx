@@ -32,7 +32,7 @@ import {
 } from "@/types/index";
 
 const PLACEHOLDER_IMAGE = "/images/placeholder-image.png";
-const ITEMS_PER_PAGE = 5;
+const ITEMS_PER_PAGE = 20;
 const PAGE_SIZE = ITEMS_PER_PAGE * 2;
 
 export default function Gallery() {
@@ -49,9 +49,30 @@ export default function Gallery() {
 	const [goToPage, setGoToPage] = useState("");
 
 	useEffect(() => {
+		const queryParams = new URLSearchParams();
+		
+		if (searchObject.searchKey) {
+			queryParams.append("search", searchObject.searchKey);
+		}
+	
+		// Only append the page number if the search key hasn't changed
+		if (searchObject.searchKey !== new URLSearchParams(window.location.search).get("search") || currentPage !== 1) {
+			queryParams.append("page", currentPage.toString());
+		}
+	
+		// Update the URL with the current search and page
+		router.push(`/gallery?${queryParams.toString()}`, undefined);
+	}, [searchObject.searchKey, currentPage, router]);
+
+	useEffect(() => {
 		const urlParams = new URLSearchParams(window.location.search);
 		const pageFromQuery = Number(urlParams.get("page")) || 1;
+		const searchKeyFromQuery = urlParams.get("search") || "";
 		setCurrentPage(pageFromQuery);
+		setSearchObject((prev) => ({
+			...prev,
+			searchKey: searchKeyFromQuery,
+		}));
 	}, []);
 
 	useEffect(() => {
@@ -97,17 +118,7 @@ export default function Gallery() {
 						classification: item.classification || "",
 					}));
 
-					const maxLength = Math.max(
-						harvardArtworks.length,
-						metArtworks.length
-					);
-					const combinedArtworks = [];
-
-					for (let i = 0; i < maxLength; i++) {
-						if (i < harvardArtworks.length)
-							combinedArtworks.push(harvardArtworks[i]);
-						if (i < metArtworks.length) combinedArtworks.push(metArtworks[i]);
-					}
+					const combinedArtworks = [...harvardArtworks, ...metArtworks];
 
 					setArtworks(combinedArtworks);
 					setTotalArtworks(harvardResponse.total + metResponse.total);
@@ -119,13 +130,14 @@ export default function Gallery() {
 			}
 		};
 
-		fetchAndSetArtworks();
-
+		if (searchObject.searchKey) fetchAndSetArtworks();
+		// fetchAndSetArtworks();
 		return () => {
 			isMounted = false;
 		};
-	}, [currentPage, searchObject.searchKey]);
+	}, [currentPage, searchObject.searchKey, router]);
 
+	// Filter artworks based on search filters
 	const filteredArtworks = artworks.filter((artwork) => {
 		const passesImageFilter =
 			searchObject.hasImage ||
@@ -133,6 +145,11 @@ export default function Gallery() {
 
 		return passesImageFilter;
 	});
+
+	// Handle pagination button clicks
+	const handlePageChange = (page: number) => {
+		setCurrentPage(page);
+	};
 
 	const handleGoToPage = () => {
 		const pageNumber = parseInt(goToPage, 10);
@@ -144,18 +161,6 @@ export default function Gallery() {
 			setGoToPage("");
 		}
 	};
-	const handlePageChange = (page: number) => {
-		setCurrentPage(page);
-		router.replace(`/gallery?page=${page}`);
-	};
-
-	useEffect(() => {
-		// const arr = [];
-		// artworks.forEach((artwork) => {
-		// 	arr.push(artwork.source);
-		// });
-		// console.log(arr);
-	}, [artworks]);
 	return (
 		<div className="mx-auto overflow-x-hidden">
 			<NavigationBar />
@@ -242,103 +247,82 @@ export default function Gallery() {
 						)}
 
 						{/* Pagination */}
+						{searchObject.searchKey && (
 						<Pagination className="mt-8">
-							<PaginationContent>
+						<PaginationContent>
+							<ul className="flex items-center space-x-1">
 								<PaginationItem className="flex items-center space-x-1">
 									<PaginationPrevious
 										href="#"
-										onClick={() =>
-											handlePageChange(Math.max(1, currentPage - 1))
-										}
+										onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
 										className={`border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground ${
-											currentPage === 1
-												? "opacity-50 cursor-not-allowed"
-												: "hover:cursor-pointer"
-										}`}
-									/>
-
-									{/* Page numbers */}
-									{[
-										...Array.from(
-											{ length: 5 },
-											(_, index) => currentPage + index - 2
-										),
-									]
-										.filter(
-											(page) =>
-												page > 0 && page <= Math.ceil(totalArtworks / PAGE_SIZE)
-										)
-										.map((pageIndex) => (
-											<PaginationItem key={pageIndex}>
-												<PaginationLink
-													href="#"
-													onClick={() => handlePageChange(pageIndex)}
-													className={`border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground ${
-														currentPage === pageIndex ? "font-bold" : ""
-													}`}
-												>
-													{pageIndex}
-												</PaginationLink>
-											</PaginationItem>
-										))}
-
-									{/* Right ellipsis and last page */}
-									{currentPage < Math.ceil(totalArtworks / PAGE_SIZE) - 3 && (
-										<>
-											<PaginationEllipsis className="border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground" />
-
-											<PaginationItem>
-												<PaginationLink
-													href="#"
-													onClick={() =>
-														handlePageChange(
-															Math.ceil(totalArtworks / PAGE_SIZE)
-														)
-													}
-													className="border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground"
-												>
-													{Math.ceil(totalArtworks / PAGE_SIZE)}
-												</PaginationLink>
-											</PaginationItem>
-										</>
-									)}
-
-									<PaginationNext
-										href="#"
-										onClick={() =>
-											handlePageChange(
-												Math.min(
-													Math.ceil(totalArtworks / PAGE_SIZE),
-													currentPage + 1
-												)
-											)
-										}
-										className={`border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground ${
-											currentPage === Math.ceil(totalArtworks / PAGE_SIZE)
-												? "opacity-50 cursor-not-allowed"
-												: "hover:cursor-pointer"
+											currentPage === 1 ? "opacity-50 cursor-not-allowed" : "hover:cursor-pointer"
 										}`}
 									/>
 								</PaginationItem>
-								<div className="flex items-center space-x-2 translate-x-16">
-									<span className="text-sm">Go to page</span>
-									<Input
-										type="number"
-										min="1"
-										max={Math.ceil(totalArtworks / PAGE_SIZE)}
-										value={goToPage}
-										onChange={(e) => setGoToPage(e.target.value)}
-										className={`border border-input w-16 bg-background shadow-sm hover:bg-accent hover:text-accent-foreground`}
+					
+								{/* Page numbers */}
+								{[...Array.from({ length: 5 }, (_, index) => currentPage + index - 2)]
+									.filter(page => page > 0 && page <= Math.ceil(totalArtworks / PAGE_SIZE))
+									.map(pageIndex => (
+										<PaginationItem key={pageIndex}>
+											<PaginationLink
+												href="#"
+												onClick={() => handlePageChange(pageIndex)}
+												className={`border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground ${currentPage === pageIndex ? "font-bold" : ""}`}
+											>
+												{pageIndex}
+											</PaginationLink>
+										</PaginationItem>
+									))}
+					
+								{/* Right ellipsis and last page */}
+								{currentPage < Math.ceil(totalArtworks / PAGE_SIZE) - 3 && (
+									<>
+										<PaginationEllipsis className="border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground" />
+										<PaginationItem>
+											<PaginationLink
+												href="#"
+												onClick={() => handlePageChange(Math.ceil(totalArtworks / PAGE_SIZE))}
+												className="border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground"
+											>
+												{Math.ceil(totalArtworks / PAGE_SIZE)}
+											</PaginationLink>
+										</PaginationItem>
+									</>
+								)}
+					
+								<PaginationItem>
+									<PaginationNext
+										href="#"
+										onClick={() =>
+											handlePageChange(Math.min(Math.ceil(totalArtworks / PAGE_SIZE), currentPage + 1))
+										}
+										className={`border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground ${
+											currentPage === Math.ceil(totalArtworks / PAGE_SIZE) ? "opacity-50 cursor-not-allowed" : "hover:cursor-pointer"
+										}`}
 									/>
-									<span className="text-sm">
-										/ {Math.ceil(totalArtworks / PAGE_SIZE)}
-									</span>
-									<Button onClick={handleGoToPage} size="default">
-										Confirm
-									</Button>
-								</div>
-							</PaginationContent>
-						</Pagination>
+								</PaginationItem>
+							</ul>
+							<div className="flex items-center space-x-2 translate-x-16">
+								<span className="text-sm">Go to page</span>
+								<Input
+									type="number"
+									min="1"
+									max={Math.ceil(totalArtworks / PAGE_SIZE)}
+									value={goToPage}
+									onChange={(e) => setGoToPage(e.target.value)}
+									className={`border border-input w-16 bg-background shadow-sm hover:bg-accent hover:text-accent-foreground`}
+								/>
+								<span className="text-sm">/ {Math.ceil(totalArtworks / PAGE_SIZE)}</span>
+								<Button onClick={handleGoToPage} size="default">
+									Confirm
+								</Button>
+							</div>
+						</PaginationContent>
+					</Pagination>
+					
+						)}
 					</div>
 				</div>
 			</div>

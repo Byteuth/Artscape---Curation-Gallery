@@ -24,15 +24,15 @@ export interface Artwork {
 	objectID?: number;
 	relatedTags?: string[];
 	url?: string;
-  }
-  
-  interface Color {
+}
+
+interface Color {
 	color: string;
 	spectrum: string;
 	hue: string;
 	percent: number;
 	css3: string;
-  }
+}
 
 interface Person {
 	role: string;

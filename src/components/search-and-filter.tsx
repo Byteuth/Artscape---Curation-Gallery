@@ -142,7 +142,7 @@ export default function SearchAndFilter({
 	visibleArtworksAmount, // Number of visible artworks
 	totalArtworks, // Total number of artworks
 	setSearchObject, // Function to set the search object
-	artworks, // Array of filtered artworks
+	artworks, // Array of artworks
 }: searchAndFilterProps) {
 	const [searchTerm, setSearchTerm] = useState<string>("");
 	const [filterWords, setFilterWords] = useState<string[]>([]);
