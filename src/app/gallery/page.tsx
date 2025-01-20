@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent } from "@/components/ui/card";
@@ -32,7 +32,8 @@ import {
 } from "@/types/index";
 
 const PLACEHOLDER_IMAGE = "/images/placeholder-image.png";
-const ITEMS_PER_PAGE = 25;
+const ITEMS_PER_PAGE = 5;
+const PAGE_SIZE = ITEMS_PER_PAGE * 2;
 
 export default function Gallery() {
 	const router = useRouter();
@@ -47,6 +48,92 @@ export default function Gallery() {
 	const [loading, setLoading] = useState<boolean>(false);
 	const [goToPage, setGoToPage] = useState("");
 
+	useEffect(() => {
+		const urlParams = new URLSearchParams(window.location.search);
+		const pageFromQuery = Number(urlParams.get("page")) || 1;
+		setCurrentPage(pageFromQuery);
+	}, []);
+
+	useEffect(() => {
+		let isMounted = true;
+
+		const fetchAndSetArtworks = async () => {
+			setLoading(true);
+			try {
+				const { harvardResponse, metResponse } = await getArtworksByKeyword(
+					searchObject.searchKey,
+					currentPage,
+					ITEMS_PER_PAGE
+				);
+
+				if (isMounted) {
+					const harvardArtworks = harvardResponse.data.map(
+						(item: HarvardArtwork) => ({
+							id: item.id,
+							title: item.title,
+							dated: item.dated,
+							primaryImage: item.primaryimageurl,
+							source: "Harvard",
+							medium: item.medium || "",
+							dimensions: item.dimensions || "",
+							artist: item.people?.[0]?.displayname || "",
+							url: item.url || "",
+							technique: item.technique || "",
+							classification: item.classification || "",
+						})
+					);
+
+					const metArtworks = metResponse.data.map((item: MetArtwork) => ({
+						id: item.objectID,
+						title: item.title,
+						dated: item.objectDate,
+						primaryImage: item.primaryImage || "",
+						source: "Met",
+						medium: item.medium || "",
+						dimensions: item.dimensions || "",
+						artist: item.artistDisplayName || "",
+						url: item.objectURL || "",
+						technique: item.classification || "",
+						classification: item.classification || "",
+					}));
+
+					const maxLength = Math.max(
+						harvardArtworks.length,
+						metArtworks.length
+					);
+					const combinedArtworks = [];
+
+					for (let i = 0; i < maxLength; i++) {
+						if (i < harvardArtworks.length)
+							combinedArtworks.push(harvardArtworks[i]);
+						if (i < metArtworks.length) combinedArtworks.push(metArtworks[i]);
+					}
+
+					setArtworks(combinedArtworks);
+					setTotalArtworks(harvardResponse.total + metResponse.total);
+				}
+			} catch (error) {
+				if (isMounted) console.error("Failed to fetch artworks:", error);
+			} finally {
+				if (isMounted) setLoading(false);
+			}
+		};
+
+		fetchAndSetArtworks();
+
+		return () => {
+			isMounted = false;
+		};
+	}, [currentPage, searchObject.searchKey]);
+
+	const filteredArtworks = artworks.filter((artwork) => {
+		const passesImageFilter =
+			searchObject.hasImage ||
+			(artwork.primaryImage && artwork.primaryImage.trim() !== "");
+
+		return passesImageFilter;
+	});
+
 	const handleGoToPage = () => {
 		const pageNumber = parseInt(goToPage, 10);
 		if (
@@ -57,80 +144,17 @@ export default function Gallery() {
 			setGoToPage("");
 		}
 	};
-
-	useEffect(() => {
-		const urlParams = new URLSearchParams(window.location.search);
-		const pageFromQuery = Number(urlParams.get("page")) || 1;
-		setCurrentPage(pageFromQuery);
-	}, []);
-
-	const fetchArtworks = useCallback(async () => {
-		if (!searchObject.searchKey.trim()) return;
-		setLoading(true);
-
-		try {
-			const { harvardResponse, metResponse } = await getArtworksByKeyword(
-				searchObject.searchKey,
-				currentPage,
-				ITEMS_PER_PAGE
-			);
-
-			const combinedArtworks = [
-				...harvardResponse.data.map((item: HarvardArtwork) => ({
-					id: item.id,
-					title: item.title,
-					dated: item.dated,
-					primaryImage: item.primaryimageurl,
-					source: "Harvard",
-					medium: item.medium || "",
-					dimensions: item.dimensions || "",
-					artist: item.people?.[0]?.displayname || "",
-					url: item.url || "",
-					technique: item.technique || "",
-					classification: item.classification || "",
-				})),
-				...metResponse.data.map((item: MetArtwork) => ({
-					id: item.objectID,
-					title: item.title,
-					dated: item.objectDate,
-					primaryImage: item.primaryImage || "",
-					source: "Met",
-					medium: item.medium || "",
-					dimensions: item.dimensions || "",
-					artist: item.artistDisplayName || "",
-					url: item.objectURL || "",
-					technique: item.classification || "", 
-					classification: item.classification || "",
-				})),
-			];
-
-			setArtworks(combinedArtworks);
-			setTotalArtworks(harvardResponse.total + metResponse.total);
-		} catch (error) {
-			console.error("Failed to fetch artworks:", error);
-		} finally {
-			setLoading(false);
-		}
-	}, [searchObject.searchKey, currentPage]);
-
-	useEffect(() => {
-		fetchArtworks();
-	}, [fetchArtworks]);
-
 	const handlePageChange = (page: number) => {
 		setCurrentPage(page);
 		router.replace(`/gallery?page=${page}`);
 	};
 
-	const filteredArtworks = artworks.filter((artwork) => {
-		const passesImageFilter = searchObject.hasImage || 
-		  (artwork.primaryImage && artwork.primaryImage.trim() !== "");
-
-		return passesImageFilter 
-	  });
-	  
 	useEffect(() => {
-		console.log(artworks);
+		// const arr = [];
+		// artworks.forEach((artwork) => {
+		// 	arr.push(artwork.source);
+		// });
+		// console.log(arr);
 	}, [artworks]);
 	return (
 		<div className="mx-auto overflow-x-hidden">
@@ -242,8 +266,7 @@ export default function Gallery() {
 									]
 										.filter(
 											(page) =>
-												page > 0 &&
-												page <= Math.ceil(totalArtworks / ITEMS_PER_PAGE)
+												page > 0 && page <= Math.ceil(totalArtworks / PAGE_SIZE)
 										)
 										.map((pageIndex) => (
 											<PaginationItem key={pageIndex}>
@@ -260,8 +283,7 @@ export default function Gallery() {
 										))}
 
 									{/* Right ellipsis and last page */}
-									{currentPage <
-										Math.ceil(totalArtworks / ITEMS_PER_PAGE) - 3 && (
+									{currentPage < Math.ceil(totalArtworks / PAGE_SIZE) - 3 && (
 										<>
 											<PaginationEllipsis className="border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground" />
 
@@ -270,12 +292,12 @@ export default function Gallery() {
 													href="#"
 													onClick={() =>
 														handlePageChange(
-															Math.ceil(totalArtworks / ITEMS_PER_PAGE)
+															Math.ceil(totalArtworks / PAGE_SIZE)
 														)
 													}
 													className="border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground"
 												>
-													{Math.ceil(totalArtworks / ITEMS_PER_PAGE)}
+													{Math.ceil(totalArtworks / PAGE_SIZE)}
 												</PaginationLink>
 											</PaginationItem>
 										</>
@@ -286,13 +308,13 @@ export default function Gallery() {
 										onClick={() =>
 											handlePageChange(
 												Math.min(
-													Math.ceil(totalArtworks / ITEMS_PER_PAGE),
+													Math.ceil(totalArtworks / PAGE_SIZE),
 													currentPage + 1
 												)
 											)
 										}
 										className={`border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground ${
-											currentPage === Math.ceil(totalArtworks / ITEMS_PER_PAGE)
+											currentPage === Math.ceil(totalArtworks / PAGE_SIZE)
 												? "opacity-50 cursor-not-allowed"
 												: "hover:cursor-pointer"
 										}`}
@@ -303,13 +325,13 @@ export default function Gallery() {
 									<Input
 										type="number"
 										min="1"
-										max={Math.ceil(totalArtworks / ITEMS_PER_PAGE)}
+										max={Math.ceil(totalArtworks / PAGE_SIZE)}
 										value={goToPage}
 										onChange={(e) => setGoToPage(e.target.value)}
 										className={`border border-input w-16 bg-background shadow-sm hover:bg-accent hover:text-accent-foreground`}
 									/>
 									<span className="text-sm">
-										/ {Math.ceil(totalArtworks / ITEMS_PER_PAGE)}
+										/ {Math.ceil(totalArtworks / PAGE_SIZE)}
 									</span>
 									<Button onClick={handleGoToPage} size="default">
 										Confirm
