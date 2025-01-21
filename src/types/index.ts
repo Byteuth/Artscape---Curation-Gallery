@@ -2,7 +2,7 @@ export interface Artwork {
 	id: number;
 	title: string;
 	dated: string;
-	primaryImage: string | null;
+	images: string[]
 	source: "Harvard" | "Met";
 	description?: string | null;
 	medium?: string | null;
@@ -15,7 +15,7 @@ export interface Artwork {
 	artist?: string | null;
 	artistNationality?: string | null;
 	objectURL?: string;
-	accessionNumber?: string;
+	accessionyear?: string;
 	country?: string;
 	department?: string;
 	creditLine?: string;
@@ -53,6 +53,23 @@ interface WorkType {
 	worktypeid: string;
 	worktype: string;
 }
+export interface Image {
+	alttext: string | null;
+	baseimageurl: string;
+	copyright: string;
+	date: string;
+	description: string | null;
+	displayorder: number;
+	format: string;
+	height: number;
+	idsid: number;
+	iiifbaseuri: string;
+	imageid: number;
+	publiccaption: string | null;
+	renditionnumber: string;
+	technique: string | null;
+	width: number;
+}
 
 export interface HarvardArtwork {
 	copyright: string;
@@ -72,7 +89,7 @@ export interface HarvardArtwork {
 	state: string | null;
 	verificationleveldescription: string;
 	period: string | null;
-	images: any[]; // Define more specific type if known
+	images: Image[];
 	worktypes: WorkType[];
 	imagecount: number;
 	totalpageviews: number;
@@ -134,7 +151,7 @@ export interface MetArtwork {
 	primaryImage: string;
 	primaryImageSmall: string;
 	additionalImages: string[];
-	constituents: any; // This can be adjusted if you expect a specific structure
+	constituents: any; 
 	department: string;
 	objectName: string;
 	title: string;
@@ -183,6 +200,8 @@ export interface MetArtwork {
 	objectWikidata_URL: string;
 	isTimelineWork: boolean;
 	GalleryNumber: string;
+	technique: string;
+	description: string;
 }
 
 export interface SearchObject {

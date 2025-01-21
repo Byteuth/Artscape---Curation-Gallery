@@ -3,7 +3,7 @@
 export async function getArtworksByKeyword(
 	searchKey: string,
 	page: number = 1,
-	itemsPerPage: number = 10 // Default to a reasonable value
+	itemsPerPage: number = 10 
 ) {
 	const apiKey = process.env.HARVARD_API_KEY;
 

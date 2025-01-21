@@ -2,7 +2,6 @@
 
 import React, { useEffect } from "react";
 import Image from "next/image";
-import { usePathname } from "next/navigation";
 import {
 	Carousel,
 	CarouselContent,
@@ -20,96 +19,20 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Download, Maximize2, Share2, Plus } from "lucide-react";
-import Autoplay from "embla-carousel-autoplay";
 
-interface Artwork {
-	copyright?: object;
-	contextualtextcount?: number;
-	creditline?: string;
-	accesslevel?: number;
-	dateoflastpageview?: string;
-	classificationid?: number;
-	division?: string;
-	markscount?: number;
-	publicationcount?: number;
-	totaluniquepageviews?: number;
-	contact?: string;
-	colorcount?: number;
-	rank?: number;
-	id?: number;
-	state?: object;
-	verificationleveldescription?: string;
-	period?: object;
-	images?: { baseimageurl: string }[];
-	worktypes?: object;
-	imagecount?: number;
-	totalpageviews?: number;
-	accessionyear?: number;
-	standardreferencenumber?: object;
-	signed?: object;
-	classification?: string;
-	relatedcount?: number;
-	verificationlevel?: number;
-	primaryimageurl?: string;
-	titlescount?: number;
-	peoplecount?: number;
-	style?: object;
-	lastupdate?: string;
-	commentary?: object;
-	periodid?: object;
-	technique?: string;
-	edition?: object;
-	description?: string;
-	medium?: string;
-	lendingpermissionlevel?: number;
-	title?: string;
-	accessionmethod?: string;
-	colors?: object;
-	provenance?: string;
-	groupcount?: number;
-	dated?: string;
-	department?: string;
-	dateend?: number;
-	people?: { name: string }[];
-	url?: string;
-	dateoffirstpageview?: string;
-	century?: string;
-	objectnumber?: string;
-	labeltext?: object;
-	datebegin?: number;
-	culture?: string;
-	exhibitioncount?: number;
-	imagepermissionlevel?: number;
-	mediacount?: number;
-	objectid?: number;
-	techniqueid?: number;
-	dimensions?: string;
-	seeAlso?: object;
-}
+import { Artwork } from "@/types";
+import { Skeleton } from "./ui/skeleton";
 
-function ArtworkDetailItem({
-	label,
-	value,
+export default function ArtworkDisplay({
+	artwork,
+	loading,
 }: {
-	label: string;
-	value: string | undefined;
+	artwork: Artwork;
+	loading: boolean;
 }) {
-	return value ? (
-		<div className="mb-4">
-			<dt className="text-sm font-medium text-gray-500">{label}</dt>
-			<dd className="mt-1 text-sm text-gray-900">{value}</dd>
-		</div>
-	) : null;
-}
-
-export default function ArtworkDisplay({ artwork }: { artwork: Artwork }) {
-	const [carouselApi, setCarouselApi] = React.useState<CarouselApi>();
+	const [carouselApi] = React.useState<CarouselApi>();
 	const [currentIndex, setCurrentIndex] = React.useState<number>(0);
-	const [autoPlay, setAutoPlay] = React.useState<boolean>(true);
-	const [isLoggedIn, setIsLoggedIn] = React.useState<boolean>(false);
-	const pathName = usePathname();
-	const isMainPage = pathName === "/";
-
+	const [isLoggedIn] = React.useState<boolean>(false);
 	useEffect(() => {
 		if (!carouselApi) return;
 
@@ -123,26 +46,15 @@ export default function ArtworkDisplay({ artwork }: { artwork: Artwork }) {
 		};
 	}, [carouselApi]);
 
-	useEffect(() => {
-		if (isMainPage) {
-			setAutoPlay(false);
-		}
-	}, [isMainPage]);
-
-	useEffect(() => {
-		console.log(artwork);
-	}, [artwork]);
 
 	const handleThumbnailClick = (index: number) => {
+		setCurrentIndex(index);
 		if (carouselApi) {
-			setAutoPlay(false);
 			carouselApi.scrollTo(index);
 		}
 	};
-
-	const carouselPlugins = autoPlay ? [Autoplay({ delay: 4000 })] : [];
-	const images = artwork.images || [];
-
+	const images = artwork?.images || [];
+	// console.log(artwork);
 	return (
 		<div className="bg-[#ebefe0]">
 			<div className="w-full max-w-[1000px] mx-auto">
@@ -151,13 +63,13 @@ export default function ArtworkDisplay({ artwork }: { artwork: Artwork }) {
 					<div className="flex flex-wrap pb-8 text-sm text-gray-600">
 						<div className="w-full md:flex-1 pb-3">
 							<span className="block font-bold">Creator:</span>
-							<span className="block">
-								{artwork?.people?.[0]?.name || "Unknown"}
-							</span>
+							<span className="block">{artwork?.artist || "Unknown"}</span>
 						</div>
 						<div className="w-full md:flex-1 pb-3">
-							<span className="block font-bold">Cultural Context:</span>
-							<span className="block">{artwork.culture || "Unknown"}</span>
+							<span className="block font-bold">Nationality:</span>
+							<span className="block">
+								{artwork.artistNationality || "Unknown"}
+							</span>
 						</div>
 						<div className="w-full md:flex-1 pb-3">
 							<span className="block font-bold">Date:</span>
@@ -165,34 +77,26 @@ export default function ArtworkDisplay({ artwork }: { artwork: Artwork }) {
 						</div>
 						<div className="w-full md:flex-1 pb-3">
 							<span className="block font-bold">Source:</span>
-							<span className="block">{artwork.creditline || "Unknown"}</span>
+							<span className="block">{artwork.source || "Unknown"}</span>
 						</div>
 					</div>
-					{/* Main Image Carousel */}
-					<Carousel
-						opts={{
-							align: "start",
-						}}
-						plugins={carouselPlugins}
-						className="w-auto"
-						setApi={setCarouselApi}
-					>
-						<CarouselContent>
-							{images.map((image, index) => (
-								<CarouselItem key={index}>
-									<Card>
-										<Image
-											src={image.baseimageurl}
-											alt={artwork.title || "Artwork"}
-											width={800}
-											height={600}
-											className="w-full max-auto object-cover rounded-xl"
-										/>
-									</Card>
-								</CarouselItem>
-							))}
-						</CarouselContent>
-					</Carousel>
+					{/* Main Image*/}
+					<section>
+						{loading ? (
+							<Skeleton className="w-full h-[600px] rounded-xl" />
+						) : (
+							<Card>
+								<Image
+									src={images[currentIndex] || "/images/placeholder-image.png"}
+									alt={artwork.title || "Artwork"}
+									width={800}
+									height={600}
+									className="w-full max-auto max-h-[1000px] object-contain rounded-xl"
+								/>
+							</Card>
+						)}
+					</section>
+
 					<div className="flex justify-between items-center mt-1">
 						<div className="flex ml-auto">
 							{!isLoggedIn ? (
@@ -251,11 +155,11 @@ export default function ArtworkDisplay({ artwork }: { artwork: Artwork }) {
 										>
 											<Card>
 												<Image
-													src={image.baseimageurl}
+													src={image}
 													alt={`Gallery image ${index + 1}`}
 													width={400}
 													height={300}
-													className={`max-h-[300px] max-w-24 md:max-w-44 lg:rounded-lg rounded-sm object-cover ${
+													className={` max-w-24 md:max-w-44 lg:rounded-lg rounded-sm object-cover ${
 														index === currentIndex
 															? "border-4 border-gray-800"
 															: ""
@@ -278,34 +182,118 @@ export default function ArtworkDisplay({ artwork }: { artwork: Artwork }) {
 								Artwork Details
 							</h3>
 							<Separator className="my-4" />
-							<dl className="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2">
-								<ArtworkDetailItem label="Medium" value={artwork.medium} />
-								<ArtworkDetailItem
-									label="Technique"
-									value={artwork.technique}
-								/>
-								<ArtworkDetailItem
-									label="Dimensions"
-									value={artwork.dimensions}
-								/>
-								<ArtworkDetailItem
-									label="Classification"
-									value={artwork.classification}
-								/>
-								<ArtworkDetailItem
-									label="Department"
-									value={artwork.department}
-								/>
-								<ArtworkDetailItem
-									label="Object Number"
-									value={artwork.objectnumber}
-								/>
-								<ArtworkDetailItem
-									label="Accession Year"
-									value={artwork.accessionyear?.toString()}
-								/>
-								<ArtworkDetailItem label="Date" value={artwork.dated} />
-							</dl>
+
+							<div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+								{/* Group 1: Basic Details */}
+								<div>
+									<dt className="text-sm font-medium text-gray-500 mb-2">
+										Title
+									</dt>
+									<dd className="mt-1 text-sm text-gray-900">
+										{artwork.title || "N/A"}
+									</dd>
+								</div>
+								<div>
+									<dt className="text-sm font-medium text-gray-500 mb-2">
+										Dated
+									</dt>
+									<dd className="mt-1 text-sm text-gray-900">
+										{artwork.dated || "N/A"}
+									</dd>
+								</div>
+
+								{/* Group 2: Artist Details */}
+								<div>
+									<dt className="text-sm font-medium text-gray-500 mb-2">
+										Artist
+									</dt>
+									<dd className="mt-1 text-sm text-gray-900">
+										{artwork.artist || "Unknown"}
+									</dd>
+								</div>
+								<div>
+									<dt className="text-sm font-medium text-gray-500 mb-2">
+										Nationality
+									</dt>
+									<dd className="mt-1 text-sm text-gray-900">
+										{artwork.artistNationality || "Unknown"}
+									</dd>
+								</div>
+
+								{/* Group 3: Medium and Technique */}
+								<div>
+									<dt className="text-sm font-medium text-gray-500 mb-2">
+										Medium
+									</dt>
+									<dd className="mt-1 text-sm text-gray-900">
+										{artwork.medium || "N/A"}
+									</dd>
+								</div>
+								<div>
+									<dt className="text-sm font-medium text-gray-500 mb-2">
+										Technique
+									</dt>
+									<dd className="mt-1 text-sm text-gray-900">
+										{artwork.technique || "N/A"}
+									</dd>
+								</div>
+
+								{/* Group 4: Dimensions and Classification */}
+								<div>
+									<dt className="text-sm font-medium text-gray-500 mb-2">
+										Dimensions
+									</dt>
+									<dd className="mt-1 text-sm text-gray-900">
+										{artwork.dimensions || "N/A"}
+									</dd>
+								</div>
+								<div>
+									<dt className="text-sm font-medium text-gray-500 mb-2">
+										Classification
+									</dt>
+									<dd className="mt-1 text-sm text-gray-900">
+										{artwork.classification || "N/A"}
+									</dd>
+								</div>
+
+								{/* Group 5: Period and Credit Line */}
+								<div>
+									<dt className="text-sm font-medium text-gray-500 mb-2">
+										Period
+									</dt>
+									<dd className="mt-1 text-sm text-gray-900">
+										{artwork.period || "N/A"}
+									</dd>
+								</div>
+								<div>
+									<dt className="text-sm font-medium text-gray-500 mb-2">
+										Credit Line
+									</dt>
+									<dd className="mt-1 text-sm text-gray-900">
+										{artwork.creditLine || "N/A"}
+									</dd>
+								</div>
+
+								{/* Group 6: Department and Country */}
+								<div>
+									<dt className="text-sm font-medium text-gray-500 mb-2">
+										Department
+									</dt>
+									<dd className="mt-1 text-sm text-gray-900">
+										{artwork.department || "N/A"}
+									</dd>
+								</div>
+								<div>
+									<dt className="text-sm font-medium text-gray-500 mb-2">
+										Country
+									</dt>
+									<dd className="mt-1 text-sm text-gray-900">
+										{artwork.country || "N/A"}
+									</dd>
+								</div>
+							</div>
+
+							{/* Description */}
 							{artwork.description && (
 								<>
 									<Separator className="my-4" />
@@ -315,19 +303,6 @@ export default function ArtworkDisplay({ artwork }: { artwork: Artwork }) {
 										</dt>
 										<dd className="mt-1 text-sm text-gray-900">
 											{artwork.description}
-										</dd>
-									</div>
-								</>
-							)}
-							{artwork.provenance && (
-								<>
-									<Separator className="my-4" />
-									<div>
-										<dt className="text-sm font-medium text-gray-500 mb-2">
-											Provenance
-										</dt>
-										<dd className="mt-1 text-sm text-gray-900">
-											{artwork.provenance}
 										</dd>
 									</div>
 								</>

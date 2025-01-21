@@ -48,6 +48,18 @@ export default function Gallery() {
 	const [loading, setLoading] = useState<boolean>(false);
 	const [goToPage, setGoToPage] = useState("");
 
+	// Ensure the searchObject state gets updated after checking localStorage
+	useEffect(() => {
+		const hasImagePreference = localStorage.getItem("hasImageFilter");
+		if (hasImagePreference !== null) {
+			setSearchObject((prev) => ({
+				...prev,
+				hasImage: JSON.parse(hasImagePreference),
+			}));
+		}
+	}, []);
+
+	// Sync query params with searchObject
 	useEffect(() => {
 		const queryParams = new URLSearchParams();
 		if (searchObject.searchKey) {
@@ -65,6 +77,7 @@ export default function Gallery() {
 		router.push(`/gallery?${queryParams.toString()}`, undefined);
 	}, [searchObject.searchKey, currentPage, router]);
 
+	// Get page and search key from URL query
 	useEffect(() => {
 		const urlParams = new URLSearchParams(window.location.search);
 		const pageFromQuery = Number(urlParams.get("page")) || 1;
@@ -76,6 +89,7 @@ export default function Gallery() {
 		}));
 	}, []);
 
+	// Fetch artworks based on search criteria
 	useEffect(() => {
 		let isMounted = true;
 
@@ -94,7 +108,7 @@ export default function Gallery() {
 							id: item.id,
 							title: item.title,
 							dated: item.dated,
-							primaryImage: item.primaryimageurl,
+							images: item.images?.map((image) => image.baseimageurl) || [],
 							source: "Harvard",
 							medium: item.medium || "",
 							dimensions: item.dimensions || "",
@@ -109,7 +123,7 @@ export default function Gallery() {
 						id: item.objectID,
 						title: item.title,
 						dated: item.objectDate,
-						primaryImage: item.primaryImage || "",
+						images: [item.primaryImage || ""],
 						source: "Met",
 						medium: item.medium || "",
 						dimensions: item.dimensions || "",
@@ -119,7 +133,20 @@ export default function Gallery() {
 						classification: item.classification || "",
 					}));
 
-					const combinedArtworks = [...harvardArtworks, ...metArtworks];
+					const maxLength = Math.max(
+						harvardArtworks.length,
+						metArtworks.length
+					);
+					const combinedArtworks = [];
+
+					for (let i = 0; i < maxLength; i++) {
+						if (i < harvardArtworks.length) {
+							combinedArtworks.push(harvardArtworks[i]);
+						}
+						if (i < metArtworks.length) {
+							combinedArtworks.push(metArtworks[i]);
+						}
+					}
 
 					setArtworks(combinedArtworks);
 					setTotalArtworks(harvardResponse.total + metResponse.total);
@@ -132,26 +159,30 @@ export default function Gallery() {
 		};
 
 		if (searchObject.searchKey) fetchAndSetArtworks();
-		// fetchAndSetArtworks();
 		return () => {
 			isMounted = false;
 		};
 	}, [currentPage, searchObject.searchKey, router]);
 
-	// Filter artworks based on search filters
+	// Filter artworks based on image filter preference
 	const filteredArtworks = artworks.filter((artwork) => {
 		const passesImageFilter =
 			searchObject.hasImage ||
-			(artwork.primaryImage && artwork.primaryImage.trim() !== "");
+			(Array.isArray(artwork.images) &&
+				artwork.images.length > 0 &&
+				artwork.images.every(
+					(image) => image && typeof image === "string" && image.trim() !== ""
+				));
 
 		return passesImageFilter;
 	});
 
-	// Handle pagination button clicks
+	// Handle page change
 	const handlePageChange = (page: number) => {
 		setCurrentPage(page);
 	};
 
+	// Handle 'Go to page' functionality
 	const handleGoToPage = () => {
 		const pageNumber = parseInt(goToPage, 10);
 		if (
@@ -162,6 +193,16 @@ export default function Gallery() {
 			setGoToPage("");
 		}
 	};
+
+	// Update the image filter and store in localStorage
+	const handleImageFilterChange = (value: boolean) => {
+		setSearchObject((prev) => ({ ...prev, hasImage: value }));
+		localStorage.setItem("hasImageFilter", JSON.stringify(value));
+	};
+
+	useEffect(() => {
+		// console.log(artworks);
+	}, [artworks]);
 	return (
 		<div className="mx-auto overflow-x-hidden">
 			<NavigationBar />
@@ -196,10 +237,11 @@ export default function Gallery() {
 							totalArtworks={totalArtworks}
 							artworks={artworks}
 							setSearchObject={setSearchObject}
+							handleImageFilterChange={handleImageFilterChange}
 						/>
 
 						{loading ? (
-							<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-6">
+							<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
 								{[...Array(ITEMS_PER_PAGE)].map((_, index) => (
 									<Card key={index} className="overflow-hidden">
 										<CardContent className="p-0">
@@ -215,34 +257,45 @@ export default function Gallery() {
 								))}
 							</div>
 						) : (
-							<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-6">
-								{filteredArtworks.map((artwork, index) => (
-									<Link
-										key={artwork.id || `placeholder-${index}`}
-										href={`/gallery/${encodeURIComponent(artwork.id)}`}
-									>
-										<Card className="cursor-pointer overflow-hidden transform transition-transform hover:shadow-right-bottom md:hover:scale-105 z-10">
-											<CardContent className="p-0">
-												<div className="relative w-full">
-													<Image
-														src={artwork.primaryImage || PLACEHOLDER_IMAGE}
-														alt={artwork.title || "Untitled Artwork"}
-														width={500}
-														height={500}
-														style={{ objectFit: "contain" }}
-													/>
-												</div>
-												<div className="p-4">
-													<h3 className="font-semibold text-sm mb-1">
-														{artwork.title || "Untitled Artwork"}
-													</h3>
-													<p className="text-xs text-gray-600">
-														{artwork.dated || "Unknown Date"}
-													</p>
-												</div>
-											</CardContent>
-										</Card>
-									</Link>
+							<div className="grid grid-cols-4 gap-x-6 gap-y-12">
+								{[0, 1, 2, 3].map((column) => (
+									<div key={column} className="flex flex-col space-y-6">
+										{filteredArtworks
+											.filter((_, index) => index % 4 === column)
+											.map((artwork, index) => (
+												<Link
+													key={artwork.id || `placeholder-${index}`}
+													href={`/gallery/${
+														artwork.source === "Harvard" ? "H" : "M"
+													}/${encodeURIComponent(artwork.id)}`}
+												>
+													<Card
+														className={`cursor-pointer overflow-hidden transform transition-transform hover:shadow-right-bottom md:hover:scale-105 z-10`}
+													>
+														<CardContent className="p-0">
+															<div className="relative w-full">
+																<Image
+																	src={artwork.images[0] || PLACEHOLDER_IMAGE}
+																	alt={artwork.title || "Untitled Artwork"}
+																	width={500}
+																	height={500}
+																	style={{ objectFit: "contain" }}
+																	loading="lazy"
+																/>
+															</div>
+															<div className="p-4">
+																<h3 className="font-semibold text-sm mb-1">
+																	{artwork.title || "Untitled Artwork"}
+																</h3>
+																<p className="text-xs text-gray-600">
+																	{artwork.dated || "Unknown Date"}
+																</p>
+															</div>
+														</CardContent>
+													</Card>
+												</Link>
+											))}
+									</div>
 								))}
 							</div>
 						)}
@@ -343,7 +396,7 @@ export default function Gallery() {
 											max={Math.ceil(totalArtworks / PAGE_SIZE)}
 											value={goToPage}
 											onChange={(e) => setGoToPage(e.target.value)}
-											className={`border border-input w-16 bg-background shadow-sm hover:bg-accent hover:text-accent-foreground`}
+											className="border border-input w-16 bg-background shadow-sm hover:bg-accent hover:text-accent-foreground"
 										/>
 										<span className="text-sm">
 											/ {Math.ceil(totalArtworks / PAGE_SIZE)}

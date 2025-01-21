@@ -40,11 +40,11 @@ export function Filter({
 }: FilterProps) {
 	const [open, setOpen] = React.useState<boolean>(false);
 	const [selectedCategory, setSelectedCategory] = React.useState<
-		"Technique" | "Classification" | "Material"
+		"Technique" | "Classification" | "Material" | "Source"
 	>("Classification");
 
 	const categoryKeys = Object.keys(filterOptions) as Array<
-		"Technique" | "Classification" | "Material"
+		"Technique" | "Classification" | "Material" | "Source"
 	>;
 
 	return (
@@ -133,6 +133,7 @@ interface searchAndFilterProps {
 	totalArtworks: number;
 	setSearchObject: React.Dispatch<React.SetStateAction<SearchObject>>;
 	artworks: Artwork[];
+	handleImageFilterChange: (value: boolean) => void;
 }
 
 {
@@ -143,6 +144,7 @@ export default function SearchAndFilter({
 	totalArtworks, // Total number of artworks
 	setSearchObject, // Function to set the search object
 	artworks, // Array of artworks
+	handleImageFilterChange,
 }: searchAndFilterProps) {
 	const [searchTerm, setSearchTerm] = useState<string>("");
 	const [filterWords, setFilterWords] = useState<string[]>([]);
@@ -185,6 +187,17 @@ export default function SearchAndFilter({
 			label: item,
 			value: item,
 		})) as { label: string; value: string }[],
+
+		Source: Array.from(
+			new Set(
+				artworks
+					.map((artwork) => artwork.source)
+					.filter((item): item is string => Boolean(item))
+			)
+		).map((item) => ({
+			label: item,
+			value: item,
+		})) as { label: string; value: string }[],
 	};
 
 	const removeFilterWord = (word: string) => {
@@ -204,13 +217,18 @@ export default function SearchAndFilter({
 			searchKey: searchTerm,
 		});
 	};
-
+	const handleMustHaveImage = () => {
+		setMustHaveImage(!mustHaveImage);
+		handleImageFilterChange(mustHaveImage);
+	}
 	useEffect(() => {
 		setSearchObject((prev) => ({
 			...prev,
 			keywords: filterWords,
 			hasImage: mustHaveImage,
 		}));
+		
+
 	}, [filterWords, mustHaveImage, setSearchObject]);
 
 	return (
@@ -256,7 +274,7 @@ export default function SearchAndFilter({
 						<Button
 							variant="outline"
 							size="sm"
-							onClick={() => setMustHaveImage(!mustHaveImage)}
+							onClick={handleMustHaveImage}
 							className={` ${mustHaveImage ? "border-none" : "border-black"} `}
 						>
 							{" "}
