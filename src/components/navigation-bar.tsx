@@ -18,7 +18,7 @@ import {
 	SheetTitle,
 	SheetDescription,
 } from "@/components/ui/sheet";
-import {  signOut, useSession } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 
 export default function NavigationBar() {
@@ -26,6 +26,9 @@ export default function NavigationBar() {
 
 	const handleLoginRedirect = () => {
 		window.location.href = "/auth/login";
+	};
+	const handleCreateAccountRedirect = () => {
+		window.location.href = "/auth/signup";
 	};
 
 	const handleLogout = () => {
@@ -80,23 +83,20 @@ export default function NavigationBar() {
 
 			{/* Right Section */}
 			<div className="flex items-center space-x-4 ml-auto">
-				<div className="relative hidden sm:flex items-center space-x-2">
-					<Input
-						className="pl-10 bg-white border-2 border-gray-200 focus:border-primary transition-colors"
-						placeholder="Search artworks..."
-					/>
-					<Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-				</div>
+			
 
 				<div className="hidden sm:flex space-x-2">
 					{status === "authenticated" ? (
-						<Button onClick={handleLogout}>Log Out</Button>
+						<>
+							<Button variant="outline" >Saved Collections</Button>
+							<Button onClick={handleLogout}>Log Out</Button>
+						</>
 					) : (
 						<>
 							<Button variant="outline" onClick={handleLoginRedirect}>
 								Log In
 							</Button>
-							<Button>Create Account</Button>
+							<Button onClick={handleCreateAccountRedirect}>Create Account</Button>
 						</>
 					)}
 				</div>

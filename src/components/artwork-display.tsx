@@ -1,6 +1,8 @@
 "use client";
 
 import React, { useEffect } from "react";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
 import {
 	Carousel,
@@ -18,7 +20,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { Download, Maximize2, Share2, Plus } from "lucide-react";
+import { Download, Maximize2, Share2, Plus} from "lucide-react";
 
 import { Artwork } from "@/types";
 import { Skeleton } from "./ui/skeleton";
@@ -32,10 +34,12 @@ export default function ArtworkDisplay({
 }) {
 	const [carouselApi] = React.useState<CarouselApi>();
 	const [currentIndex, setCurrentIndex] = React.useState<number>(0);
-	const [isLoggedIn] = React.useState<boolean>(false);
+	const { data: session } = useSession();
+	const [isLoggedIn, setIsLoggedIn] = React.useState<boolean>(false);
+	const router = useRouter();
+
 	useEffect(() => {
 		if (!carouselApi) return;
-
 		const onSelect = () => {
 			setCurrentIndex(carouselApi.selectedScrollSnap());
 		};
@@ -46,6 +50,9 @@ export default function ArtworkDisplay({
 		};
 	}, [carouselApi]);
 
+	useEffect(() => {
+		if (session) setIsLoggedIn(true);
+	}, [session]);
 
 	const handleThumbnailClick = (index: number) => {
 		setCurrentIndex(index);
@@ -54,7 +61,7 @@ export default function ArtworkDisplay({
 		}
 	};
 	const images = artwork?.images || [];
-	// console.log(artwork);
+
 	return (
 		<div className="bg-[#ebefe0]">
 			<div className="w-full max-w-[1000px] mx-auto">
@@ -110,9 +117,17 @@ export default function ArtworkDisplay({
 									<HoverCardContent className="bg-black text-white border-black text-sm font-bold">
 										<span>
 											Want to add to a collection?{" "}
-											<span className="underline cursor-pointer">Log in</span>{" "}
+											<span
+												className="underline cursor-pointer"
+												onClick={() => router.push("/auth/login")}
+											>
+												Log in
+											</span>{" "}
 											or{" "}
-											<span className="underline cursor-pointer">
+											<span
+												className="underline cursor-pointer"
+												onClick={() => router.push("/auth/signup")}
+											>
 												Create an account
 											</span>
 											!
