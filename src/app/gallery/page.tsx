@@ -199,9 +199,14 @@ export default function Gallery() {
 		setSearchObject((prev) => ({ ...prev, hasImage: value }));
 		localStorage.setItem("hasImageFilter", JSON.stringify(value));
 	};
+	///H/304551
 
 	useEffect(() => {
-		// console.log(artworks);
+		artworks.forEach((artwork, index) => {
+			if (artwork.images.length > 3) {
+				console.log("index: ", index+1, artwork.title, artwork.images.length);
+			}
+		});
 	}, [artworks]);
 	return (
 		<div className="mx-auto overflow-x-hidden">
@@ -298,10 +303,6 @@ export default function Gallery() {
 									</div>
 								))}
 							</div>
-						)}
-
-						{totalArtworks === 0 && (
-							<p className="text-center text-gray-600">No artworks found.</p>
 						)}
 
 						{/* Pagination */}

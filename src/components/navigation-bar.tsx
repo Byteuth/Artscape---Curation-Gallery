@@ -18,15 +18,30 @@ import {
 	SheetTitle,
 	SheetDescription,
 } from "@/components/ui/sheet";
+import {  signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 
 export default function NavigationBar() {
+	const { data: session, status } = useSession();
+
+	const handleLoginRedirect = () => {
+		window.location.href = "/auth/login";
+	};
+
+	const handleLogout = () => {
+		signOut({ callbackUrl: "/" });
+	};
+
 	return (
 		<nav className="bg-[#B6B8A2] border-b-2 border-black flex items-center justify-between p-2 w-full ">
 			<Sheet>
 				<div className="flex items-center space-x-4 ">
 					<Link href="/">
-						<img src="/svg/ttc-logo.svg" alt="Logo" className=" mx-4 -translate-x-4 h-8 w-8" />
+						<img
+							src="/svg/ttc-logo.svg"
+							alt="Logo"
+							className=" mx-4 -translate-x-4 h-8 w-8"
+						/>
 					</Link>
 					<div className="hidden md:flex space-x-4">
 						<Link href="/gallery">
@@ -74,8 +89,16 @@ export default function NavigationBar() {
 				</div>
 
 				<div className="hidden sm:flex space-x-2">
-					<Button variant="outline">Log In</Button>
-					<Button>Create Account</Button>
+					{status === "authenticated" ? (
+						<Button onClick={handleLogout}>Log Out</Button>
+					) : (
+						<>
+							<Button variant="outline" onClick={handleLoginRedirect}>
+								Log In
+							</Button>
+							<Button>Create Account</Button>
+						</>
+					)}
 				</div>
 			</div>
 		</nav>
@@ -133,6 +156,7 @@ export function MobileMenu() {
 					<LogIn className="mr-2 h-5 w-5" />
 					Log In
 				</Button>
+
 				<Button className="justify-center hover:bg-primary/90 ">
 					<UserPlus className="mr-2 h-5 w-5" />
 					Create Account

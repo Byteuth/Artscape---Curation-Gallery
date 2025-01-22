@@ -29,7 +29,6 @@ export default function ArtworkPage() {
 
 			try {
 				const result = await getArtworkByIdAndSource(id, source);
-				console.log(result)
 				setArtwork(result);
 			} catch (error) {
 				console.error("Failed to fetch artwork:", error);
@@ -45,6 +44,7 @@ export default function ArtworkPage() {
 		if (artwork) {
 			document.title = `${artwork.title} | Curation Gallery`;
 		}
+		console.log(artwork)
 	}, [artwork]);
 
 	if (!artwork) {
