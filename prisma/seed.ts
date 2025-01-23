@@ -8,13 +8,21 @@ async function main() {
 
 	await prisma.user.create({
 		data: {
-			email: "test@test.com",
+			email: "user@example.com",
 			password: hashedPassword,
-			name: "Test User",
+			name: "User Name",
+			collections: {
+				create: [
+					{
+						title: "First Collection",
+						description: "This is a test collection",
+					},
+				],
+			},
 		},
 	});
 
-	console.log("User created");
+	console.log("User and collection created");
 }
 
 main()

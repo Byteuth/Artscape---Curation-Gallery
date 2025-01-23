@@ -42,7 +42,6 @@ export default function ArtworkPage() {
 
 	useEffect(() => {
 		if (artwork) {
-			
 			document.title = `${artwork.title} | Curation Gallery`;
 		}
 	

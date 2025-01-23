@@ -4,6 +4,7 @@ import React, { useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import prisma from "@/lib/db";
 import {
 	Carousel,
 	CarouselContent,
@@ -20,14 +21,14 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { Download, Maximize2, Share2, Plus} from "lucide-react";
+import CollectionsModal from "./collections-modal";
+import { Download, Maximize2, Share2, Plus } from "lucide-react";
 
-import { Artwork } from "@/types";
+import { Artwork, Collections } from "@/types";
 import { Skeleton } from "./ui/skeleton";
 
 export default function ArtworkDisplay({
 	artwork,
-	loading,
 }: {
 	artwork: Artwork;
 	loading: boolean;
@@ -36,6 +37,10 @@ export default function ArtworkDisplay({
 	const [currentIndex, setCurrentIndex] = React.useState<number>(0);
 	const { data: session } = useSession();
 	const [isLoggedIn, setIsLoggedIn] = React.useState<boolean>(false);
+	const [loading, setLoading] = React.useState<boolean>(false);
+	const [isModalOpen, setIsModalOpen] = React.useState(false);
+	const [collections, setCollections] = React.useState<Collections[]>([]);
+	const [error, setError] = React.useState<string>("");
 	const router = useRouter();
 
 	useEffect(() => {
@@ -61,9 +66,35 @@ export default function ArtworkDisplay({
 		}
 	};
 
-	const handleAddToCollection = () => {
-		
-	}
+	const handleAddToCollection = async () => {
+		if (!session?.user?.id) return;
+
+		setLoading(true);
+		setError("");
+
+		try {
+			const response = await fetch("/api/collections", {
+				method: "GET",
+				headers: { "Content-Type": "application/json" },
+			});
+
+			if (!response.ok) {
+				const errorData = await response.json();
+				throw new Error(errorData.error || "Failed to fetch collections");
+			}
+
+			const fetchedCollections = await response.json();
+			setCollections(fetchedCollections); 
+			setIsModalOpen(true);
+
+		} catch (error) {
+			console.error("Error fetching collections", error);
+			setError("Failed to fetch collections.");
+		} finally {
+			setLoading(false);
+		}
+	};
+
 	const images = artwork?.images || [];
 
 	return (
@@ -139,9 +170,13 @@ export default function ArtworkDisplay({
 									</HoverCardContent>
 								</HoverCard>
 							) : (
-								<Button className="mr-3" onClick={handleAddToCollection}>
+								<Button
+									className="mr-3"
+									onClick={handleAddToCollection}
+									disabled={loading}
+								>
 									<Plus className="h-4 w-4" />
-									Add to Collection
+									{loading ? "Loading..." : "Add to Collection"}
 								</Button>
 							)}
 
@@ -330,6 +365,12 @@ export default function ArtworkDisplay({
 					</section>
 				</div>
 			</div>
+			<CollectionsModal
+				isOpen={isModalOpen}
+				onClose={() => setIsModalOpen(false)}
+				collections={collections}
+				setCollections={setCollections}
+			/>
 		</div>
 	);
 }
