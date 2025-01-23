@@ -789,7 +789,7 @@ export default function Collections() {
 				</p>
 			</div>
 
-			<CollectionSection collections={collections} />
+			<CollectionSection />
 			<Footer />
 		</div>
 	);

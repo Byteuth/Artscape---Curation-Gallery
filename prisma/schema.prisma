@@ -13,6 +13,25 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+
+
+	// 	id: ,
+	// 	title: "Whimsical Horizons",
+	// 	user: "Alex Monroe"
+	// 	images: ["/images/sample-image1.jpg","/images/sample-artwork2.jpg","/images/sample-collection-side2.jpg","/images/sample-image5.jpg"]
+
+
+
+model Collection {
+  id        String   @id @default(cuid())
+  user      String 
+  title     String 
+  images    String?
+  description String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
 model User {
   id        String   @id @default(cuid())
   email     String   @unique
@@ -21,3 +40,5 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
+

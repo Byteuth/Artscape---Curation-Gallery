@@ -1,37 +1,55 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "./ui/button";
+import { Collections } from "@/types";
 
-interface ArtworkImage {
-	src: string;
-	alt: string;
-}
-
-interface CuratedCollectionProps {
-	id: string;
-	title: string;
-	author: {
-		name: string;
-		id: string;
-	};
-	mainImage: ArtworkImage;
-	sideImages: ArtworkImage[];
-}
-
-interface CollectionSectionProps {
-	collections: CuratedCollectionProps[];
-}
-
-export default function CollectionSection({
-	collections = [],
-}: CollectionSectionProps) {
+export default function CollectionSection() {
 	const [visibleArtworks, setVisibleArtworks] = useState<number>(12);
+	const [collections, setCollections] = useState<Collections[]>([]);
+
+	useEffect(() => {
+		const fetchCollections = async () => {
+			try {
+				const response = await fetch("/api/collections");
+				const data = await response.json();
+
+				const transformedCollections = data.map((collection: Collections) => ({
+					...collection,
+					mainImage: {
+						src: collection.images.split(",")[0],
+						alt: `${collection.title} main image`,
+					},
+					sideImages: collection.images
+						.split(",")
+						.slice(1)
+						.map((img, index) => ({
+							src: img,
+							alt: `${collection.title} side image ${index + 1}`,
+						})),
+					author: {
+						name: collection.user,
+						id: collection.user, 
+					},
+				}));
+
+				setCollections(transformedCollections);
+			} catch (error) {
+				console.error("Failed to fetch collections:", error);
+			}
+		};
+
+		fetchCollections();
+	}, []);
 
 	const loadMore = () => {
 		setVisibleArtworks((prev) => prev + 12);
 	};
+
+	useEffect(() => {
+		console.log(collections);
+	}, [collections]);
 
 	return (
 		<div className="bg-[#ffffff] flex flex-col justify-center items-center py-16  w-full ">
@@ -41,9 +59,11 @@ export default function CollectionSection({
 						key={index}
 						id={collection.id}
 						title={collection.title}
-						author={collection.author}
+						user={collection.user}
 						mainImage={collection.mainImage}
 						sideImages={collection.sideImages}
+						description={collection.description}
+
 					/>
 				))}
 			</div>
@@ -65,10 +85,10 @@ export default function CollectionSection({
 export function CollectionGrid({
 	id,
 	title,
-	author,
+	user,
 	mainImage,
 	sideImages,
-}: CuratedCollectionProps) {
+}: Collections) {
 	return (
 		<div className="bg-[#ffffff] flex flex-col lg:p-2 py-4 px-6 w-auto ">
 			<div className="relative w-full ">
@@ -127,7 +147,7 @@ export function CollectionGrid({
 							<span>{title}</span>
 						</p>
 						<div className="font-rococo text-sm text-gray-600 opacity-0">
-							<span>By {author.name}</span>
+							<span>By {user}</span>
 						</div>
 					</div>
 				</Link>
@@ -135,10 +155,10 @@ export function CollectionGrid({
 					<span>
 						By{" "}
 						<Link
-							href={`/profile/${author.id}`}
+							href={`/`}
 							className="pointer-events-auto hover:text-gray-300"
 						>
-							{author.name}
+							{user}
 						</Link>
 					</span>
 				</div>

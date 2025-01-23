@@ -60,6 +60,10 @@ export default function ArtworkDisplay({
 			carouselApi.scrollTo(index);
 		}
 	};
+
+	const handleAddToCollection = () => {
+		
+	}
 	const images = artwork?.images || [];
 
 	return (
@@ -135,7 +139,7 @@ export default function ArtworkDisplay({
 									</HoverCardContent>
 								</HoverCard>
 							) : (
-								<Button className="mr-3">
+								<Button className="mr-3" onClick={handleAddToCollection}>
 									<Plus className="h-4 w-4" />
 									Add to Collection
 								</Button>

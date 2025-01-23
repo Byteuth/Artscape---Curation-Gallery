@@ -1,8 +1,25 @@
+interface ArtworkImage {
+	src: string;
+	alt: string;
+}
+
+export interface Collections {
+	id: string;
+	user: string;
+	title: string;
+	images: string;
+	mainImage: ArtworkImage;
+	sideImages: ArtworkImage[];
+	description: string;
+	createdAt: string;
+	updatedAt: string;
+}
+
 export interface Artwork {
 	id: number;
 	title: string;
 	dated: string;
-	images: string[]
+	images: string[];
 	source: "Harvard" | "Met";
 	description?: string | null;
 	medium?: string | null;
@@ -151,7 +168,7 @@ export interface MetArtwork {
 	primaryImage: string;
 	primaryImageSmall: string;
 	additionalImages: string[];
-	constituents: any; 
+	constituents: any;
 	department: string;
 	objectName: string;
 	title: string;

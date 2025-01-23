@@ -6,7 +6,7 @@ export async function POST(req: NextRequest) {
 	try {
 		const { email, password, name } = await req.json();
 
-		if (!email || !password) {
+		if (!email || !password || !name) {
 			return NextResponse.json(
 				{ error: "Email and password are required." },
 				{ status: 400 }
@@ -22,7 +22,6 @@ export async function POST(req: NextRequest) {
 			);
 		}
 
-		// Hash the password
 		const hashedPassword = await bcrypt.hash(password, 10);
 
 		// Create the user

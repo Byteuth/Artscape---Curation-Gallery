@@ -15,6 +15,7 @@ export function Signupform({
 	className,
 	...props
 }: React.ComponentPropsWithoutRef<"form">) {
+	const [name, setName] = useState("");
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
 	const [error, setError] = useState("");
@@ -26,7 +27,7 @@ export function Signupform({
 		e.preventDefault();
 		setError("");
 
-		if (!email || !password) {
+		if (!email || !password || !name) {
 			setError("Email and password are required");
 			return;
 		}
@@ -35,7 +36,7 @@ export function Signupform({
 			const response = await fetch("/api/auth/signup", {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({ email, password }),
+				body: JSON.stringify({ email, password, name }),
 			});
 
 			if (!response.ok) {
@@ -51,6 +52,7 @@ export function Signupform({
 					redirect: false,
 					email,
 					password,
+			
 				});
 
 				if (signInResponse?.error) {
@@ -70,7 +72,7 @@ export function Signupform({
 	const handleRedirect = () => {
 		router.push("/");
 	};
-
+	
 	return (
 		<form
 			className={cn("flex flex-col gap-6", className)}
@@ -80,12 +82,24 @@ export function Signupform({
 			<div className="flex flex-col items-center gap-2 text-center">
 				<h1 className="text-2xl font-bold">Create your account</h1>
 				<p className="text-balance text-sm text-muted-foreground">
-					Enter your email below to create an account
+					Enter your name and email below to create an account
 				</p>
 			</div>
 			<div className="grid gap-6">
 				{!success ? (
 					<>
+						{" "}
+						<div className="grid gap-2">
+							<Label htmlFor="email">Name</Label>
+							<Input
+								id="name"
+								type="name"
+								placeholder="coolname"
+								required
+								value={name}
+								onChange={(e) => setName(e.target.value)}
+							/>
+						</div>
 						<div className="grid gap-2">
 							<Label htmlFor="email">Email</Label>
 							<Input
