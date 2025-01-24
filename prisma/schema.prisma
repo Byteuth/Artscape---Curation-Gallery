@@ -16,24 +16,42 @@ datasource db {
 
 
 model Collection {
-  id String @id @default(cuid())
-  userId String
-  title String
-  images String?
+  id          String     @id @default(cuid())
+  userId      String
+  title       String
+  images      String?
   description String?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  user        User      @relation(fields: [userId], references: [id])
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  user        User       @relation(fields: [userId], references: [id])
+  artworks    Artwork[]
+}
+
+model Artwork {
+  id            String       @id @default(cuid())
+  objectId      Int          @unique
+  title         String?
+  images        String?
+  description   String?
+  source        String?
+  medium        String?
+  period        String?
+  country       String?
+  department    String?
+  creditLine    String?
+  objectDate    String?
+  objectURL     String?
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  collections   Collection[]
 }
 
 model User {
-  id           String       @id @default(cuid())
-  email        String       @unique
-  password     String
-  name         String?
-  collections  Collection[]
-  createdAt    DateTime     @default(now())
-  updatedAt    DateTime     @updatedAt
+  id          String       @id @default(cuid())
+  email       String       @unique
+  password    String
+  name        String?
+  collections Collection[]
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
 }
-
-

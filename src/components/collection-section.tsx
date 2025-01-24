@@ -15,23 +15,10 @@ export default function CollectionSection() {
 				const response = await fetch("/api/collections");
 				const data = await response.json();
 
+				// Transform the collections to parse the images into arrays
 				const transformedCollections = data.map((collection: Collections) => ({
 					...collection,
-					mainImage: {
-						src: collection.images.split(",")[0],
-						alt: `${collection.title} main image`,
-					},
-					sideImages: collection.images
-						.split(",")
-						.slice(1)
-						.map((img, index) => ({
-							src: img,
-							alt: `${collection.title} side image ${index + 1}`,
-						})),
-					author: {
-						name: collection.user,
-						id: collection.user, 
-					},
+					images: collection.images.split(",").map((url) => url.trim()),
 				}));
 
 				setCollections(transformedCollections);
@@ -46,24 +33,21 @@ export default function CollectionSection() {
 	const loadMore = () => {
 		setVisibleArtworks((prev) => prev + 12);
 	};
-
 	useEffect(() => {
 		console.log(collections);
 	}, [collections]);
 
 	return (
-		<div className="bg-[#ffffff] flex flex-col justify-center items-center py-16  w-full ">
-			<div className=" grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6  w-full max-w-[1200px] mx-auto">
+		<div className="bg-[#ffffff] flex flex-col justify-center items-center py-16 w-full">
+			<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-[1200px] mx-auto">
 				{collections.slice(0, visibleArtworks).map((collection, index) => (
 					<CollectionGrid
 						key={index}
 						id={collection.id}
 						title={collection.title}
-						user={collection.user}
-						mainImage={collection.mainImage}
-						sideImages={collection.sideImages}
+						user={collection.user.name}
+						images={collection.images}
 						description={collection.description}
-
 					/>
 				))}
 			</div>
@@ -86,67 +70,51 @@ export function CollectionGrid({
 	id,
 	title,
 	user,
-	mainImage,
-	sideImages,
-}: Collections) {
+	images,
+}: {
+	id: string;
+	title: string;
+	user: string;
+	images: string;
+	description: string;
+}) {
+	console.log(images);
 	return (
 		<div className="bg-[#ffffff] flex flex-col lg:p-2 py-4 px-6 w-auto ">
-			<div className="relative w-full ">
+			<div className="relative w-full">
 				<Link href={`/collection/${id}`}>
 					<div className="grid grid-cols-4 gap-2 w-full h-[300px] mb-4">
 						<div className="relative col-span-3">
 							<Image
-								src={mainImage.src}
-								alt={mainImage.alt}
+								src={images[0]}
+								alt={`${title} main image`}
 								layout="fill"
 								objectPosition="top"
 								className="rounded-lg object-cover"
 							/>
 						</div>
 						<div className="flex flex-col gap-2">
-							{sideImages.map((image, index) => (
+							{images.slice(1).map((image, index) => (
 								<div
 									key={index}
 									className="relative rounded-lg h-full object-cover overflow-hidden"
 								>
 									<Image
-										src={image.src}
-										alt={image.alt}
+										src={image} 
+										alt={`${title} side image ${index + 1}`}
 										layout="fill"
 										sizes="10vw"
 										className="rounded-lg object-cover"
 									/>
-									{index === sideImages.length - 1 && (
-										<div className="relative bg-gray-900/70 w-full h-full">
-											<div className="absolute bottom-1/4 left-1/4 font-surrealism flex items-center text-xl text-white gap-2">
-												{sideImages.length}
-												<svg
-													role="presentation"
-													width="24"
-													height="24"
-													viewBox="0 0 24 24"
-													fill="none"
-													xmlns="http://www.w3.org/2000/svg"
-												>
-													<path
-														fillRule="evenodd"
-														clipRule="evenodd"
-														d="M18.7071 11.2929L12.7071 5.29285L11.2929 6.70707L15.5857 11H5V13H15.5857L11.2929 17.2929L12.7071 18.7071L18.7071 12.7071L19.4142 12L18.7071 11.2929Z"
-														fill="white"
-													/>
-												</svg>
-											</div>
-										</div>
-									)}
 								</div>
 							))}
 						</div>
 					</div>
 					<div className="max-w-[300px]">
-						<p className="font-surrealism text-md  text-gray-900 !leading-[120%]">
+						<p className="font-surrealism text-md text-gray-900 !leading-[120%]">
 							<span>{title}</span>
 						</p>
-						<div className="font-rococo text-sm text-gray-600 opacity-0">
+						<div className="font-rococo text-sm text-gray-600">
 							<span>By {user}</span>
 						</div>
 					</div>

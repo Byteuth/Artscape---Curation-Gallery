@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import SessionProvider from "@/components/sessionProvider/sessionProvider"
+import SessionProvider from "@/components/sessionProvider/sessionProvider";
+import { Toaster } from "@/components/ui/toaster";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { getServerSession } from "next-auth";
 import "./globals.css";
@@ -25,7 +26,7 @@ export default async function RootLayout({
 }: Readonly<{
 	children: React.ReactNode;
 }>) {
-  const session = await getServerSession(authOptions);
+	const session = await getServerSession(authOptions);
 
 	return (
 		<html lang="en">
@@ -34,6 +35,7 @@ export default async function RootLayout({
 			>
 				<SessionProvider session={session}>
 					<main>{children}</main>
+					<Toaster />
 				</SessionProvider>
 			</body>
 		</html>

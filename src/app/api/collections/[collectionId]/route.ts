@@ -1,0 +1,96 @@
+import { type NextRequest, NextResponse } from "next/server";
+import prisma from "@/lib/db";
+
+export async function PATCH(
+	req: NextRequest,
+	{ params }: { params: { collectionId: string } }
+) {
+	try {
+		const { collectionId } = params;
+		const { artwork } = await req.json();
+
+		const existingCollection = await prisma.collection.findUnique({
+			where: { id: collectionId },
+			select: { images: true },
+		});
+
+		if (!existingCollection) {
+			return NextResponse.json(
+				{ error: "Collection not found" },
+				{ status: 404 }
+			);
+		}
+
+		const existingImages = existingCollection.images
+			? existingCollection.images.split(",").filter(Boolean)
+			: [];
+		const newImages = artwork.images || [];
+		const updatedImages = Array.from(
+			new Set([...existingImages, ...newImages])
+		);
+
+		const updatedArtworksUrl = updatedImages.join(", ");
+
+		// Perform the transaction
+		const updatedCollection = await prisma.$transaction(async (prisma) => {
+			const collection = await prisma.collection.update({
+				where: { id: collectionId },
+				data: {
+					images: updatedArtworksUrl,
+				},
+			});
+
+			// Upsert the artwork into the database
+			const upsertedArtwork = await prisma.artwork.upsert({
+				where: { objectId: artwork.id },
+				update: {
+					title: artwork.title,
+					images: updatedArtworksUrl,
+					description: artwork.description,
+					source: artwork.source,
+					medium: artwork.medium,
+					period: artwork.period,
+					country: artwork.country,
+					department: artwork.department,
+					creditLine: artwork.creditLine,
+					objectDate: artwork.objectDate,
+					objectURL: artwork.objectURL,
+				},
+				create: {
+					objectId: artwork.id,
+					title: artwork.title,
+					description: artwork.description,
+					source: artwork.source,
+					medium: artwork.medium,
+					period: artwork.period,
+					country: artwork.country,
+					department: artwork.department,
+					creditLine: artwork.creditLine,
+					objectDate: artwork.objectDate,
+					objectURL: artwork.objectURL,
+				},
+			});
+
+			// Connect the upserted artwork to the collection
+			await prisma.collection.update({
+				where: { id: collectionId },
+				data: {
+					artworks: {
+						connect: { id: upsertedArtwork.id },
+					},
+				},
+			});
+
+			return collection;
+		});
+
+		return NextResponse.json(updatedCollection, { status: 200 });
+	} catch (error: any) {
+		console.error("Error updating collection:", error);
+
+		return NextResponse.json(
+			{ error: error.message || "Failed to update collection" },
+			{ status: 500 }
+		);
+	}
+}

@@ -8,8 +8,9 @@ import {
 	DialogTitle,
 } from "@/components/ui/dialog";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
-import type { Collections } from "@/types";
+import type { Artwork, Collections } from "@/types";
 import Image from "next/image";
+import { useToast } from "@/hooks/use-toast";
 import { Button } from "./ui/button";
 import { Plus } from "lucide-react";
 
@@ -18,6 +19,7 @@ interface CollectionsModalProps {
 	onClose: () => void;
 	collections: Collections[];
 	setCollections: React.Dispatch<React.SetStateAction<Collections[]>>;
+	artwork: Artwork;
 }
 
 export default function CollectionsModal({
@@ -25,6 +27,7 @@ export default function CollectionsModal({
 	onClose,
 	collections,
 	setCollections,
+	artwork,
 }: CollectionsModalProps) {
 	const [showCreateForm, setShowCreateForm] = React.useState(false);
 	const [title, setTitle] = React.useState("");
@@ -32,27 +35,49 @@ export default function CollectionsModal({
 	const [error, setError] = React.useState("");
 	const [loading, setLoading] = React.useState(false);
 	const { data: session } = useSession();
+	const { toast } = useToast();
 
-	function getFirstImage(images: string): string {
-		if (!images) return "/images/placeholder-image.png";
-		const imageArray = images.split(",");
-		return imageArray[0] || "/images/placeholder-image.png";
-	}
 
-	function getArtworksCount(images: string): string | number {
-		if (!images || images.trim() === "") {
-			return "Empty";
+
+	const handleAddToCollection = async (collectionId: string) => {
+		setLoading(true);
+		setError("");
+
+		try {
+			const response = await fetch(`/api/collections/${collectionId}`, {
+				method: "PATCH",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({
+					artwork: artwork,
+				}),
+			});
+
+			if (!response.ok) {
+				const errorData = await response.json();
+				setError(errorData.error || "Failed to add artwork to collection");
+			}
+		} catch (error) {
+			console.error("Error adding artwork to collection:", error);
+			setError("An unexpected error occurred.");
+		} finally {
+			const response = await fetch(`/api/collections`, {
+				method: "GET",
+				headers: { "Content-Type": "application/json" },
+			});
+
+			if (response.ok) {
+				const collections = await response.json();
+				setCollections(collections);
+				setLoading(false);
+				toast({
+					title: "Artwork added to collection",
+					description: `Successfully added`,
+				});
+			}
 		}
+	};
 
-		const length = images.split(",").filter(Boolean).length;
-		return length;
-	}
-
-	function handleAddToCollection(collectionId: string) {
-		console.log("Add to collection:", collectionId);
-	}
-
-	const handleSubmit = async (e: React.FormEvent) => {
+	const handleCreateNewCollection = async (e: React.FormEvent) => {
 		e.preventDefault();
 		setError("");
 
@@ -93,61 +118,81 @@ export default function CollectionsModal({
 			setError("An error occurred during collection creation.");
 		} finally {
 			setLoading(false);
+			toast({
+				title: "Collection Created",
+				description: `${title}  created successfully.`,
+			});
 		}
 	};
 
+
 	return (
 		<Dialog open={isOpen} onOpenChange={onClose}>
-			<DialogContent className="sm:max-w-[80vw] max-h-[60vh] overflow-y-auto">
+			<DialogContent className="sm:max-w-[80vw] max-h-[50vh] overflow-y-auto ">
 				<DialogHeader>
 					<DialogTitle>Your Collections</DialogTitle>
 				</DialogHeader>
 
-				<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-4">
-					{collections.map((collection) => (
-						<Card
-							key={collection.id}
-							className="overflow-hidden transform transition-all hover:scale-105 hover:border-2 hover:border-gray-300"
-						>
-							<CardContent className="p-0">
-								<div className="relative w-full h-48">
-									<Image
-										src={getFirstImage(collection.images) || "/placeholder.svg"}
-										alt={collection.title}
-										layout="fill"
-									/>
-								</div>
-							</CardContent>
-							<CardFooter className="flex flex-col p-4">
-								<div>
-									<div className="flex justify-between items-center">
-										<h3 className="font-semibold">
-											{collection.title}{" "}
-											<span className="text-sm text-gray-500">
-												({getArtworksCount(collection.images)})
-											</span>
-										</h3>
+				<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 py-8 ">
+					{collections.map((collection) => {
+						const images = collection.images.split(",").filter(Boolean);
+
+						return (
+							<Card
+								key={collection.id}
+								className="hover:border-2 hover:border-black relative p-1"
+							>
+								<CardContent className="p-0">
+									<div className="grid grid-cols-4 gap-2 w-full h-[200px] mb-8 pb-2">
+										{/* Main Image */}
+										<div className="relative col-span-3">
+											<Image
+												src={images[0] || "/images/placeholder-image.png"}
+												alt={`${collection.title} main image`}
+												layout="fill"
+												className="rounded-lg object-cover"
+											/>
+										</div>
+
+										{/* Side Images */}
+										<div className="flex flex-col gap-2">
+											{images.slice(1).map((image, index) => (
+												<div
+													key={index}
+													className="relative rounded-lg h-full object-cover overflow-hidden"
+												>
+													<Image
+														src={image}
+														alt={`${collection.title} side image ${index + 1}`}
+														layout="fill"
+														className="rounded-lg object-cover"
+													/>
+													{index === images.length - 2 && (
+														<div className="relative bg-gray-900/70 w-full h-full">
+															<div className="absolute bottom-1/4 left-1/4 flex items-center text-xl text-white gap-2">
+																+{images.length - 1}
+															</div>
+														</div>
+													)}
+												</div>
+											))}
+										</div>
+									<div className="absolute  left-1/2 transform -translate-x-1/2 bottom-1">
+										<Button
+											className="text-white rounded"
+											variant={"default"}
+											onClick={() => handleAddToCollection(collection.id)}
+										>
+											Add to Collection
+										</Button>
 									</div>
-									<p
-										className="text-sm text-gray-500 mt-1 line-clamp-1"
-										style={{
-											overflow: "hidden",
-											textOverflow: "ellipsis",
-										}}
-									>
-										{collection.description}
-									</p>
-								</div>
-								<Button
-									className="mt-8 text-white rounded"
-									variant={"default"}
-									onClick={handleAddToCollection}
-								>
-									Add to Collection
-								</Button>
-							</CardFooter>
-						</Card>
-					))}
+									</div>
+								</CardContent>
+
+								{/* Add to Collection Button */}
+							</Card>
+						);
+					})}
 
 					<Card
 						className="overflow-hidden transform transition-all hover:scale-105 hover:border-2 hover:border-gray-300 bg-gray-100 cursor-pointer"
@@ -159,7 +204,7 @@ export default function CollectionsModal({
 							</div>
 						</CardContent>
 						<CardFooter className="flex flex-col p-4">
-							<p className=" rounded">Create new collection</p>
+							<p className="rounded">Create new collection</p>
 						</CardFooter>
 					</Card>
 				</div>
@@ -173,7 +218,7 @@ export default function CollectionsModal({
 							<DialogHeader>
 								<DialogTitle>Create New Collection</DialogTitle>
 							</DialogHeader>
-							<form onSubmit={handleSubmit} className="space-y-4">
+							<form onSubmit={handleCreateNewCollection} className="space-y-4">
 								{error && <p className="text-red-500">{error}</p>}
 
 								<div>
@@ -182,6 +227,7 @@ export default function CollectionsModal({
 									</label>
 									<input
 										id="title"
+										name="title"
 										type="text"
 										className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md"
 										value={title}

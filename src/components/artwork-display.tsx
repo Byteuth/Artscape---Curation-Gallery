@@ -84,9 +84,8 @@ export default function ArtworkDisplay({
 			}
 
 			const fetchedCollections = await response.json();
-			setCollections(fetchedCollections); 
+			setCollections(fetchedCollections);
 			setIsModalOpen(true);
-
 		} catch (error) {
 			console.error("Error fetching collections", error);
 			setError("Failed to fetch collections.");
@@ -370,6 +369,7 @@ export default function ArtworkDisplay({
 				onClose={() => setIsModalOpen(false)}
 				collections={collections}
 				setCollections={setCollections}
+				artwork={artwork}
 			/>
 		</div>
 	);
