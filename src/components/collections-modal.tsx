@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect } from "react";
+import React from "react";
 import { useSession } from "next-auth/react";
 import {
 	Dialog,
@@ -8,6 +8,8 @@ import {
 	DialogTitle,
 } from "@/components/ui/dialog";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import { Input } from "./ui/input";
+import { Textarea } from "./ui/textarea";
 import type { Artwork, Collections } from "@/types";
 import Image from "next/image";
 import { useToast } from "@/hooks/use-toast";
@@ -37,8 +39,6 @@ export default function CollectionsModal({
 	const { data: session } = useSession();
 	const { toast } = useToast();
 
-
-
 	const handleAddToCollection = async (collectionId: string) => {
 		setLoading(true);
 		setError("");
@@ -52,9 +52,19 @@ export default function CollectionsModal({
 				}),
 			});
 
-			if (!response.ok) {
-				const errorData = await response.json();
-				setError(errorData.error || "Failed to add artwork to collection");
+			if (response.ok) {
+				const data = await response.json();
+				if (data.message === "Artwork is already in the collection") {
+					toast({
+						title: "Failed to add",
+						description: `Artwork already exists in the collection.`,
+					});
+				} else {
+					toast({
+						title: "Successfully added to collection",
+						description: `Artwork was successfully added to the collection.`,
+					});
+				}
 			}
 		} catch (error) {
 			console.error("Error adding artwork to collection:", error);
@@ -69,10 +79,6 @@ export default function CollectionsModal({
 				const collections = await response.json();
 				setCollections(collections);
 				setLoading(false);
-				toast({
-					title: "Artwork added to collection",
-					description: `Successfully added`,
-				});
 			}
 		}
 	};
@@ -125,143 +131,139 @@ export default function CollectionsModal({
 		}
 	};
 
-
 	return (
 		<Dialog open={isOpen} onOpenChange={onClose}>
-			<DialogContent className="sm:max-w-[80vw] max-h-[50vh] overflow-y-auto ">
+			<DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
 				<DialogHeader>
-					<DialogTitle>Your Collections</DialogTitle>
+					<DialogTitle className="text-2xl font-bold">
+						Your Collections
+					</DialogTitle>
 				</DialogHeader>
 
-				<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 py-8 ">
-					{collections.map((collection) => {
-						const images = collection.images.split(",").filter(Boolean);
+				<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
+					{collections.map((collection: Collection) => {
+						const images = collection.images?.split(",").filter(Boolean) || [];
 
 						return (
 							<Card
 								key={collection.id}
-								className="hover:border-2 hover:border-black relative p-1"
+								className="group overflow-hidden rounded-lg shadow-md transition-all duration-300 hover:shadow-xl"
+								onClick={() => handleAddToCollection(collection.id)}
 							>
-								<CardContent className="p-0">
-									<div className="grid grid-cols-4 gap-2 w-full h-[200px] mb-8 pb-2">
-										{/* Main Image */}
-										<div className="relative col-span-3">
-											<Image
-												src={images[0] || "/images/placeholder-image.png"}
-												alt={`${collection.title} main image`}
-												layout="fill"
-												className="rounded-lg object-cover"
-											/>
-										</div>
-
-										{/* Side Images */}
-										<div className="flex flex-col gap-2">
-											{images.slice(1).map((image, index) => (
-												<div
-													key={index}
-													className="relative rounded-lg h-full object-cover overflow-hidden"
-												>
-													<Image
-														src={image}
-														alt={`${collection.title} side image ${index + 1}`}
-														layout="fill"
-														className="rounded-lg object-cover"
-													/>
-													{index === images.length - 2 && (
-														<div className="relative bg-gray-900/70 w-full h-full">
-															<div className="absolute bottom-1/4 left-1/4 flex items-center text-xl text-white gap-2">
-																+{images.length - 1}
+								<CardContent className="p-3">
+									<div className="aspect-square overflow-hidden rounded-md">
+										<div className="grid grid-cols-2 gap-1 h-full">
+											<div
+												className={`relative ${
+													images.length === 1
+														? "col-span-2"
+														: "col-span-1 row-span-2"
+												}`}
+											>
+												<Image
+													src={images[0] || "/images/placeholder-image.png"}
+													alt={`${collection.title} main image`}
+													layout="fill"
+													objectFit="cover"
+													className="rounded-md"
+												/>
+											</div>
+											{images.length > 1 && (
+												<>
+													<div className="relative">
+														<Image
+															src={images[1] || "/placeholder.svg"}
+															alt={`${collection.title} image 2`}
+															layout="fill"
+															objectFit="cover"
+															className="rounded-md"
+														/>
+													</div>
+													<div className="relative">
+														<Image
+															src={images[2] || "/images/placeholder-image.png"}
+															alt={`${collection.title} image 3`}
+															layout="fill"
+															objectFit="cover"
+															className="rounded-md"
+														/>
+														{images.length > 3 && (
+															<div className="absolute inset-0 bg-black bg-opacity-60 flex items-center justify-center rounded-md">
+																<p className="text-white font-semibold">
+																	+{images.length - 3}
+																</p>
 															</div>
-														</div>
-													)}
-												</div>
-											))}
+														)}
+													</div>
+												</>
+											)}
 										</div>
-									<div className="absolute  left-1/2 transform -translate-x-1/2 bottom-1">
-										<Button
-											className="text-white rounded"
-											variant={"default"}
-											onClick={() => handleAddToCollection(collection.id)}
-										>
-											Add to Collection
-										</Button>
-									</div>
 									</div>
 								</CardContent>
-
-								{/* Add to Collection Button */}
+								<CardFooter className="flex flex-col items-center justify-center p-3 bg-gradient-to-b from-transparent to-gray-100">
+									<p className="font-semibold text-center mb-2">
+										{collection.title}
+									</p>
+									<Button variant="outline" size="sm" className="w-full">
+										Add
+									</Button>
+								</CardFooter>
 							</Card>
 						);
 					})}
 
 					<Card
-						className="overflow-hidden transform transition-all hover:scale-105 hover:border-2 hover:border-gray-300 bg-gray-100 cursor-pointer"
+						className="overflow-hidden rounded-lg shadow-md transition-all duration-300 hover:shadow-xl cursor-pointer"
 						onClick={() => setShowCreateForm(true)}
 					>
-						<CardContent className="p-0">
-							<div className="relative w-full h-48">
-								<Plus className="absolute top-36 left-1/2 -translate-x-1/2 -translate-y-1/2 scale-150" />
+						<CardContent className="flex flex-col items-center justify-center h-full p-6">
+							<div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-4">
+								<Plus className="w-8 h-8 text-primary" />
 							</div>
+							<p className="font-semibold text-center">Create New Collection</p>
 						</CardContent>
-						<CardFooter className="flex flex-col p-4">
-							<p className="rounded">Create new collection</p>
-						</CardFooter>
 					</Card>
 				</div>
 
-				{showCreateForm && (
-					<Dialog
-						open={showCreateForm}
-						onOpenChange={() => setShowCreateForm(false)}
-					>
-						<DialogContent>
-							<DialogHeader>
-								<DialogTitle>Create New Collection</DialogTitle>
-							</DialogHeader>
-							<form onSubmit={handleCreateNewCollection} className="space-y-4">
-								{error && <p className="text-red-500">{error}</p>}
-
-								<div>
-									<label htmlFor="title" className="block text-sm font-medium">
-										Title
-									</label>
-									<input
-										id="title"
-										name="title"
-										type="text"
-										className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md"
-										value={title}
-										onChange={(e) => setTitle(e.target.value)}
-									/>
-								</div>
-								<div>
-									<label
-										htmlFor="description"
-										className="block text-sm font-medium"
-									>
-										Description
-									</label>
-									<textarea
-										id="description"
-										rows={3}
-										className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md"
-										value={description}
-										onChange={(e) => setDescription(e.target.value)}
-									/>
-								</div>
-
-								<Button
-									type="submit"
-									className="w-full py-2 text-white rounded mt-4"
-									variant="default"
-									disabled={loading}
-								>
-									{loading ? "Creating..." : "Create Collection"}
-								</Button>
-							</form>
-						</DialogContent>
-					</Dialog>
-				)}
+				<Dialog
+					open={showCreateForm}
+					onOpenChange={() => setShowCreateForm(false)}
+				>
+					<DialogContent className="sm:max-w-[425px]">
+						<DialogHeader>
+							<DialogTitle>Create New Collection</DialogTitle>
+						</DialogHeader>
+						<form onSubmit={handleCreateNewCollection} className="space-y-4">
+							{error && <p className="text-red-500 text-sm">{error}</p>}
+							<div className="space-y-2">
+								<label htmlFor="title" className="text-sm font-medium">
+									Title
+								</label>
+								<Input
+									id="title"
+									value={title}
+									onChange={(e) => setTitle(e.target.value)}
+									placeholder="Enter collection title"
+								/>
+							</div>
+							<div className="space-y-2">
+								<label htmlFor="description" className="text-sm font-medium">
+									Description
+								</label>
+								<Textarea
+									id="description"
+									value={description}
+									onChange={(e) => setDescription(e.target.value)}
+									placeholder="Enter collection description"
+									rows={3}
+								/>
+							</div>
+							<Button type="submit" className="w-full" disabled={loading}>
+								{loading ? "Creating..." : "Create Collection"}
+							</Button>
+						</form>
+					</DialogContent>
+				</Dialog>
 			</DialogContent>
 		</Dialog>
 	);

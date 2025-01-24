@@ -11,7 +11,7 @@ export async function PATCH(
 
 		const existingCollection = await prisma.collection.findUnique({
 			where: { id: collectionId },
-			select: { images: true },
+			select: { images: true, artworks: { select: { objectId: true } } },
 		});
 
 		if (!existingCollection) {
@@ -31,7 +31,18 @@ export async function PATCH(
 
 		const updatedArtworksUrl = updatedImages.join(", ");
 
-		// Perform the transaction
+		// Check if the artwork is already connected to the collection
+		const isArtworkAlreadyConnected = existingCollection.artworks.some(
+			(existingArtwork) => existingArtwork.objectId === artwork.id
+		);
+
+		if (isArtworkAlreadyConnected) {
+			return NextResponse.json(
+				{ message: "Artwork is already in the collection" },
+				{ status: 200 }
+			);
+		}
+
 		const updatedCollection = await prisma.$transaction(async (prisma) => {
 			const collection = await prisma.collection.update({
 				where: { id: collectionId },
@@ -40,7 +51,7 @@ export async function PATCH(
 				},
 			});
 
-			// Upsert the artwork into the database
+			
 			const upsertedArtwork = await prisma.artwork.upsert({
 				where: { objectId: artwork.id },
 				update: {
@@ -71,7 +82,7 @@ export async function PATCH(
 				},
 			});
 
-			// Connect the upserted artwork to the collection
+		
 			await prisma.collection.update({
 				where: { id: collectionId },
 				data: {
