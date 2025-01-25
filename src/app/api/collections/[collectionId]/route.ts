@@ -30,8 +30,6 @@ export async function PATCH(
 		);
 
 		const updatedArtworksUrl = updatedImages.join(", ");
-
-		// Check if the artwork is already connected to the collection
 		const isArtworkAlreadyConnected = existingCollection.artworks.some(
 			(existingArtwork) => existingArtwork.objectId === artwork.id
 		);
@@ -42,7 +40,7 @@ export async function PATCH(
 				{ status: 200 }
 			);
 		}
-
+		
 		const updatedCollection = await prisma.$transaction(async (prisma) => {
 			const collection = await prisma.collection.update({
 				where: { id: collectionId },
@@ -51,12 +49,11 @@ export async function PATCH(
 				},
 			});
 
-			
 			const upsertedArtwork = await prisma.artwork.upsert({
 				where: { objectId: artwork.id },
 				update: {
 					title: artwork.title,
-					images: updatedArtworksUrl,
+					images: updatedImages[updatedImages.length - 1],
 					description: artwork.description,
 					source: artwork.source,
 					medium: artwork.medium,
@@ -70,6 +67,7 @@ export async function PATCH(
 				create: {
 					objectId: artwork.id,
 					title: artwork.title,
+					images: updatedImages[updatedImages.length - 1],
 					description: artwork.description,
 					source: artwork.source,
 					medium: artwork.medium,
@@ -82,7 +80,6 @@ export async function PATCH(
 				},
 			});
 
-		
 			await prisma.collection.update({
 				where: { id: collectionId },
 				data: {
@@ -101,6 +98,38 @@ export async function PATCH(
 
 		return NextResponse.json(
 			{ error: error.message || "Failed to update collection" },
+			{ status: 500 }
+		);
+	}
+}
+
+export async function GET(
+	req: NextRequest,
+	{ params }: { params: { collectionId: string } }
+) {
+	try {
+		const { collectionId } = params;
+
+		// Fetch the collection details by ID
+		const collection = await prisma.collection.findUnique({
+			where: { id: collectionId },
+			include: {
+				artworks: true,
+			},
+		});
+
+		if (!collection) {
+			return NextResponse.json(
+				{ error: "Collection not found" },
+				{ status: 404 }
+			);
+		}
+		return NextResponse.json(collection, { status: 200 });
+	} catch (error: any) {
+		console.error("Error fetching collection:", error);
+
+		return NextResponse.json(
+			{ error: error.message || "Failed to fetch collection" },
 			{ status: 500 }
 		);
 	}

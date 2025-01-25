@@ -4,7 +4,6 @@ import React, { useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import prisma from "@/lib/db";
 import {
 	Carousel,
 	CarouselContent,
@@ -128,7 +127,7 @@ export default function ArtworkDisplay({
 						) : (
 							<Card>
 								<Image
-									src={images[currentIndex] || "/images/placeholder-image.png"}
+									src={images[0] || "/images/placeholder-image.png"}
 									alt={artwork.title || "Artwork"}
 									width={800}
 									height={600}

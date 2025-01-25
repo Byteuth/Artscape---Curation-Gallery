@@ -1,27 +1,59 @@
 "use client";
+
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "./ui/button";
-import { Collections } from "@/types";
+
+export interface Artwork {
+	id: string;
+	objectId: number;
+	title: string;
+	images: string | null;
+	description: string | null;
+	source: string;
+	medium: string;
+	period: string | null;
+	country: string;
+	department: string;
+	creditLine: string;
+	objectDate: string;
+	objectURL: string;
+	createdAt: string;
+	updatedAt: string;
+}
+
+export interface User {
+	id: string;
+	email: string;
+	password: string;
+	name: string;
+	createdAt: string;
+	updatedAt: string;
+}
+
+export interface Collection {
+	id: string;
+	userId: string;
+	title: string;
+	images: string | null;
+	description: string;
+	createdAt: string;
+	updatedAt: string;
+	user: User;
+	artworks: Artwork[];
+}
 
 export default function CollectionSection() {
 	const [visibleArtworks, setVisibleArtworks] = useState<number>(12);
-	const [collections, setCollections] = useState<Collections[]>([]);
+	const [collections, setCollections] = useState<Collection[]>([]);
 
 	useEffect(() => {
 		const fetchCollections = async () => {
 			try {
 				const response = await fetch("/api/collections");
-				const data = await response.json();
-
-				// Transform the collections to parse the images into arrays
-				const transformedCollections = data.map((collection: Collections) => ({
-					...collection,
-					images: collection.images.split(",").map((url) => url.trim()),
-				}));
-
-				setCollections(transformedCollections);
+				const data: Collection[] = await response.json();
+				setCollections(data);
 			} catch (error) {
 				console.error("Failed to fetch collections:", error);
 			}
@@ -33,6 +65,7 @@ export default function CollectionSection() {
 	const loadMore = () => {
 		setVisibleArtworks((prev) => prev + 12);
 	};
+
 	useEffect(() => {
 		console.log(collections);
 	}, [collections]);
@@ -40,19 +73,18 @@ export default function CollectionSection() {
 	return (
 		<div className="bg-[#ffffff] flex flex-col justify-center items-center py-16 w-full">
 			<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-[1200px] mx-auto">
-				{collections.slice(0, visibleArtworks).map((collection, index) => (
+				{collections.slice(0, visibleArtworks).map((collection) => (
 					<CollectionGrid
-						key={index}
+						key={collection.id}
 						id={collection.id}
 						title={collection.title}
 						user={collection.user.name}
 						images={collection.images}
-						description={collection.description}
 					/>
 				))}
 			</div>
 			{visibleArtworks < collections.length && visibleArtworks > 0 && (
-				<div className="mt-8 text-center">
+				<div className="mt-6 text-center">
 					<p className="text-sm text-gray-600 mb-4">
 						Showing {Math.min(visibleArtworks, collections.length)} of{" "}
 						{collections.length}
@@ -75,62 +107,74 @@ export function CollectionGrid({
 	id: string;
 	title: string;
 	user: string;
-	images: string;
-	description: string;
+	images: string | null;
 }) {
-	console.log(images);
+	const imageArray = images ? images.split(", ").reverse() : [];
+
 	return (
-		<div className="bg-[#ffffff] flex flex-col lg:p-2 py-4 px-6 w-auto ">
-			<div className="relative w-full">
-				<Link href={`/collection/${id}`}>
-					<div className="grid grid-cols-4 gap-2 w-full h-[300px] mb-4">
-						<div className="relative col-span-3">
-							<Image
-								src={images[0]}
-								alt={`${title} main image`}
-								layout="fill"
-								objectPosition="top"
-								className="rounded-lg object-cover"
-							/>
+		<div className="bg-white rounded-lg shadow-md overflow-hidden transition-all duration-300 hover:shadow-lg">
+			<Link href={`/collections/${id}`} className="block">
+				<div className="relative aspect-square overflow-hidden">
+					{imageArray.length === 1 ? (
+						// Single image layout
+						<Image
+							src={imageArray[0] || "/images/placeholder-image.png"}
+							alt={`${title} main image`}
+							fill
+							className="object-cover "
+						/>
+					) : (
+						// Multiple images layout
+						<div className="grid grid-cols-2 gap-1 h-full">
+							<div
+								className={`relative ${
+									imageArray.length === 1
+										? "col-span-2"
+										: "col-span-1 row-span-2"
+								}`}
+							>
+								<Image
+									src={imageArray[0] || "/images/placeholder-image.png"}
+									alt={`${title} main image`}
+									fill
+									className="object-cover "
+								/>
+							</div>
+							{imageArray.length > 1 && (
+								<>
+									{imageArray.slice(1, 5).map((img, index) => (
+										<div key={index} className="relative">
+											<Image
+												src={img || "/images/placeholder-image.png"}
+												alt={`${title} image ${index + 2}`}
+												fill
+												className="object-cover "
+											/>
+											{/* Render the overlay only on the last image */}
+											{index === 3 && imageArray.length > 2 && (
+												<div className="absolute inset-0 bg-black bg-opacity-60 flex items-center justify-center rounded-md">
+													<p className="text-white font-semibold text-lg">
+														+{imageArray.length - 3}
+													</p>
+												</div>
+											)}
+										</div>
+									))}
+								</>
+							)}
 						</div>
-						<div className="flex flex-col gap-2">
-							{images.slice(1).map((image, index) => (
-								<div
-									key={index}
-									className="relative rounded-lg h-full object-cover overflow-hidden"
-								>
-									<Image
-										src={image} 
-										alt={`${title} side image ${index + 1}`}
-										layout="fill"
-										sizes="10vw"
-										className="rounded-lg object-cover"
-									/>
-								</div>
-							))}
-						</div>
-					</div>
-					<div className="max-w-[300px]">
-						<p className="font-surrealism text-md text-gray-900 !leading-[120%]">
-							<span>{title}</span>
-						</p>
-						<div className="font-rococo text-sm text-gray-600">
-							<span>By {user}</span>
-						</div>
-					</div>
-				</Link>
-				<div className="absolute max-w-[300px] bottom-0 font-rococo text-sm text-gray-600 pointer-events-none">
-					<span>
-						By{" "}
-						<Link
-							href={`/`}
-							className="pointer-events-auto hover:text-gray-300"
-						>
-							{user}
-						</Link>
-					</span>
+					)}
 				</div>
-			</div>
+
+				<div className="p-4 bg-gradient-to-b from-gray-50 to-white">
+					<h3 className="font-surrealism text-lg font-semibold text-gray-900 mb-1 leading-tight truncate">
+						{title}
+					</h3>
+					<p className="font-rococo text-sm text-gray-600">
+						By <span className="text-primary hover:underline">{user}</span>
+					</p>
+				</div>
+			</Link>
 		</div>
 	);
 }
