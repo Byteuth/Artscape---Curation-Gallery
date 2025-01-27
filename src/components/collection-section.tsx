@@ -47,28 +47,52 @@ export interface Collection {
 export default function CollectionSection() {
 	const [visibleArtworks, setVisibleArtworks] = useState<number>(12);
 	const [collections, setCollections] = useState<Collection[]>([]);
+	const [userNames, setUserNames] = useState<Record<string, string>>({});
 
 	useEffect(() => {
-		const fetchCollections = async () => {
+		const fetchUserName = async (userId: string) => {
+			try {
+				const response = await fetch(`/api/user/${userId}`);
+				const data = await response.json();
+				return data.name;
+			} catch (error) {
+				console.error(`Failed to fetch user info for ${userId}:`, error);
+				return null;
+			}
+		};
+
+		const fetchCollectionsAndUsers = async () => {
 			try {
 				const response = await fetch("/api/collections");
-				const data: Collection[] = await response.json();
-				setCollections(data);
+				const collectionsData: Collection[] = await response.json();
+				setCollections(collectionsData);
+
+				const uniqueUserIds = [
+					...new Set(collectionsData.map((collection) => collection.userId)),
+				];
+				const userNamesMap: Record<string, string> = {};
+
+				// Fetch all user names in parallel
+				const userNamePromises = uniqueUserIds.map(async (userId) => {
+					const name = await fetchUserName(userId);
+					if (name) {
+						userNamesMap[userId] = name;
+					}
+				});
+
+				await Promise.all(userNamePromises);
+				setUserNames(userNamesMap);
 			} catch (error) {
 				console.error("Failed to fetch collections:", error);
 			}
 		};
 
-		fetchCollections();
+		fetchCollectionsAndUsers();
 	}, []);
 
 	const loadMore = () => {
 		setVisibleArtworks((prev) => prev + 12);
 	};
-
-	useEffect(() => {
-		console.log(collections);
-	}, [collections]);
 
 	return (
 		<div className="bg-[#ffffff] flex flex-col justify-center items-center py-16 w-full">
@@ -78,8 +102,8 @@ export default function CollectionSection() {
 						key={collection.id}
 						id={collection.id}
 						title={collection.title}
-						user={collection.user.name}
 						images={collection.images}
+						user={userNames[collection.userId] || "Unknown User"}
 					/>
 				))}
 			</div>
@@ -109,7 +133,8 @@ export function CollectionGrid({
 	user: string;
 	images: string | null;
 }) {
-	const imageArray = images ? images.split(", ").reverse() : [];
+	const imageArray = images ? images.split(", ") : [];
+	
 
 	return (
 		<div className="bg-white rounded-lg shadow-md overflow-hidden transition-all duration-300 hover:shadow-lg">

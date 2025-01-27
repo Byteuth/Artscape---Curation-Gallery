@@ -8,8 +8,9 @@ import Footer from "@/components/footer";
 import NavigationBar from "@/components/navigation-bar";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { Router } from "next/router";
 
 interface Artwork {
 	id: string;
@@ -42,11 +43,10 @@ interface Collection {
 
 export default function CollectionId() {
 	const pathname = usePathname();
-
+	const router = useRouter();
 	const [collection, setCollection] = useState<Collection | null>(null);
 	const [loading, setLoading] = useState(true);
 
-	
 	const collectionId = pathname?.split("/").pop();
 
 	useEffect(() => {
@@ -73,12 +73,14 @@ export default function CollectionId() {
 	return (
 		<div className="mx-auto overflow-x-hidden">
 			<NavigationBar />
-			<Link href="/">
-				<Button variant="ghost" className="md:m-4 m-2">
-					<ArrowLeft className="h-4 w-4" />
-					Home
-				</Button>
-			</Link>
+			<Button
+				variant="ghost"
+				className="md:m-4 m-2"
+				onClick={() => router.back()}
+			>
+				<ArrowLeft className="h-4 w-4" />
+				Back to Collections
+			</Button>
 
 			{loading ? (
 				<div className="text-center py-16">Loading...</div>

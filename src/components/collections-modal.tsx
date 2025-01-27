@@ -10,7 +10,7 @@ import {
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Input } from "./ui/input";
 import { Textarea } from "./ui/textarea";
-import type { Artwork, Collections } from "@/types";
+import { Artwork, Collections } from "@/types";
 import Image from "next/image";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "./ui/button";
@@ -51,7 +51,7 @@ export default function CollectionsModal({
 					artwork: artwork,
 				}),
 			});
-			
+
 			if (response.ok) {
 				const data = await response.json();
 				if (data.message === "Artwork is already in the collection") {
@@ -163,10 +163,12 @@ export default function CollectionsModal({
 		}
 	};
 
-
 	return (
 		<Dialog open={isOpen} onOpenChange={onClose}>
-			<DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+			<DialogContent
+				className="max-w-4xl max-h-[80vh] overflow-y-auto"
+				aria-describedby={undefined}
+			>
 				<DialogHeader>
 					<DialogTitle className="text-2xl font-bold">
 						Your Collections
@@ -174,34 +176,41 @@ export default function CollectionsModal({
 				</DialogHeader>
 
 				<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
-					{collections.map((collection: Collection) => {
-						const images = collection.images?.split(",").filter(Boolean) || [];
+					{collections.map((collection) => {
+						const artworksMainImage = collection.artworks.map((artwork) => {
+							const images =
+								artwork.images
+									?.split(",")
+									.map((img: string) => img.trim())
+									.filter(Boolean) || [];
+							return images[0];
+						});
 
 						return (
 							<Card
 								key={collection.id}
 								className="group overflow-hidden rounded-lg shadow-md transition-all duration-300 hover:shadow-xl"
-								onClick={() => handleAddToCollection(collection.id)}
 							>
 								<CardContent className="p-3">
 									<div className="aspect-square overflow-hidden rounded-md">
 										<div
 											className={`grid gap-1 h-full ${
-												images.length === 1
+												artworksMainImage.length === 1
 													? "grid-cols-1 grid-rows-1"
 													: "grid-cols-2 grid-rows-2"
 											}`}
 										>
 											<div
 												className={`relative ${
-													images.length === 1
+													artworksMainImage.length === 1
 														? "col-span-1 row-span-1"
 														: "col-span-1 row-span-2"
 												}`}
 											>
 												<Image
 													src={
-														images[0]?.trim() || "/images/placeholder-image.png"
+														artworksMainImage[artworksMainImage.length - 1] ||
+														"/images/placeholder-image.png"
 													}
 													alt={`${collection.title} main image`}
 													className="rounded-md object-cover w-full h-full"
@@ -209,11 +218,14 @@ export default function CollectionsModal({
 													height={300}
 												/>
 											</div>
-											{images.length > 1 && (
+											{artworksMainImage.length > 1 && (
 												<>
 													<div className="relative col-span-1 row-span-1">
 														<Image
-															src={images[1]?.trim() || "/placeholder.svg"}
+															src={
+																artworksMainImage.reverse()[1]?.trim() ||
+																"/placeholder.svg"
+															}
 															alt={`${collection.title} image 2`}
 															className="rounded-md object-cover w-full h-full"
 															width={300}
@@ -223,7 +235,7 @@ export default function CollectionsModal({
 													<div className="relative col-span-1 row-span-1">
 														<Image
 															src={
-																images[2]?.trim() ||
+																artworksMainImage.reverse()[2]?.trim() ||
 																"/images/placeholder-image.png"
 															}
 															alt={`${collection.title} image 3`}
@@ -231,10 +243,10 @@ export default function CollectionsModal({
 															width={300}
 															height={300}
 														/>
-														{images.length > 3 && (
+														{artworksMainImage.length > 3 && (
 															<div className="absolute inset-0 bg-black bg-opacity-60 flex items-center justify-center rounded-md">
 																<p className="text-white font-semibold">
-																	+{images.length - 3}
+																	+{artworksMainImage.length - 3}
 																</p>
 															</div>
 														)}
@@ -250,7 +262,12 @@ export default function CollectionsModal({
 										{collection.title}
 									</p>
 									<div className="flex items-center gap-2 w-full justify-between">
-										<Button variant="outline" size="sm" className="w-1/2">
+										<Button
+											variant="outline"
+											size="sm"
+											className="w-1/2"
+											onClick={() => handleAddToCollection(collection.id)}
+										>
 											Add
 										</Button>
 										<Button

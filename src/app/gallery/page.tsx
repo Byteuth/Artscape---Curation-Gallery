@@ -47,6 +47,7 @@ export default function Gallery() {
 	});
 	const [loading, setLoading] = useState<boolean>(false);
 	const [goToPage, setGoToPage] = useState("");
+	const [initialized, setInitialized] = useState(false);
 
 	// Ensure the searchObject state gets updated after checking localStorage
 	useEffect(() => {
@@ -73,20 +74,38 @@ export default function Gallery() {
 		) {
 			queryParams.append("page", currentPage.toString());
 		}
-
-		router.push(`/gallery?${queryParams.toString()}`, undefined);
 	}, [searchObject.searchKey, currentPage, router]);
+
+	// Reusable function to update URL and local storage
+	const updateUrlAndLocalStorage = (newUrl: string) => {
+		window.history.replaceState(null, "", newUrl);
+		localStorage.setItem("lastVisitedGalleryUrl", newUrl);
+	};
+
+	// Sync query params with searchObject
+	useEffect(() => {
+		if (!initialized) return;
+
+		const params = new URLSearchParams();
+		if (currentPage > 1) params.set("page", currentPage.toString());
+		if (searchObject.searchKey) params.set("search", searchObject.searchKey);
+
+		const newUrl = `/gallery?${params.toString()}`;
+		updateUrlAndLocalStorage(newUrl);
+	}, [currentPage, searchObject.searchKey, initialized]);
 
 	// Get page and search key from URL query
 	useEffect(() => {
 		const urlParams = new URLSearchParams(window.location.search);
 		const pageFromQuery = Number(urlParams.get("page")) || 1;
 		const searchKeyFromQuery = urlParams.get("search") || "";
+
 		setCurrentPage(pageFromQuery);
 		setSearchObject((prev) => ({
 			...prev,
 			searchKey: searchKeyFromQuery,
 		}));
+		setInitialized(true);
 	}, []);
 
 	// Fetch artworks based on search criteria
@@ -94,7 +113,7 @@ export default function Gallery() {
 		let isMounted = true;
 
 		const fetchAndSetArtworks = async () => {
-			setLoading(true);
+			// setLoading(true);
 			try {
 				const { harvardResponse, metResponse } = await getArtworksByKeyword(
 					searchObject.searchKey,
@@ -148,7 +167,7 @@ export default function Gallery() {
 						}
 					}
 
-					setArtworks(combinedArtworks);
+					setArtworks(combinedArtworks);				
 					setTotalArtworks(harvardResponse.total + metResponse.total);
 				}
 			} catch (error) {
@@ -158,11 +177,12 @@ export default function Gallery() {
 			}
 		};
 
-		if (searchObject.searchKey) fetchAndSetArtworks();
+		fetchAndSetArtworks();
+
 		return () => {
 			isMounted = false;
 		};
-	}, [currentPage, searchObject.searchKey, router]);
+	}, [searchObject.searchKey, currentPage]);
 
 	// Filter artworks based on image filter preference
 	const filteredArtworks = artworks.filter((artwork) => {
@@ -199,23 +219,19 @@ export default function Gallery() {
 		setSearchObject((prev) => ({ ...prev, hasImage: value }));
 		localStorage.setItem("hasImageFilter", JSON.stringify(value));
 	};
-	///H/304551
 
-	useEffect(() => {
-		artworks.forEach((artwork, index) => {
-			if (artwork.images.length > 3) {
-				console.log("index: ", index+1, artwork.title, artwork.images.length);
-			}
-		});
-	}, [artworks]);
 	return (
 		<div className="mx-auto overflow-x-hidden">
 			<NavigationBar />
-			<Link href="/">
-				<Button variant="ghost" className="md:m-4 m-2">
-					<ArrowLeft className="h-4 w-4" /> Home
-				</Button>
-			</Link>
+			<Button
+				variant="ghost"
+				className="md:m-4 m-2"
+		
+				onClick={() => router.back()}
+			>
+				<ArrowLeft className="h-4 w-4" />
+				Back to Gallery
+			</Button>
 
 			{/* Header Section */}
 			<div className="grid grid-cols-1 lg:grid-cols-[1fr,1fr] items-center bg-gradient-to-r from-white to-[#ebefe0] drop-shadow-lg text-center py-6 lg:p-12">

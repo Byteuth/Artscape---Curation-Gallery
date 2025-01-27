@@ -123,11 +123,11 @@ export default function ArtworkDisplay({
 					{/* Main Image*/}
 					<section>
 						{loading ? (
-							<Skeleton className="w-full h-[600px] rounded-xl" />
+							<Skeleton className="w-full h-[400px] rounded-xl" />
 						) : (
 							<Card>
 								<Image
-									src={images[0] || "/images/placeholder-image.png"}
+									src={images[currentIndex] || "/images/placeholder-image.png"}
 									alt={artwork.title || "Artwork"}
 									width={800}
 									height={600}

@@ -44,7 +44,6 @@ export default function ArtworkPage() {
 		if (artwork) {
 			document.title = `${artwork.title} | Curation Gallery`;
 		}
-	
 	}, [artwork]);
 
 	if (!artwork) {
@@ -61,10 +60,10 @@ export default function ArtworkPage() {
 	return (
 		<div className="mx-auto overflow-x-hidden">
 			<NavigationBar />
-
 			<Button
 				variant="ghost"
 				className="md:m-4 m-2"
+		
 				onClick={() => router.back()}
 			>
 				<ArrowLeft className="h-4 w-4" />

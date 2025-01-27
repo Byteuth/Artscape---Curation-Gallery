@@ -45,20 +45,18 @@ export async function POST(req: NextRequest) {
 // Handle GET requests (Fetch all collections for the authenticated user)
 export async function GET(req: NextRequest) {
 	try {
-		const session = await getServerSession(authOptions);
+		// const session = await getServerSession(authOptions);
 
-		if (!session || !session.user?.id) {
-			return NextResponse.json(
-				{ error: "User not authenticated" },
-				{ status: 401 }
-			);
-		}
+		// if (!session || !session.user?.id) {
+		// 	return NextResponse.json(
+		// 		{ error: "User not authenticated" },
+		// 		{ status: 401 }
+		// 	);
+		// }
 
-		const userId = session.user.id;
+		// const userId = session.user.id;
 		const collections = await prisma.collection.findMany({
-			where: { userId },
 			include: {
-				user: true,
 				artworks: true,
 			},
 		});

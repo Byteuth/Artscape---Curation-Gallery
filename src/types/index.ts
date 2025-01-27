@@ -13,6 +13,7 @@ export interface Collections {
 	description: string;
 	createdAt: string;
 	updatedAt: string;
+	artworks: Artwork[];
 }
 
 export interface Artwork {

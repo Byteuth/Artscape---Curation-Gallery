@@ -148,7 +148,7 @@ export default function SearchAndFilter({
 }: searchAndFilterProps) {
 	const [searchTerm, setSearchTerm] = useState<string>("");
 	const [filterWords, setFilterWords] = useState<string[]>([]);
-	const [mustHaveImage, setMustHaveImage] = useState<boolean>(true);
+	const [mustHaveImage, setMustHaveImage] = useState<boolean>(false);
 	const pathName = usePathname();
 	const isGalleryPage = pathName === "/gallery";
 
