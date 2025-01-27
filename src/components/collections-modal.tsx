@@ -4,6 +4,7 @@ import { useSession } from "next-auth/react";
 import {
 	Dialog,
 	DialogContent,
+	DialogFooter,
 	DialogHeader,
 	DialogTitle,
 } from "@/components/ui/dialog";
@@ -15,6 +16,7 @@ import Image from "next/image";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "./ui/button";
 import { Plus, Trash } from "lucide-react";
+import { DialogDescription } from "@radix-ui/react-dialog";
 
 interface CollectionsModalProps {
 	isOpen: boolean;
@@ -38,6 +40,16 @@ export default function CollectionsModal({
 	const [loading, setLoading] = React.useState(false);
 	const { data: session } = useSession();
 	const { toast } = useToast();
+	const [filteredCollections, setFilteredCollections] = React.useState<
+		Collections[]
+	>([]);
+	const [deleteConfirmation, setDeleteConfirmation] = React.useState<{
+		isOpen: boolean;
+		collectionId: string | null;
+	}>({
+		isOpen: false,
+		collectionId: null,
+	});
 
 	const handleAddToCollection = async (collectionId: string) => {
 		setLoading(true);
@@ -92,42 +104,68 @@ export default function CollectionsModal({
 			return;
 		}
 
+		setLoading(true);
+
 		try {
 			const userId = session?.user?.id;
-			const response = await fetch("/api/collections", {
+
+			const createResponse = await fetch("/api/collections", {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify({ title, description, userId }),
 			});
 
-			if (!response.ok) {
-				const errorData = await response.json();
+			if (!createResponse.ok) {
+				const errorData = await createResponse.json();
 				setError(errorData.error || "An unexpected error occurred");
-			} else {
-				const updatedCollectionsResponse = await fetch("/api/collections", {
-					method: "GET",
+				return;
+			}
+
+			const createdCollection = await createResponse.json();
+			const newCollectionId = createdCollection.id;
+
+			if (artwork) {
+				const addResponse = await fetch(`/api/collections/${newCollectionId}`, {
+					method: "PATCH",
 					headers: { "Content-Type": "application/json" },
+					body: JSON.stringify({
+						artwork,
+					}),
 				});
 
-				if (updatedCollectionsResponse.ok) {
-					const updatedCollections = await updatedCollectionsResponse.json();
-					setCollections(updatedCollections);
-					setShowCreateForm(false);
-					setDescription("");
-					setTitle("");
-				} else {
-					console.error("Failed to fetch updated collections");
+				if (!addResponse.ok) {
+					const addErrorData = await addResponse.json();
+					setError(
+						addErrorData.error ||
+							"The collection was created, but adding the artwork failed."
+					);
+					return;
 				}
+			}
+
+			const updatedCollectionsResponse = await fetch("/api/collections", {
+				method: "GET",
+				headers: { "Content-Type": "application/json" },
+			});
+
+			if (updatedCollectionsResponse.ok) {
+				const updatedCollections = await updatedCollectionsResponse.json();
+				setCollections(updatedCollections);
+				setShowCreateForm(false);
+				setDescription("");
+				setTitle("");
+				toast({
+					title: "Collection Created",
+					description: `${title} was created successfully and artwork added.`,
+				});
+			} else {
+				console.error("Failed to fetch updated collections");
 			}
 		} catch (error) {
 			console.error("Error during collection creation:", error);
 			setError("An error occurred during collection creation.");
 		} finally {
 			setLoading(false);
-			toast({
-				title: "Collection Created",
-				description: `${title}  created successfully.`,
-			});
 		}
 	};
 
@@ -160,8 +198,17 @@ export default function CollectionsModal({
 			setError("An unexpected error occurred.");
 		} finally {
 			setLoading(false);
+			setDeleteConfirmation({ isOpen: false, collectionId: null });
 		}
 	};
+
+	useEffect(() => {
+		const collectionsByUserId = collections.filter(
+			(collection) => collection.userId === "cm6f645mv0000bdystcsvqs7z"
+		);
+
+		setFilteredCollections(collectionsByUserId);
+	}, [collections]);
 
 	return (
 		<Dialog open={isOpen} onOpenChange={onClose}>
@@ -176,7 +223,7 @@ export default function CollectionsModal({
 				</DialogHeader>
 
 				<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
-					{collections.map((collection) => {
+					{filteredCollections.map((collection) => {
 						const artworksMainImage = collection.artworks.map((artwork) => {
 							const images =
 								artwork.images
@@ -209,7 +256,7 @@ export default function CollectionsModal({
 											>
 												<Image
 													src={
-														artworksMainImage[artworksMainImage.length - 1] ||
+														artworksMainImage[0] ||
 														"/images/placeholder-image.png"
 													}
 													alt={`${collection.title} main image`}
@@ -223,7 +270,7 @@ export default function CollectionsModal({
 													<div className="relative col-span-1 row-span-1">
 														<Image
 															src={
-																artworksMainImage.reverse()[1]?.trim() ||
+																artworksMainImage[0]?.trim() ||
 																"/placeholder.svg"
 															}
 															alt={`${collection.title} image 2`}
@@ -235,7 +282,7 @@ export default function CollectionsModal({
 													<div className="relative col-span-1 row-span-1">
 														<Image
 															src={
-																artworksMainImage.reverse()[2]?.trim() ||
+																artworksMainImage[2]?.trim() ||
 																"/images/placeholder-image.png"
 															}
 															alt={`${collection.title} image 3`}
@@ -243,7 +290,7 @@ export default function CollectionsModal({
 															width={300}
 															height={300}
 														/>
-														{artworksMainImage.length > 3 && (
+														{artworksMainImage.length > 2 && (
 															<div className="absolute inset-0 bg-black bg-opacity-60 flex items-center justify-center rounded-md">
 																<p className="text-white font-semibold">
 																	+{artworksMainImage.length - 3}
@@ -273,7 +320,10 @@ export default function CollectionsModal({
 										<Button
 											onClick={(e) => {
 												e.stopPropagation();
-												handleDeleteCollection(collection.id);
+												setDeleteConfirmation({
+													isOpen: true,
+													collectionId: collection.id,
+												});
 											}}
 											className="p-3 bg-gray-500 text-white rounded-full shadow hover:bg-red-600 transition"
 											aria-label="Delete Collection"
@@ -282,6 +332,52 @@ export default function CollectionsModal({
 										</Button>
 									</div>
 								</CardFooter>
+
+								<Dialog
+									open={deleteConfirmation.isOpen}
+									onOpenChange={(isOpen) =>
+										setDeleteConfirmation({ isOpen, collectionId: null })
+									}
+									
+								>
+									<DialogContent >
+										<DialogHeader>
+											<DialogTitle>Confirm Deletion</DialogTitle>
+											<DialogDescription>
+												{`Are you sure you want to delete "${collection.title}" collection? This
+												action cannot be undone.`}
+											</DialogDescription>
+										</DialogHeader>
+										<DialogFooter className="sm:justify-start">
+											<Button
+												type="button"
+												variant="destructive"
+												onClick={() => {
+													if (deleteConfirmation.collectionId) {
+														handleDeleteCollection(
+															deleteConfirmation.collectionId
+														);
+													}
+												}}
+												disabled={loading}
+											>
+												{loading ? "Deleting..." : "Delete"}
+											</Button>
+											<Button
+												type="button"
+												variant="outline"
+												onClick={() =>
+													setDeleteConfirmation({
+														isOpen: false,
+														collectionId: null,
+													})
+												}
+											>
+												Cancel
+											</Button>
+										</DialogFooter>
+									</DialogContent>
+								</Dialog>
 							</Card>
 						);
 					})}

@@ -230,7 +230,7 @@ export default function Home() {
 				</section>
 			</div>
 			<section id="collection-Section " className="shadow-lg">
-				{/* <div className="container mx-auto  px-6 pt-16 ">
+				<div className="container mx-auto  px-6 pt-16 ">
 					<div className="mb-8 text-left ">
 						<h2 className="text-4xl font-bold mb-2">Curated Collections</h2>
 						<p className="text-lg text-gray-600">
@@ -244,8 +244,8 @@ export default function Home() {
 							</p>
 						</Link>
 					</div>
-					<CollectionSection collections={collections} />
-				</div> */}
+					<CollectionSection />
+				</div>
 			</section>
 			<section id="footer">
 				<Footer />

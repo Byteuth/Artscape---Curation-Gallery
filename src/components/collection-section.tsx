@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { Button } from "./ui/button";
 
 export interface Artwork {
@@ -45,11 +46,26 @@ export interface Collection {
 }
 
 export default function CollectionSection() {
-	const [visibleArtworks, setVisibleArtworks] = useState<number>(12);
+	const path = usePathname();
+	const [visibleArtworks, setVisibleArtworks] = useState<number>(
+		path === "/" ? 3 : 12
+	);
 	const [collections, setCollections] = useState<Collection[]>([]);
 	const [userNames, setUserNames] = useState<Record<string, string>>({});
+	const [currentUserId, setCurrentUserId] = useState<string | null>(null);
 
 	useEffect(() => {
+		// Fetch current user ID
+		const fetchCurrentUser = async () => {
+			try {
+				const response = await fetch("/api/auth/session");
+				const data = await response.json();
+				setCurrentUserId(data.user?.id || null);
+			} catch (error) {
+				console.error("Failed to fetch current user:", error);
+			}
+		};
+
 		const fetchUserName = async (userId: string) => {
 			try {
 				const response = await fetch(`/api/user/${userId}`);
@@ -65,13 +81,23 @@ export default function CollectionSection() {
 			try {
 				const response = await fetch("/api/collections");
 				const collectionsData: Collection[] = await response.json();
-				setCollections(collectionsData);
+
+				const filteredCollections =
+					path === "/saved" && currentUserId
+						? collectionsData.filter(
+								(collection) => collection.userId === currentUserId
+						  )
+						: collectionsData;
+
+				setCollections(filteredCollections);
 
 				const uniqueUserIds = [
-					...new Set(collectionsData.map((collection) => collection.userId)),
+					...new Set(
+						filteredCollections.map((collection) => collection.userId)
+					),
 				];
-				const userNamesMap: Record<string, string> = {};
 
+				const userNamesMap: Record<string, string> = {};
 				// Fetch all user names in parallel
 				const userNamePromises = uniqueUserIds.map(async (userId) => {
 					const name = await fetchUserName(userId);
@@ -87,36 +113,51 @@ export default function CollectionSection() {
 			}
 		};
 
+		fetchCurrentUser();
 		fetchCollectionsAndUsers();
-	}, []);
+	}, [path, currentUserId]);
 
 	const loadMore = () => {
 		setVisibleArtworks((prev) => prev + 12);
 	};
 
+	// useEffect(() => {
+	// 	console.log(collections);
+	// }, [collections]);
+
 	return (
 		<div className="bg-[#ffffff] flex flex-col justify-center items-center py-16 w-full">
-			<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-[1200px] mx-auto">
-				{collections.slice(0, visibleArtworks).map((collection) => (
-					<CollectionGrid
-						key={collection.id}
-						id={collection.id}
-						title={collection.title}
-						images={collection.images}
-						user={userNames[collection.userId] || "Unknown User"}
-					/>
-				))}
-			</div>
-			{visibleArtworks < collections.length && visibleArtworks > 0 && (
-				<div className="mt-6 text-center">
-					<p className="text-sm text-gray-600 mb-4">
-						Showing {Math.min(visibleArtworks, collections.length)} of{" "}
-						{collections.length}
+			{collections.length === 0 ? (
+				<div className="text-center">
+					<p className="text-lg text-gray-600">
+						You've got no saved collections at this time.
 					</p>
-					<Button variant="outline" className="w-full" onClick={loadMore}>
-						View More
-					</Button>
 				</div>
+			) : (
+				<>
+					<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-[1200px] mx-auto">
+						{collections.slice(0, visibleArtworks).map((collection) => (
+							<CollectionGrid
+								key={collection.id}
+								id={collection.id}
+								title={collection.title}
+								images={collection.images}
+								user={userNames[collection.userId] || "Unknown User"}
+							/>
+						))}
+					</div>
+					{visibleArtworks < collections.length && visibleArtworks > 0 && (
+						<div className="mt-6 text-center">
+							<p className="text-sm text-gray-600 mb-4">
+								Showing {Math.min(visibleArtworks, collections.length)} of{" "}
+								{collections.length}
+							</p>
+							<Button variant="outline" className="w-full" onClick={loadMore}>
+								View More
+							</Button>
+						</div>
+					)}
+				</>
 			)}
 		</div>
 	);
@@ -134,7 +175,6 @@ export function CollectionGrid({
 	images: string | null;
 }) {
 	const imageArray = images ? images.split(", ") : [];
-	
 
 	return (
 		<div className="bg-white rounded-lg shadow-md overflow-hidden transition-all duration-300 hover:shadow-lg">

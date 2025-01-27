@@ -83,12 +83,12 @@ export default function NavigationBar() {
 
 			{/* Right Section */}
 			<div className="flex items-center space-x-4 ml-auto">
-			
-
 				<div className="hidden sm:flex space-x-2">
 					{status === "authenticated" ? (
 						<>
-							<Button variant="outline" >Saved Collections</Button>
+							<Link href={"/saved"}>
+								<Button variant="outline">Saved Collections</Button>
+							</Link>
 							<Button onClick={handleLogout}>Log Out</Button>
 						</>
 					) : (
@@ -96,7 +96,9 @@ export default function NavigationBar() {
 							<Button variant="outline" onClick={handleLoginRedirect}>
 								Log In
 							</Button>
-							<Button onClick={handleCreateAccountRedirect}>Create Account</Button>
+							<Button onClick={handleCreateAccountRedirect}>
+								Create Account
+							</Button>
 						</>
 					)}
 				</div>

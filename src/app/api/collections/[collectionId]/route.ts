@@ -40,7 +40,7 @@ export async function PATCH(
 				{ status: 200 }
 			);
 		}
-		
+
 		const updatedCollection = await prisma.$transaction(async (prisma) => {
 			const collection = await prisma.collection.update({
 				where: { id: collectionId },
@@ -110,7 +110,6 @@ export async function GET(
 	try {
 		const { collectionId } = params;
 
-		// Fetch the collection details by ID
 		const collection = await prisma.collection.findUnique({
 			where: { id: collectionId },
 			include: {
@@ -130,6 +129,28 @@ export async function GET(
 
 		return NextResponse.json(
 			{ error: error.message || "Failed to fetch collection" },
+			{ status: 500 }
+		);
+	}
+}
+
+export async function DELETE(
+	req: NextRequest,
+	{ params }: { params: { collectionId: string } }
+) {
+	try {
+		const { collectionId } = params;
+
+		const deletedCollection = await prisma.collection.delete({
+			where: { id: collectionId },
+		});
+
+		return NextResponse.json(deletedCollection, { status: 200 });
+	} catch (error: any) {
+		console.error("Error deleting collection:", error);
+
+		return NextResponse.json(
+			{ error: error.message || "Failed to delete collection" },
 			{ status: 500 }
 		);
 	}
