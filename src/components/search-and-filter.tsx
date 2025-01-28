@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/popover";
 import { usePathname } from "next/navigation";
 import { Artwork } from "@/types";
+import { Card } from "./ui/card";
 
 interface FilterProps {
 	filterWords: string[];
@@ -220,93 +221,98 @@ export default function SearchAndFilter({
 	const handleMustHaveImage = () => {
 		setMustHaveImage(!mustHaveImage);
 		handleImageFilterChange(mustHaveImage);
-	}
+	};
 	useEffect(() => {
 		setSearchObject((prev) => ({
 			...prev,
 			keywords: filterWords,
 			hasImage: mustHaveImage,
 		}));
-		
-
 	}, [filterWords, mustHaveImage, setSearchObject]);
 
 	return (
-		<>
-			<h3 className="text-3xl font-bold">Search</h3>
-			<p className="text-gray-600 mb-4">
-				{" "}
-				Explore digital images from museums&lsquo; open access collections.
-			</p>
-			<div className="flex items-center space-x-2 ">
-				<form
-					onSubmit={(e) => {
-						e.preventDefault();
-						handleSearch();
-					}}
-					className="flex items-center w-full space-x-2"
-				>
-					<Input
-						type="search"
-						placeholder="Search for artworks"
-						value={searchTerm}
-						onChange={(e) => setSearchTerm(e.target.value)}
-						className="w-full bg-white"
-					/>
-					<Button type="submit" size="sm">
-						Search
-					</Button>
-				</form>
-			</div>
-
-			{/* Visible Selected Filters */}
-			{visibleArtworksAmount > 0 && isGalleryPage && (
-				<>
-					<div className="flex flex-wrap items-center space-x-2 mb-2 mt-2 ">
-						{/* Add Filters */}
-						<Filter
-							filterWords={filterWords}
-							setFilterWords={setFilterWords}
-							addFilter={addFilter}
-							filterOptions={filterOptions}
-						/>
-
-						<Button
-							variant="outline"
-							size="sm"
-							onClick={handleMustHaveImage}
-							className={` ${mustHaveImage ? "border-none" : "border-black"} `}
+		<Card className="bg-green-300 w-full p-12 ">
+			<div>
+				<div className="container mx-auto px-6">
+					<h3 className="text-3xl font-bold">Search</h3>
+					<p className="text-gray-600 mb-4">
+						Explore digital images from museums&lsquo; open access collections.
+					</p>
+					<div className="flex items-center space-x-2 ">
+						<form
+							onSubmit={(e) => {
+								e.preventDefault();
+								handleSearch();
+							}}
+							className="flex items-center w-full space-x-2"
 						>
-							{" "}
-							Must Have Image
-							{mustHaveImage ? <Square /> : <SquareCheckBig />}
-						</Button>
+							<Input
+								type="search"
+								placeholder="Search for artworks"
+								value={searchTerm}
+								onChange={(e) => setSearchTerm(e.target.value)}
+								className="w-full bg-white"
+							/>
+							<Button type="submit" size="sm">
+								Search
+							</Button>
+						</form>
 					</div>
-					<div className="flex flex-wrap items-center space-x-2 mb-2 mt-4 ">
-						{filterWords.map((word) => (
-							<div
-								key={word}
-								className="bg-gray-100 border-dashed border border-gray-500 text-gray-800 text-sm font-medium px-2.5 py-1 mb-2 rounded-full flex items-center"
-							>
-								{word}
+
+					{/* Visible Selected Filters */}
+					{visibleArtworksAmount > 0 && isGalleryPage && (
+						<>
+							<div className="flex flex-wrap items-center space-x-2 mb-2 mt-2 ">
+								{/* Add Filters */}
+								<Filter
+									filterWords={filterWords}
+									setFilterWords={setFilterWords}
+									addFilter={addFilter}
+									filterOptions={filterOptions}
+								/>
+
 								<Button
-									variant="ghost"
+									variant="outline"
 									size="sm"
-									className="ml-2 h-4 w-4 p-0"
-									onClick={() => removeFilterWord(word)}
+									onClick={handleMustHaveImage}
+									className={` ${
+										mustHaveImage ? "border-none" : "border-black"
+									} `}
 								>
-									<span className="sr-only">Remove</span>
-									&times;
+									Must Have Image
+									{mustHaveImage ? <Square /> : <SquareCheckBig />}
 								</Button>
 							</div>
-						))}
-					</div>
-				</>
-			)}
-
-			{totalArtworks > 0 && (
-				<p className="text-sm text-gray-600 my-6">{totalArtworks} Artworks</p>
-			)}
-		</>
+							<div className="flex flex-wrap items-center space-x-2 mb-2 mt-4 ">
+								{filterWords.map((word) => (
+									<div
+										key={word}
+										className="bg-gray-100 border-dashed border border-gray-500 text-gray-800 text-sm font-medium px-2.5 py-1 mb-2 rounded-full flex items-center"
+									>
+										{word}
+										<Button
+											variant="ghost"
+											size="sm"
+											className="ml-2 h-4 w-4 p-0"
+											onClick={() => removeFilterWord(word)}
+										>
+											<span className="sr-only">Remove</span>
+											&times;
+										</Button>
+									</div>
+								))}
+							</div>
+						</>
+					)}
+					{totalArtworks > visibleArtworksAmount && isGalleryPage && (
+						<div className="flex flex-wrap items-center space-x-2 mb-2 mt-4">
+							<p className="text-sm font-medium text-gray-600">
+								{totalArtworks} Artworks
+							</p>
+						</div>
+					)}
+				</div>
+			</div>
+		</Card>
 	);
 }

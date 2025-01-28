@@ -96,11 +96,11 @@ export default function ArtworkDisplay({
 	const images = artwork?.images || [];
 
 	return (
-		<div className="bg-[#ebefe0]">
+		<Card className="w-full max-w-[1000px] mx-auto bg-gray-100 my-6">
 			<div className="w-full max-w-[1000px] mx-auto">
 				<div className="p-8 mx-auto py-8">
 					<h1 className="text-3xl font-bold mb-4">{artwork.title}</h1>
-					<div className="flex flex-wrap pb-8 text-sm text-gray-600">
+					<div className="flex flex-wrap pb-8 text-sm text-gray-600  pt-12">
 						<div className="w-full md:flex-1 pb-3">
 							<span className="block font-bold">Creator:</span>
 							<span className="block">{artwork?.artist || "Unknown"}</span>
@@ -169,7 +169,7 @@ export default function ArtworkDisplay({
 								</HoverCard>
 							) : (
 								<Button
-									className="mr-3"
+									className="mr-3 bg-green-300"
 									onClick={handleAddToCollection}
 									disabled={loading}
 								>
@@ -370,6 +370,6 @@ export default function ArtworkDisplay({
 				setCollections={setCollections}
 				artwork={artwork}
 			/>
-		</div>
+		</Card>
 	);
 }

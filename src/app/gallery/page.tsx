@@ -113,7 +113,7 @@ export default function Gallery() {
 		let isMounted = true;
 
 		const fetchAndSetArtworks = async () => {
-			// setLoading(true);
+			setLoading(true);
 			try {
 				const { harvardResponse, metResponse } = await getArtworksByKeyword(
 					searchObject.searchKey,
@@ -167,7 +167,7 @@ export default function Gallery() {
 						}
 					}
 
-					setArtworks(combinedArtworks);				
+					setArtworks(combinedArtworks);
 					setTotalArtworks(harvardResponse.total + metResponse.total);
 				}
 			} catch (error) {
@@ -202,18 +202,6 @@ export default function Gallery() {
 		setCurrentPage(page);
 	};
 
-	// Handle 'Go to page' functionality
-	const handleGoToPage = () => {
-		const pageNumber = parseInt(goToPage, 10);
-		if (
-			pageNumber > 0 &&
-			pageNumber <= Math.ceil(totalArtworks / ITEMS_PER_PAGE)
-		) {
-			handlePageChange(pageNumber);
-			setGoToPage("");
-		}
-	};
-
 	// Update the image filter and store in localStorage
 	const handleImageFilterChange = (value: boolean) => {
 		setSearchObject((prev) => ({ ...prev, hasImage: value }));
@@ -223,36 +211,25 @@ export default function Gallery() {
 	return (
 		<div className="mx-auto overflow-x-hidden">
 			<NavigationBar />
-			<Button
-				variant="ghost"
-				className="md:m-4 m-2"
-		
-				onClick={() => router.back()}
-			>
-				<ArrowLeft className="h-4 w-4" />
-				Back to Gallery
-			</Button>
-
+			<Link href="/">
+				<Button variant="ghost" className="md:m-4 m-2">
+					<ArrowLeft className="h-4 w-4" />
+					Home
+				</Button>
+			</Link>
 			{/* Header Section */}
-			<div className="grid grid-cols-1 lg:grid-cols-[1fr,1fr] items-center bg-gradient-to-r from-white to-[#ebefe0] drop-shadow-lg text-center py-6 lg:p-12">
-				<div>
-					<h1 className="lg:text-8xl text-4xl font-bold mb-8 px-4 lg:text-left text-center text-black">
-						Gallery
-					</h1>
-				</div>
-				<p className="text-gray-600 text-left px-4">
-					Search, enjoy and discover millions of public domain images of
-					artworks and cultural artifacts from around the world and dating back
-					to the beginnings of civilization.
-				</p>
+			<div>
+				<h1 className="lg:text-8xl text-4xl font-bold mb-8 px-4  text-center text-black">
+					Gallery
+				</h1>
 			</div>
 
 			<GalleryCarousel />
 
 			{/* Main Content Section */}
-			<div className="bg-[#ebefe0]">
+			<div className="">
 				<div className="max-w-screen-xl mx-auto">
-					<div className="px-6 py-12">
+					<div className="px-6 py-12 ">
 						<SearchAndFilter
 							visibleArtworksAmount={ITEMS_PER_PAGE}
 							totalArtworks={totalArtworks}
@@ -262,7 +239,7 @@ export default function Gallery() {
 						/>
 
 						{loading ? (
-							<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+							<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6  mt-16">
 								{[...Array(ITEMS_PER_PAGE)].map((_, index) => (
 									<Card key={index} className="overflow-hidden">
 										<CardContent className="p-0">
@@ -278,7 +255,7 @@ export default function Gallery() {
 								))}
 							</div>
 						) : (
-							<div className="grid grid-cols-4 gap-x-6 gap-y-12">
+							<div className="grid grid-cols-4 gap-x-6 gap-y-12 mt-16">
 								{[0, 1, 2, 3].map((column) => (
 									<div key={column} className="flex flex-col space-y-6">
 										{filteredArtworks
@@ -323,7 +300,7 @@ export default function Gallery() {
 
 						{/* Pagination */}
 						{searchObject.searchKey && totalArtworks > 0 && (
-							<Pagination className="mt-8">
+							<Pagination className="mt-16">
 								<PaginationContent>
 									<ul className="flex items-center space-x-1">
 										<PaginationItem className="flex items-center space-x-1">
@@ -405,23 +382,7 @@ export default function Gallery() {
 											/>
 										</PaginationItem>
 									</ul>
-									<div className="flex items-center space-x-2 translate-x-16">
-										<span className="text-sm">Go to page</span>
-										<Input
-											type="number"
-											min="1"
-											max={Math.ceil(totalArtworks / PAGE_SIZE)}
-											value={goToPage}
-											onChange={(e) => setGoToPage(e.target.value)}
-											className="border border-input w-16 bg-background shadow-sm hover:bg-accent hover:text-accent-foreground"
-										/>
-										<span className="text-sm">
-											/ {Math.ceil(totalArtworks / PAGE_SIZE)}
-										</span>
-										<Button onClick={handleGoToPage} size="default">
-											Confirm
-										</Button>
-									</div>
+						
 								</PaginationContent>
 							</Pagination>
 						)}

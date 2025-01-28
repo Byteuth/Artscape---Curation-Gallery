@@ -222,16 +222,19 @@ export default function Home() {
 							Save ideas you like
 						</h3>
 						<p className="text-gray-700 mb-6">
-							Collect and add your favourites to collections so you can get back to them later.
+							Collect and add your favourites to collections so you can get back
+							to them later.
 						</p>
-						<Link href="/gallery">
-							<Button className="bg-green-400 text-black hover:bg-green-500 scale-150 my-6">
-								Explore
-							</Button>
-						</Link>
 					</div>
 				</div>
 				<CollectionSection />
+				<div className="w-full flex flex-col items-center text-center mb-12 ">
+					<Link href="/gallery">
+						<Button className="bg-green-400 text-black hover:bg-green-500 scale-150 my-6">
+							Explore Collections
+						</Button>
+					</Link>
+				</div>
 			</section>
 
 			<Footer />

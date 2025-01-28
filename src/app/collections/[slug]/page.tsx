@@ -106,20 +106,20 @@ export function CollectionArtworks({
 	collection,
 }: CollectionArtworksProps) {
 	return (
-		<div className="bg-[#ebefe0]">
+		<div className="">
 			<div className="w-full max-w-[1000px] mx-auto">
 				<div className="p-8 mx-auto py-8">
 					{/* Collection Header */}
 					{collection && (
-						<header className="mb-8">
-							<h1 className="text-3xl font-bold mb-2">{collection.title}</h1>
-							<p className="text-gray-700 text-sm">{collection.description}</p>
+						<header className="mb-8 text-center">
+							<h1 className="lg:text-8xl text-4xl font-bold mb-8 px-4  text-center text-black">{collection.title}</h1>
+							<p className="text-gray-700 text-lg">{collection.description}</p>
 						</header>
 					)}
 
 					{/* Artworks List */}
 					{artworks.map((artwork) => (
-						<Card key={artwork.id} className="mb-8">
+						<Card key={artwork.id} className="mb-8 bg-gray-100">
 							<CardContent className="p-6">
 								<h2 className="text-2xl font-bold mb-4">{artwork.title}</h2>
 								<div className="flex flex-wrap pb-8 text-sm text-gray-600">

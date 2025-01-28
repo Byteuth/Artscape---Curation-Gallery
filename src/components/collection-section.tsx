@@ -3,6 +3,9 @@
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Card, CardContent } from "@/components/ui/card";
+import LoadingSpinner from "./loading-spinner";
 import { usePathname } from "next/navigation";
 import { Button } from "./ui/button";
 
@@ -50,9 +53,10 @@ export default function CollectionSection() {
 	const [visibleArtworks, setVisibleArtworks] = useState<number>(
 		path === "/" ? 3 : 12
 	);
-	const [collections, setCollections] = useState<Collection[]>([]);
+	const [collections, setCollections] = useState<Collection[] | null>(null);
 	const [userNames, setUserNames] = useState<Record<string, string>>({});
 	const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+	const [isLoading, setIsLoading] = useState<boolean>(true);
 
 	useEffect(() => {
 		// Fetch current user ID
@@ -78,6 +82,7 @@ export default function CollectionSection() {
 		};
 
 		const fetchCollectionsAndUsers = async () => {
+			setIsLoading(true);
 			try {
 				const response = await fetch("/api/collections");
 				const collectionsData: Collection[] = await response.json();
@@ -88,8 +93,6 @@ export default function CollectionSection() {
 								(collection) => collection.userId === currentUserId
 						  )
 						: collectionsData;
-
-				setCollections(filteredCollections);
 
 				const uniqueUserIds = [
 					...new Set(
@@ -107,9 +110,12 @@ export default function CollectionSection() {
 				});
 
 				await Promise.all(userNamePromises);
+				setCollections(filteredCollections);
 				setUserNames(userNamesMap);
 			} catch (error) {
 				console.error("Failed to fetch collections:", error);
+			} finally {
+				setIsLoading(false);
 			}
 		};
 
@@ -121,6 +127,9 @@ export default function CollectionSection() {
 		setVisibleArtworks((prev) => prev + 12);
 	};
 
+	if (collections === null) {
+		return <LoadingSpinner />;
+	}
 
 	return (
 		<div className="bg-[#ffffff] flex flex-col justify-center items-center py-16 w-full">
@@ -132,28 +141,47 @@ export default function CollectionSection() {
 				</div>
 			) : (
 				<>
-					<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-[1200px] mx-auto">
-						{collections.slice(0, visibleArtworks).map((collection) => (
-							<CollectionGrid
-								key={collection.id}
-								id={collection.id}
-								title={collection.title}
-								images={collection.images}
-								user={userNames[collection.userId] || "Unknown User"}
-							/>
-						))}
+					<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mt-16">
+						{isLoading
+							? [...Array(3)].map((_, index) => (
+									<Card key={index} className="overflow-hidden">
+										<CardContent className="p-0">
+											<div className="relative w-full pt-[100%]">
+												<Skeleton className="absolute inset-0" />
+											</div>
+											<div className="p-4">
+												<Skeleton className="h-4 w-3/4 mb-2" />
+												<Skeleton className="h-3 w-1/2" />
+											</div>
+										</CardContent>
+									</Card>
+							  ))
+							: collections
+									.slice(0, visibleArtworks)
+									.map((collection) => (
+										<CollectionGrid
+											key={collection.id}
+											id={collection.id}
+											title={collection.title}
+											images={collection.images}
+											user={userNames[collection.userId] || "Unknown User"}
+										/>
+									))}
 					</div>
-					{visibleArtworks < collections.length && visibleArtworks > 0 && (
-						<div className="mt-6 text-center">
-							<p className="text-sm text-gray-600 mb-4">
-								Showing {Math.min(visibleArtworks, collections.length)} of{" "}
-								{collections.length}
-							</p>
-							<Button variant="outline" className="w-full" onClick={loadMore}>
-								View More
-							</Button>
-						</div>
-					)}
+
+					{visibleArtworks < collections.length &&
+						visibleArtworks > 0 &&
+						path !== "/" && (
+							<div className="mt-6 text-center">
+								<p className="text-sm text-gray-600 mb-4">
+									Showing {Math.min(visibleArtworks, collections.length)} of{" "}
+									{collections.length}
+								</p>
+								<Button variant="outline" className="w-full" onClick={loadMore}>
+									View More
+								</Button>
+							</div>
+						)}
 				</>
 			)}
 		</div>
@@ -228,7 +256,7 @@ export function CollectionGrid({
 					)}
 				</div>
 
-				<div className="p-4 bg-gradient-to-b from-gray-50 to-white">
+				<div className="p-4 bg-gradient-to-b from-gray-100 to-white">
 					<h3 className="font-surrealism text-lg font-semibold text-gray-900 mb-1 leading-tight truncate">
 						{title}
 					</h3>

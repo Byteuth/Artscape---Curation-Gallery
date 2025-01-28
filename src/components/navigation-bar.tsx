@@ -37,7 +37,7 @@ export default function NavigationBar() {
 	};
 
 	return (
-		<nav className=" flex items-center justify-between p-2 w-full ">
+		<nav className=" flex items-center justify-between p-2 w-full bg-white">
 			<Sheet>
 				<div className="flex items-center ">
 					<Link href="/">
@@ -82,8 +82,11 @@ export default function NavigationBar() {
 					{status === "authenticated" ? (
 						<>
 							<Link href={"/saved"}>
-								<Button variant="outline">Saved Collections</Button>
+								<Button className="bg-green-400 text-black hover:bg-green-500">
+									Saved
+								</Button>
 							</Link>
+
 							<Button onClick={handleLogout}>Log Out</Button>
 						</>
 					) : (
