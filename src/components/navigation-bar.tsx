@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/sheet";
 import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
+import Image from "next/image";
 
 export default function NavigationBar() {
 	const { data: session, status } = useSession();
@@ -36,22 +37,24 @@ export default function NavigationBar() {
 	};
 
 	return (
-		<nav className="bg-[#B6B8A2] border-b-2 border-black flex items-center justify-between p-2 w-full ">
+		<nav className=" flex items-center justify-between p-2 w-full ">
 			<Sheet>
-				<div className="flex items-center space-x-4 ">
+				<div className="flex items-center ">
 					<Link href="/">
-						<img
-							src="/svg/ttc-logo.svg"
+						<Image
+							src="/images/logo-small.png"
 							alt="Logo"
-							className=" mx-4 -translate-x-4 h-8 w-8"
+							className="h-16 object-contain"
+							width={150}
+							height={150}
 						/>
 					</Link>
-					<div className="hidden md:flex space-x-4">
+					<div className="hidden md:flex space-x-4 h-6 w-6">
 						<Link href="/gallery">
-							<Button variant="ghost">Gallery</Button>
+							<p>Gallery</p>
 						</Link>
 						<Link href="/collections">
-							<Button variant="ghost">Curated Collections</Button>
+							<p>Collections</p>
 						</Link>
 					</div>
 				</div>
@@ -66,19 +69,11 @@ export default function NavigationBar() {
 						</Button>
 					</SheetTrigger>
 				</div>
-
-				<SheetContent
-					side="right"
-					className="bg-gradient-to-r from-[#ebefe0] to-[#B6B8A2] border-black"
-				>
-					<SheetHeader>
-						<SheetTitle className="sr-only ">Mobile Menu</SheetTitle>
-						<SheetDescription className="sr-only ">
-							Menu Options
-						</SheetDescription>
-					</SheetHeader>
-					<MobileMenu />
-				</SheetContent>
+				<div className="hidden md:flex pr-6">
+					<Link href="/">
+						<p>About</p>
+					</Link>
+				</div>
 			</Sheet>
 
 			{/* Right Section */}
@@ -93,11 +88,17 @@ export default function NavigationBar() {
 						</>
 					) : (
 						<>
-							<Button variant="outline" onClick={handleLoginRedirect}>
+							<Button
+								className="bg-green-400 text-black hover:bg-green-500"
+								onClick={handleLoginRedirect}
+							>
 								Log In
 							</Button>
-							<Button onClick={handleCreateAccountRedirect}>
-								Create Account
+							<Button
+								className="bg-gray-200 text-black hover:bg-gray-300"
+								onClick={handleCreateAccountRedirect}
+							>
+								Sign Up
 							</Button>
 						</>
 					)}
@@ -124,7 +125,7 @@ export function MobileMenu() {
 			<div className="flex flex-col space-y-2 mt-4">
 				<Button
 					className="w-full justify-start hover:bg-primary/10 transition-colors bg-[#ffffff]  text-black"
-					variant="outline"
+					variant="ghost"
 				>
 					<Palette className="mr-2 h-5 w-5" />
 					Home
@@ -132,7 +133,7 @@ export function MobileMenu() {
 				<Link href="/gallery">
 					<Button
 						className="w-full justify-start hover:bg-primary/10 transition-colors  bg-[#ffffff]  text-black"
-						variant="outline"
+						variant="ghost"
 					>
 						<Palette className="mr-2 h-5 w-5" />
 						Gallery
