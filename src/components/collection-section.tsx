@@ -121,9 +121,6 @@ export default function CollectionSection() {
 		setVisibleArtworks((prev) => prev + 12);
 	};
 
-	// useEffect(() => {
-	// 	console.log(collections);
-	// }, [collections]);
 
 	return (
 		<div className="bg-[#ffffff] flex flex-col justify-center items-center py-16 w-full">

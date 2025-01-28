@@ -231,7 +231,7 @@ export default function GalleryHero() {
 
 				<div
 					className={`grid gap-4
-					grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 translate-y-30 max-h-[480px]`}
+					grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 translate-y-30 max-h-[480px] overflow-hidden`}
 				>
 					{Array.from({ length: 5 }).map((_, carouselIndex) => {
 						const translateYClass = translateYClasses[carouselIndex] || "";
