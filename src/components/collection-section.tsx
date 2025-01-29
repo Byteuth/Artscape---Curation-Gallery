@@ -1,13 +1,22 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import LoadingSpinner from "./loading-spinner";
+import { Trash2 } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { Button } from "./ui/button";
+import { useToast } from "@/hooks/use-toast";
+import {
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogFooter,
+	DialogHeader,
+} from "./ui/dialog";
+import { DialogTitle } from "@radix-ui/react-dialog";
 
 export interface Artwork {
 	id: string;
@@ -51,48 +60,54 @@ export interface Collection {
 export default function CollectionSection() {
 	const path = usePathname();
 	const [visibleArtworks, setVisibleArtworks] = useState<number>(
-		path === "/" ? 3 : 12
+		path === "/" ? 6 : 6
 	);
 	const [collections, setCollections] = useState<Collection[] | null>(null);
 	const [userNames, setUserNames] = useState<Record<string, string>>({});
 	const [currentUserId, setCurrentUserId] = useState<string | null>(null);
 	const [isLoading, setIsLoading] = useState<boolean>(true);
 
+	const fetchCurrentUser = useCallback(async () => {
+		try {
+			const response = await fetch("/api/auth/session");
+			const data = await response.json();
+			setCurrentUserId(data.user?.id || null);
+		} catch (error) {
+			console.error("Failed to fetch current user:", error);
+		}
+	}, []);
+
+	const fetchUserName = useCallback(async (userId: string) => {
+		try {
+			const response = await fetch(`/api/user/${userId}`);
+			const data = await response.json();
+			return data.name;
+		} catch (error) {
+			console.error(`Failed to fetch user info for ${userId}:`, error);
+			return null;
+		}
+	}, []);
+
 	useEffect(() => {
-		// Fetch current user ID
-		const fetchCurrentUser = async () => {
-			try {
-				const response = await fetch("/api/auth/session");
-				const data = await response.json();
-				setCurrentUserId(data.user?.id || null);
-			} catch (error) {
-				console.error("Failed to fetch current user:", error);
-			}
-		};
-
-		const fetchUserName = async (userId: string) => {
-			try {
-				const response = await fetch(`/api/user/${userId}`);
-				const data = await response.json();
-				return data.name;
-			} catch (error) {
-				console.error(`Failed to fetch user info for ${userId}:`, error);
-				return null;
-			}
-		};
-
 		const fetchCollectionsAndUsers = async () => {
 			setIsLoading(true);
+			await fetchCurrentUser();
+
 			try {
 				const response = await fetch("/api/collections");
 				const collectionsData: Collection[] = await response.json();
 
-				const filteredCollections =
-					path === "/saved" && currentUserId
-						? collectionsData.filter(
-								(collection) => collection.userId === currentUserId
-						  )
-						: collectionsData;
+				let filteredCollections = collectionsData;
+
+				if (path === "/saved") {
+					if (currentUserId) {
+						filteredCollections = collectionsData.filter(
+							(collection) => collection.userId === currentUserId
+						);
+					} else {
+						filteredCollections = [];
+					}
+				}
 
 				const uniqueUserIds = [
 					...new Set(
@@ -101,7 +116,6 @@ export default function CollectionSection() {
 				];
 
 				const userNamesMap: Record<string, string> = {};
-				// Fetch all user names in parallel
 				const userNamePromises = uniqueUserIds.map(async (userId) => {
 					const name = await fetchUserName(userId);
 					if (name) {
@@ -119,69 +133,68 @@ export default function CollectionSection() {
 			}
 		};
 
-		fetchCurrentUser();
 		fetchCollectionsAndUsers();
-	}, [path, currentUserId]);
+	}, [path, currentUserId, fetchCurrentUser, fetchUserName]);
 
 	const loadMore = () => {
 		setVisibleArtworks((prev) => prev + 12);
 	};
 
-	if (collections === null) {
+	if (isLoading) {
 		return <LoadingSpinner />;
 	}
 
 	return (
-		<div className="bg-[#ffffff] flex flex-col justify-center items-center py-16 w-full">
-			{collections.length === 0 ? (
+		<div className="flex flex-col pt-16 pb-32 w-full max-w-7xl mx-auto px-4 sm:px-8 md:px-16">
+			{!collections || collections.length === 0 ? (
 				<div className="text-center">
 					<p className="text-lg text-gray-600">
-						You've got no saved collections at this time.
+						{path === "/saved"
+							? "You've got no saved collections at this time."
+							: "There are no collections available."}
 					</p>
 				</div>
 			) : (
 				<>
-					<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mt-16">
-						{isLoading
-							? [...Array(3)].map((_, index) => (
-									<Card key={index} className="overflow-hidden">
-										<CardContent className="p-0">
-											<div className="relative w-full pt-[100%]">
-												<Skeleton className="absolute inset-0" />
-											</div>
-											<div className="p-4">
-												<Skeleton className="h-4 w-3/4 mb-2" />
-												<Skeleton className="h-3 w-1/2" />
-											</div>
-										</CardContent>
-									</Card>
-							  ))
-							: collections
-									.slice(0, visibleArtworks)
-									.map((collection) => (
-										<CollectionGrid
-											key={collection.id}
-											id={collection.id}
-											title={collection.title}
-											images={collection.images}
-											user={userNames[collection.userId] || "Unknown User"}
-										/>
-									))}
+					<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6  ">
+						{collections.slice(0, visibleArtworks).map((collection) => {
+							const reversed = collection.artworks.map((artwork) => {
+								const images =
+									artwork.images
+										?.split(",")
+										.map((img: string) => img.trim())
+										.filter(Boolean) || [];
+
+								return images[0];
+							});
+
+							const artworksMainImage = reversed.reverse();
+							console.log("section", artworksMainImage);
+							return (
+								<CollectionGrid
+									key={collection.id}
+									id={collection.id}
+									title={collection.title}
+									images={artworksMainImage}
+									user={userNames[collection.userId] || "Unknown User"}
+									collections={collections}
+									setCollections={setCollections}
+								/>
+							);
+						})}
 					</div>
 
-					{visibleArtworks < collections.length &&
-						visibleArtworks > 0 &&
-						path !== "/" && (
-							<div className="mt-6 text-center">
-								<p className="text-sm text-gray-600 mb-4">
-									Showing {Math.min(visibleArtworks, collections.length)} of{" "}
-									{collections.length}
-								</p>
-								<Button variant="outline" className="w-full" onClick={loadMore}>
-									View More
-								</Button>
-							</div>
-						)}
+					{visibleArtworks < collections.length && path !== "/" && (
+						<div className="mt-6 text-center">
+							<p className="text-sm text-gray-600 mb-4">
+								Showing {Math.min(visibleArtworks, collections.length)} of{" "}
+								{collections.length}
+							</p>
+							<Button variant="outline" className="w-full" onClick={loadMore}>
+								View More
+							</Button>
+						</div>
+					)}
 				</>
 			)}
 		</div>
@@ -193,16 +206,123 @@ export function CollectionGrid({
 	title,
 	user,
 	images,
+	collections,
+	setCollections,
 }: {
 	id: string;
 	title: string;
 	user: string;
 	images: string | null;
+	collections: Collection[];
+	setCollections: React.Dispatch<React.SetStateAction<Collection[]>>;
 }) {
-	const imageArray = images ? images.split(", ") : [];
+	// const fixedImages = collections.arworks
+	const imageArray = images ? images : [];
+
+	const [error, setError] = useState("");
+	const [loading, setLoading] = useState(false);
+	const { toast } = useToast();
+	const [deleteConfirmation, setDeleteConfirmation] = useState<{
+		isOpen: boolean;
+		collectionId: string | null;
+	}>({
+		isOpen: false,
+		collectionId: null,
+	});
+	const handleDeleteCollection = async (collectionId: string) => {
+		setLoading(true);
+		setError("");
+
+		try {
+			const response = await fetch(`/api/collections/${collectionId}`, {
+				method: "DELETE",
+				headers: { "Content-Type": "application/json" },
+			});
+
+			if (response.ok) {
+				toast({
+					title: "Collection Deleted",
+					description: `Collection has been successfully deleted.`,
+				});
+
+				const updatedCollections = collections.filter(
+					(collection) => collection.id !== collectionId
+				);
+				setCollections(updatedCollections);
+			} else {
+				const errorData = await response.json();
+				setError(errorData.error || "Failed to delete the collection.");
+			}
+		} catch (error) {
+			console.error("Error deleting collection:", error);
+			setError("An unexpected error occurred.");
+		} finally {
+			setLoading(false);
+			setDeleteConfirmation({ isOpen: false, collectionId: null });
+		}
+	};
 
 	return (
-		<div className="bg-white rounded-lg shadow-md overflow-hidden transition-all duration-300 hover:shadow-lg">
+		<Card
+			className={`cursor-pointer overflow-hidden transform transition-transform hover:shadow-right-bottom md:hover:scale-105 z-10 `}
+		>
+			<Button
+				onClick={(e) => {
+					e.stopPropagation();
+					setDeleteConfirmation({
+						isOpen: true,
+						collectionId: id,
+					});
+				}}
+				aria-label="Delete Collection"
+				className="absolute top-2 right-2 scale-x-110 opacity-0 group-hover:opacity-100 p-2 rounded-full shadow-md hover:bg-red-600 z-10 duration-300"
+			>
+				<Trash2 className="text-red-600 group-hover:text-white transition-colors duration-300 z-40" />
+			</Button>
+
+			<Dialog
+				open={deleteConfirmation.isOpen}
+				onOpenChange={(isOpen) =>
+					setDeleteConfirmation({ isOpen, collectionId: null })
+				}
+			>
+				<DialogContent>
+					<DialogHeader>
+						<DialogTitle>Confirm Deletion</DialogTitle>
+						<DialogDescription>
+							{`Are you sure you want to delete "${title}" collection? This
+				action cannot be undone.`}
+						</DialogDescription>
+					</DialogHeader>
+					<DialogFooter className="sm:justify-start">
+						<Button
+							type="button"
+							variant="destructive"
+							onClick={() => {
+								if (deleteConfirmation.collectionId) {
+									handleDeleteCollection(deleteConfirmation.collectionId);
+								}
+							}}
+							disabled={loading}
+						>
+							{loading ? "Deleting..." : "Delete"}
+						</Button>
+						<Button
+							type="button"
+							variant="outline"
+							onClick={() =>
+								setDeleteConfirmation({
+									isOpen: false,
+									collectionId: null,
+								})
+							}
+						>
+							Cancel
+						</Button>
+					</DialogFooter>
+				</DialogContent>
+			</Dialog>
+
 			<Link href={`/collections/${id}`} className="block">
 				<div className="relative aspect-square overflow-hidden">
 					{imageArray.length === 1 ? (
@@ -211,41 +331,41 @@ export function CollectionGrid({
 							src={imageArray[0] || "/images/placeholder-image.png"}
 							alt={`${title} main image`}
 							fill
-							className="object-cover "
+							className="object-cover"
 						/>
 					) : (
 						// Multiple images layout
 						<div className="grid grid-cols-2 gap-1 h-full">
-							<div
-								className={`relative ${
-									imageArray.length === 1
-										? "col-span-2"
-										: "col-span-1 row-span-2"
-								}`}
-							>
+							<div className="relative col-span-1 row-span-2">
 								<Image
 									src={imageArray[0] || "/images/placeholder-image.png"}
 									alt={`${title} main image`}
 									fill
-									className="object-cover "
+									className="object-cover"
 								/>
 							</div>
 							{imageArray.length > 1 && (
 								<>
-									{imageArray.slice(1, 5).map((img, index) => (
+									{[...Array(2)].map((_, index) => (
 										<div key={index} className="relative">
-											<Image
-												src={img || "/images/placeholder-image.png"}
-												alt={`${title} image ${index + 2}`}
-												fill
-												className="object-cover "
-											/>
-											{/* Render the overlay only on the last image */}
-											{index === 3 && imageArray.length > 2 && (
-												<div className="absolute inset-0 bg-black bg-opacity-60 flex items-center justify-center rounded-md">
-													<p className="text-white font-semibold text-lg">
-														+{imageArray.length - 3}
-													</p>
+											{index < imageArray.length - 1 ? (
+												<Image
+													src={
+														imageArray[index + 1] ||
+														"/images/placeholder-image.png"
+													}
+													alt={`${title} image ${index + 2}`}
+													fill
+													className="object-cover"
+												/>
+											) : (
+												<div className="absolute inset-0 bg-black bg-opacity-70" />
+											)}
+											{index === 1 && imageArray.length > 3 && (
+												<div className="absolute inset-0 bg-black bg-opacity-70 flex items-center justify-center">
+													<span className="text-white text-lg font-semibold">
+														+{imageArray.length - 3} more
+													</span>
 												</div>
 											)}
 										</div>
@@ -255,16 +375,16 @@ export function CollectionGrid({
 						</div>
 					)}
 				</div>
-
-				<div className="p-4 bg-gradient-to-b from-gray-100 to-white">
-					<h3 className="font-surrealism text-lg font-semibold text-gray-900 mb-1 leading-tight truncate">
-						{title}
-					</h3>
-					<p className="font-rococo text-sm text-gray-600">
-						By <span className="text-primary hover:underline">{user}</span>
-					</p>
-				</div>
 			</Link>
-		</div>
+
+			<div className="p-4 bg-gradient-to-b from-gray-100 to-white">
+				<h3 className="font-surrealism text-lg font-semibold text-gray-900 mb-1 leading-tight truncate">
+					{title}
+				</h3>
+				<p className="font-rococo text-sm text-gray-600">
+					By <span className="text-primary ">{user}</span>
+				</p>
+			</div>
+		</Card>
 	);
 }

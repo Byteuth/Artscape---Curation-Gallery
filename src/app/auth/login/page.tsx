@@ -107,7 +107,7 @@ export function LoginForm({
 
 export default function Login() {
 	return (
-		<div className="min-h-screen flex flex-col justify-between bg-gradient-to-b from-green-100 via-green-200 to-green-300">
+		<div className="min-h-screen flex flex-col justify-between bg-gradient-to-b from-white via-green-100 to-green-200">
 			<NavigationBar />
 			<div className="flex flex-col gap-4 p-6 md:p-10 flex-grow justify-center items-center">
 				<Card className="p-8 shadow-md">

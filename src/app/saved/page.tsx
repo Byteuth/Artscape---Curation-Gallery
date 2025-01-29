@@ -18,9 +18,11 @@ export default function SavedCollections() {
 				</Button>
 			</Link>
 
-			<h1 className="lg:text-8xl text-4xl font-bold mb-8 px-4  text-center text-black">
-				Saved Collections
-			</h1>
+			<div>
+				<h1 className="lg:text-8xl text-4xl font-bold mb-8 px-4  text-center text-black">
+					Saved Collections
+				</h1>
+			</div>
 
 			<CollectionSection />
 			<Footer />

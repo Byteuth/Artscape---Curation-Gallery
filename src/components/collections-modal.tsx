@@ -15,7 +15,7 @@ import { Artwork, Collections } from "@/types";
 import Image from "next/image";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "./ui/button";
-import { Plus, Trash } from "lucide-react";
+import { Plus, Trash2 } from "lucide-react";
 import { DialogDescription } from "@radix-ui/react-dialog";
 
 interface CollectionsModalProps {
@@ -203,12 +203,14 @@ export default function CollectionsModal({
 	};
 
 	useEffect(() => {
-		const collectionsByUserId = collections.filter(
-			(collection) => collection.userId === "cm6f645mv0000bdystcsvqs7z"
-		);
+		if (session?.user?.id) {
+			const collectionsByUserId = collections.filter(
+				(collection) => collection.userId === session.user.id
+			);
 
-		setFilteredCollections(collectionsByUserId);
-	}, [collections]);
+			setFilteredCollections(collectionsByUserId);
+		}
+	}, [collections, session?.user?.id]);
 
 	return (
 		<Dialog open={isOpen} onOpenChange={onClose}>
@@ -224,83 +226,99 @@ export default function CollectionsModal({
 
 				<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
 					{filteredCollections.map((collection) => {
-						const artworksMainImage = collection.artworks.map((artwork) => {
+						const reversed = collection.artworks.map((artwork) => {
 							const images =
 								artwork.images
 									?.split(",")
 									.map((img: string) => img.trim())
 									.filter(Boolean) || [];
+
 							return images[0];
 						});
+
+						const artworksMainImage = reversed.reverse();
 
 						return (
 							<Card
 								key={collection.id}
-								className="group overflow-hidden rounded-lg shadow-md transition-all duration-300 hover:shadow-xl"
+								className="group relative overflow-hidden rounded-lg shadow-md transition-all duration-300 hover:shadow-xl"
 							>
-								<CardContent className="p-3">
-									<div className="aspect-square overflow-hidden rounded-md">
-										<div
-											className={`grid gap-1 h-full ${
-												artworksMainImage.length === 1
-													? "grid-cols-1 grid-rows-1"
-													: "grid-cols-2 grid-rows-2"
-											}`}
-										>
-											<div
-												className={`relative ${
-													artworksMainImage.length === 1
-														? "col-span-1 row-span-1"
-														: "col-span-1 row-span-2"
-												}`}
-											>
-												<Image
-													src={
-														artworksMainImage[0] ||
-														"/images/placeholder-image.png"
-													}
-													alt={`${collection.title} main image`}
-													className="rounded-md object-cover w-full h-full"
-													width={300}
-													height={300}
-												/>
-											</div>
-											{artworksMainImage.length > 1 && (
-												<>
-													<div className="relative col-span-1 row-span-1">
-														<Image
-															src={
-																artworksMainImage[0]?.trim() ||
-																"/placeholder.svg"
-															}
-															alt={`${collection.title} image 2`}
-															className="rounded-md object-cover w-full h-full"
-															width={300}
-															height={300}
-														/>
-													</div>
-													<div className="relative col-span-1 row-span-1">
-														<Image
-															src={
-																artworksMainImage[2]?.trim() ||
-																"/images/placeholder-image.png"
-															}
-															alt={`${collection.title} image 3`}
-															className="rounded-md object-cover w-full h-full"
-															width={300}
-															height={300}
-														/>
-														{artworksMainImage.length > 2 && (
-															<div className="absolute inset-0 bg-black bg-opacity-60 flex items-center justify-center rounded-md">
-																<p className="text-white font-semibold">
-																	+{artworksMainImage.length - 3}
-																</p>
+								<Button
+									onClick={(e) => {
+										e.stopPropagation();
+										setDeleteConfirmation({
+											isOpen: true,
+											collectionId: collection.id,
+										});
+									}}
+									aria-label="Delete Collection"
+									className="absolute top-2 right-2 scale-x-110 opacity-0 group-hover:opacity-100 p-2 rounded-full shadow-md hover:bg-red-600 z-10 duration-300"
+								>
+									<Trash2 className="text-red-600 group-hover:text-white transition-colors duration-300 z-40" />
+								</Button>
+								<CardContent className="p-3 group">
+									<div className="relative aspect-square overflow-hidden">
+										{artworksMainImage.length === 1 ? (
+											// Single image layout
+											<Image
+												src={
+													artworksMainImage[0] ||
+													"/images/placeholder-image.png"
+												}
+												alt={`${title} main image`}
+												fill
+												className="object-cover "
+											/>
+										) : (
+											// Multiple images layout
+											<div className="grid grid-cols-2 gap-1 h-full">
+												<div
+													className={`relative ${
+														artworksMainImage.length === 1
+															? "col-span-2"
+															: "col-span-1 row-span-2"
+													}`}
+												>
+													<Image
+														src={
+															artworksMainImage[0] ||
+															"/images/placeholder-image.png"
+														}
+														alt={`${title} main image`}
+														fill
+														className="object-cover "
+													/>
+												</div>
+												{artworksMainImage.length > 1 && (
+													<>
+														{[...Array(2)].map((_, index) => (
+															<div key={index} className="relative">
+																{index < artworksMainImage.length - 1 ? (
+																	<Image
+																		src={
+																			artworksMainImage[index + 1] ||
+																			"/images/placeholder-image.png"
+																		}
+																		alt={`${title} image ${index + 2}`}
+																		fill
+																		className="object-cover"
+																	/>
+																) : (
+																	<div className="absolute inset-0 bg-black bg-opacity-70" />
+																)}
+																{index === 1 && artworksMainImage.length > 3 && (
+																	<div className="absolute inset-0 bg-black bg-opacity-70 flex items-center justify-center">
+																		<span className="text-white text-lg font-semibold">
+																			+{artworksMainImage.length - 3} more
+																		</span>
+																	</div>
+																)}
 															</div>
-														)}
-													</div>
-												</>
-											)}
-										</div>
+														))}
+													</>
+												)}
+											</div>
+										)}
 									</div>
 								</CardContent>
 
@@ -309,28 +327,23 @@ export default function CollectionsModal({
 										{collection.title}
 									</p>
 									<div className="flex items-center gap-2 w-full justify-between">
-										<Button
-											variant="outline"
-											size="sm"
-											className="w-1/2"
-											onClick={() => handleAddToCollection(collection.id)}
-										>
-											Add
-										</Button>
-										<Button
-											onClick={(e) => {
-												e.stopPropagation();
-												setDeleteConfirmation({
-													isOpen: true,
-													collectionId: collection.id,
-												});
-											}}
-											className="p-3 bg-gray-500 text-white rounded-full shadow hover:bg-red-600 transition"
-											aria-label="Delete Collection"
-										>
-											<Trash className="w-4 h-4" />
-										</Button>
+										{/* <h3 className="text-gray-700">{collection.artworks.length}</h3> */}
+										<p className="text-gray-700  h-[4rem] leading-tight">
+											{collection.description}
+										</p>
 									</div>
+									{artwork &&
+										!collection.artworks.some((a) => a.id === artwork.id) && (
+											<Button
+												onClick={(e) => {
+													e.stopPropagation();
+													handleAddToCollection(collection.id);
+												}}
+												className="mt-2 w-full bg-green-400 hover:bg-green-500 text-black"
+											>
+												Add
+											</Button>
+										)}
 								</CardFooter>
 
 								<Dialog
@@ -338,14 +351,13 @@ export default function CollectionsModal({
 									onOpenChange={(isOpen) =>
 										setDeleteConfirmation({ isOpen, collectionId: null })
 									}
-									
 								>
-									<DialogContent >
+									<DialogContent>
 										<DialogHeader>
 											<DialogTitle>Confirm Deletion</DialogTitle>
 											<DialogDescription>
 												{`Are you sure you want to delete "${collection.title}" collection? This
-												action cannot be undone.`}
+												  action cannot be undone.`}
 											</DialogDescription>
 										</DialogHeader>
 										<DialogFooter className="sm:justify-start">

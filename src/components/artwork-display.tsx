@@ -169,7 +169,7 @@ export default function ArtworkDisplay({
 								</HoverCard>
 							) : (
 								<Button
-									className="mr-3 bg-green-300"
+									className="mr-3 bg-green-400 hover:bg-green-500 text-black "
 									onClick={handleAddToCollection}
 									disabled={loading}
 								>

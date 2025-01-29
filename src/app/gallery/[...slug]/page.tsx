@@ -1,8 +1,8 @@
 "use client";
 import { useRouter, usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { ArrowLeft, Loader } from "lucide-react";
-
+import { ArrowLeft } from "lucide-react";
+import LoadingSpinner from "@/components/loading-spinner";
 import { Button } from "@/components/ui/button";
 import ArtworkDisplay from "@/components/artwork-display";
 import Footer from "@/components/footer";
@@ -44,18 +44,10 @@ export default function ArtworkPage() {
 		if (artwork) {
 			document.title = `${artwork.title} | Curation Gallery`;
 		}
-		
 	}, [artwork]);
 
 	if (!artwork) {
-		return (
-			<div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
-				<Loader className="animate-spin text-black" size={64} />
-				<p className="mt-8 px-6 py-3 rounded-md  text-gray font-semibold transition-colors">
-					Loading
-				</p>
-			</div>
-		);
+		return <LoadingSpinner />;
 	}
 
 	return (
@@ -63,15 +55,15 @@ export default function ArtworkPage() {
 			<NavigationBar />
 			<Button
 				variant="ghost"
-				className="md:m-4 m-2"		
+				className="md:m-4 m-2"
 				onClick={() => router.back()}
 			>
 				<ArrowLeft className="h-4 w-4" />
 				Back to Gallery
 			</Button>
 
-			<div className="" >
-				<div >
+			<div className="">
+				<div>
 					<ArtworkDisplay artwork={artwork} loading={loading} />
 				</div>
 			</div>

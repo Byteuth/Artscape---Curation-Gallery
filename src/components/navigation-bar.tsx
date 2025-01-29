@@ -12,11 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
 	Sheet,
-	SheetContent,
 	SheetTrigger,
-	SheetHeader,
-	SheetTitle,
-	SheetDescription,
 } from "@/components/ui/sheet";
 import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
@@ -92,13 +88,14 @@ export default function NavigationBar() {
 					) : (
 						<>
 							<Button
-								className="bg-green-400 text-black hover:bg-green-500"
+						
+								className="bg-gray-200 text-blackborder-2 border-green-400 hover:bg-green-300"
 								onClick={handleLoginRedirect}
 							>
 								Log In
 							</Button>
 							<Button
-								className="bg-gray-200 text-black hover:bg-gray-300"
+										className="bg-green-400 text-black hover:bg-green-500"
 								onClick={handleCreateAccountRedirect}
 							>
 								Sign Up

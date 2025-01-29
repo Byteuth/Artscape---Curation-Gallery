@@ -26,10 +26,10 @@ export async function PATCH(
 			: [];
 		const newImages = artwork.images || [];
 		const updatedImages = Array.from(
-			new Set([...existingImages, ...newImages])
+			new Set([...existingImages, ...newImages.reverse()])
 		);
 
-		const updatedArtworksUrl = updatedImages.join(", ");
+		const updatedArtworksUrl = updatedImages.join(", ")
 		const isArtworkAlreadyConnected = existingCollection.artworks.some(
 			(existingArtwork) => existingArtwork.objectId === artwork.id
 		);

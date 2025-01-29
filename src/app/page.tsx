@@ -168,7 +168,7 @@ export default function Home() {
 
 			<section
 				id="singular-Image"
-				className="relative z-10 shadow-lg bg-gradient-to-b from-green-100 via-green-200 to-green-300 overflow-hidden py-32"
+				className="relative z-10 shadow-lg bg-gradient-to-b from-white via-green-100 to-green-200 overflow-hidden py-32"
 			>
 				<div className="container mx-auto flex flex-col-reverse md:flex-row items-center justify-center px-6 py-12">
 					{/* Left Side: Stacked Images */}
@@ -229,7 +229,7 @@ export default function Home() {
 				</div>
 				<CollectionSection />
 				<div className="w-full flex flex-col items-center text-center mb-12 ">
-					<Link href="/gallery">
+					<Link href="/collections">
 						<Button className="bg-green-400 text-black hover:bg-green-500 scale-150 my-6">
 							Explore Collections
 						</Button>

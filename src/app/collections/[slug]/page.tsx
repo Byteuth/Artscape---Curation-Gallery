@@ -105,6 +105,8 @@ export function CollectionArtworks({
 	artworks,
 	collection,
 }: CollectionArtworksProps) {
+
+	const reversedArtworks = [...artworks].reverse();
 	return (
 		<div className="">
 			<div className="w-full max-w-[1000px] mx-auto">
@@ -118,7 +120,7 @@ export function CollectionArtworks({
 					)}
 
 					{/* Artworks List */}
-					{artworks.map((artwork) => (
+					{reversedArtworks.map((artwork) => (
 						<Card key={artwork.id} className="mb-8 bg-gray-100">
 							<CardContent className="p-6">
 								<h2 className="text-2xl font-bold mb-4">{artwork.title}</h2>
