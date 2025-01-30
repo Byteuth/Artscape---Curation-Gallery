@@ -67,7 +67,7 @@ export default function ArtworkPage() {
 					<ArtworkDisplay artwork={artwork} loading={loading} />
 				</div>
 			</div>
-			<Footer />
+			{/* <Footer /> */}
 		</div>
 	);
 }

@@ -24,7 +24,7 @@ export default function Collections() {
 			</div>
 
 			<CollectionSection />
-			<Footer />
+			{/* <Footer /> */}
 		</div>
 	);
 }

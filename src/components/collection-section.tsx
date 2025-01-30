@@ -60,7 +60,7 @@ export interface Collection {
 export default function CollectionSection() {
 	const path = usePathname();
 	const [visibleArtworks, setVisibleArtworks] = useState<number>(
-		path === "/" ? 6 : 6
+		path === "/" ? 8 : 8
 	);
 	const [collections, setCollections] = useState<Collection[] | null>(null);
 	const [userNames, setUserNames] = useState<Record<string, string>>({});
@@ -145,7 +145,7 @@ export default function CollectionSection() {
 	}
 
 	return (
-		<div className="flex flex-col pt-16 pb-32 w-full max-w-7xl mx-auto px-4 sm:px-8 md:px-16">
+		<div className="flex flex-col pb-6 w-full max-w-7xl mx-auto px-4 sm:px-8 md:px-16">
 			{!collections || collections.length === 0 ? (
 				<div className="text-center">
 					<p className="text-lg text-gray-600">
@@ -169,7 +169,7 @@ export default function CollectionSection() {
 							});
 
 							const artworksMainImage = reversed.reverse();
-							console.log("section", artworksMainImage);
+					
 							return (
 								<CollectionGrid
 									key={collection.id}

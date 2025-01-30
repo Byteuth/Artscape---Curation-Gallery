@@ -27,7 +27,7 @@ interface FilterProps {
 	filterOptions: {
 		Material: { label: string; value: string }[];
 		Classification: { label: string; value: string }[];
-		Technique: { label: string; value: string }[];
+		// Technique: { label: string; value: string }[];
 	};
 }
 {
@@ -41,11 +41,11 @@ export function Filter({
 }: FilterProps) {
 	const [open, setOpen] = React.useState<boolean>(false);
 	const [selectedCategory, setSelectedCategory] = React.useState<
-		"Technique" | "Classification" | "Material" | "Source"
+		"Classification" | "Material" | "Source"
 	>("Classification");
 
 	const categoryKeys = Object.keys(filterOptions) as Array<
-		"Technique" | "Classification" | "Material" | "Source"
+		"Classification" | "Material" | "Source"
 	>;
 
 	return (
@@ -135,6 +135,7 @@ interface searchAndFilterProps {
 	setSearchObject: React.Dispatch<React.SetStateAction<SearchObject>>;
 	artworks: Artwork[];
 	handleImageFilterChange: (value: boolean) => void;
+	setLoading: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 {
@@ -146,6 +147,7 @@ export default function SearchAndFilter({
 	setSearchObject, // Function to set the search object
 	artworks, // Array of artworks
 	handleImageFilterChange,
+	setLoading,
 }: searchAndFilterProps) {
 	const [searchTerm, setSearchTerm] = useState<string>("");
 	const [filterWords, setFilterWords] = useState<string[]>([]);
@@ -167,16 +169,16 @@ export default function SearchAndFilter({
 			value: item,
 		})) as { label: string; value: string }[],
 
-		Technique: Array.from(
-			new Set(
-				artworks
-					.map((artwork) => artwork.technique)
-					.filter((item): item is string => Boolean(item))
-			)
-		).map((item) => ({
-			label: item,
-			value: item,
-		})) as { label: string; value: string }[],
+		// Technique: Array.from(
+		// 	new Set(
+		// 		artworks
+		// 			.map((artwork) => artwork.technique)
+		// 			.filter((item): item is string => Boolean(item))
+		// 	)
+		// ).map((item) => ({
+		// 	label: item,
+		// 	value: item,
+		// })) as { label: string; value: string }[],
 
 		Material: Array.from(
 			new Set(
@@ -221,6 +223,7 @@ export default function SearchAndFilter({
 	const handleMustHaveImage = () => {
 		setMustHaveImage(!mustHaveImage);
 		handleImageFilterChange(mustHaveImage);
+		// setLoading(false);
 	};
 	useEffect(() => {
 		setSearchObject((prev) => ({
@@ -228,10 +231,10 @@ export default function SearchAndFilter({
 			keywords: filterWords,
 			hasImage: mustHaveImage,
 		}));
-	}, [filterWords, mustHaveImage, setSearchObject]);
+	}, [filterWords, mustHaveImage, setSearchObject, setLoading]);
 
 	return (
-		<Card className="bg-green-300 w-full p-12 ">
+		<Card className="bg-green-300 w-full pt-16 pb-8 px-2 ">
 			<div>
 				<div className="container mx-auto px-6">
 					<h3 className="text-3xl font-bold">Search</h3>
@@ -262,7 +265,7 @@ export default function SearchAndFilter({
 					{/* Visible Selected Filters */}
 					{visibleArtworksAmount > 0 && isGalleryPage && (
 						<>
-							<div className="flex flex-wrap items-center space-x-2 mb-2 mt-2 ">
+							<div className="flex flex-wrap items-center gap-2 mb-2 mt-2">
 								{/* Add Filters */}
 								<Filter
 									filterWords={filterWords}
@@ -275,12 +278,12 @@ export default function SearchAndFilter({
 									variant="outline"
 									size="sm"
 									onClick={handleMustHaveImage}
-									className={` ${
-										mustHaveImage ? "border-none" : "border-black"
-									} `}
+									className={`flex items-center gap-1 ${
+										mustHaveImage ? "border-black" : "border-none"
+									}`}
 								>
 									Must Have Image
-									{mustHaveImage ? <Square /> : <SquareCheckBig />}
+									{mustHaveImage ? <SquareCheckBig /> : <Square />}
 								</Button>
 							</div>
 							<div className="flex flex-wrap items-center space-x-2 mb-2 mt-4 ">
@@ -304,13 +307,13 @@ export default function SearchAndFilter({
 							</div>
 						</>
 					)}
-					{totalArtworks > visibleArtworksAmount && isGalleryPage && (
+					{/* {totalArtworks > visibleArtworksAmount && isGalleryPage && (
 						<div className="flex flex-wrap items-center space-x-2 mb-2 mt-4">
 							<p className="text-sm font-medium text-gray-600">
 								{totalArtworks} Artworks
 							</p>
 						</div>
-					)}
+					)} */}
 				</div>
 			</div>
 		</Card>

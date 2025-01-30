@@ -3,14 +3,13 @@
 import { Card, CardContent } from "@/components/ui/card";
 import Image from "next/image";
 import { Separator } from "@/components/ui/separator";
-import { Download, Maximize2, Share2, ArrowLeft } from "lucide-react";
-import Footer from "@/components/footer";
+import {ArrowLeft } from "lucide-react";
 import NavigationBar from "@/components/navigation-bar";
 import { Button } from "@/components/ui/button";
-import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Router } from "next/router";
+import Zoom from "react-medium-image-zoom";
+import "react-medium-image-zoom/dist/styles.css";
 
 interface Artwork {
 	id: string;
@@ -91,7 +90,7 @@ export default function CollectionId() {
 				/>
 			)}
 
-			<Footer />
+			{/* <Footer /> */}
 		</div>
 	);
 }
@@ -105,7 +104,6 @@ export function CollectionArtworks({
 	artworks,
 	collection,
 }: CollectionArtworksProps) {
-
 	const reversedArtworks = [...artworks].reverse();
 	return (
 		<div className="">
@@ -114,7 +112,9 @@ export function CollectionArtworks({
 					{/* Collection Header */}
 					{collection && (
 						<header className="mb-8 text-center">
-							<h1 className="lg:text-8xl text-4xl font-bold mb-8 px-4  text-center text-black">{collection.title}</h1>
+							<h1 className="lg:text-8xl text-4xl font-bold mb-8 px-4  text-center text-black">
+								{collection.title}
+							</h1>
 							<p className="text-gray-700 text-lg">{collection.description}</p>
 						</header>
 					)}
@@ -150,35 +150,25 @@ export function CollectionArtworks({
 								</div>
 
 								{/* Main Image */}
-								<section>
+								<section className="relative">
 									<Card>
-										<Image
-											src={
-												artwork.images?.includes(",")
-													? artwork.images.split(",")[0].trim()
-													: artwork.images || "/images/placeholder-image.png"
-											}
-											alt={artwork.title || "Artwork"}
-											width={800}
-											height={600}
-											className="w-full max-auto max-h-[600px] object-contain rounded-xl"
-										/>
+								
+										{/* Image with Zoom */}
+										<Zoom>
+											<Image
+												src={
+													artwork.images?.includes(",")
+														? artwork.images.split(",")[0].trim()
+														: artwork.images || "/images/placeholder-image.png"
+												}
+												alt={artwork.title || "Artwork"}
+												width={800}
+												height={600}
+												className="w-full max-auto max-h-[600px] object-contain rounded-xl"
+											/>
+										</Zoom>
 									</Card>
 								</section>
-
-								<div className="flex justify-between items-center mt-4">
-									<div className="flex ml-auto">
-										<Button variant="outline" size="icon">
-											<Download className="h-4 w-4" />
-										</Button>
-										<Button variant="outline" size="icon">
-											<Maximize2 className="h-4 w-4" />
-										</Button>
-										<Button variant="outline" size="icon">
-											<Share2 className="h-4 w-4" />
-										</Button>
-									</div>
-								</div>
 
 								{/* Artwork Details */}
 								<section className="mt-8">

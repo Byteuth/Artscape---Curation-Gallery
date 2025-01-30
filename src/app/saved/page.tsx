@@ -19,13 +19,13 @@ export default function SavedCollections() {
 			</Link>
 
 			<div>
-				<h1 className="lg:text-8xl text-4xl font-bold mb-8 px-4  text-center text-black">
+				<h1 className="lg:text-8xl text-4xl font-bold mb-8 px-4  text-center text-black pb-16">
 					Saved Collections
 				</h1>
 			</div>
 
 			<CollectionSection />
-			<Footer />
+			{/* <Footer /> */}
 		</div>
 	);
 }

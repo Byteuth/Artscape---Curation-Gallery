@@ -21,7 +21,9 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import CollectionsModal from "./collections-modal";
-import { Download, Maximize2, Share2, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
+import Zoom from "react-medium-image-zoom";
+import "react-medium-image-zoom/dist/styles.css";
 
 import { Artwork, Collections } from "@/types";
 import { Skeleton } from "./ui/skeleton";
@@ -121,18 +123,23 @@ export default function ArtworkDisplay({
 						</div>
 					</div>
 					{/* Main Image*/}
-					<section>
+					<section className="relative">
 						{loading ? (
 							<Skeleton className="w-full h-[400px] rounded-xl" />
 						) : (
 							<Card>
-								<Image
-									src={images[currentIndex] || "/images/placeholder-image.png"}
-									alt={artwork.title || "Artwork"}
-									width={800}
-									height={600}
-									className="w-full max-auto max-h-[1000px] object-contain rounded-xl"
-								/>
+							
+								<Zoom>
+									<Image
+										src={
+											images[currentIndex] || "/images/placeholder-image.png"
+										}
+										alt={artwork.title || "Artwork"}
+										width={800}
+										height={600}
+										className="w-full max-auto max-h-[1000px] object-contain rounded-xl"
+									/>
+								</Zoom>
 							</Card>
 						)}
 					</section>
@@ -177,16 +184,6 @@ export default function ArtworkDisplay({
 									{loading ? "Loading..." : "Add to Collection"}
 								</Button>
 							)}
-
-							<Button variant="outline" size="icon">
-								<Download className="h-4 w-4" />
-							</Button>
-							<Button variant="outline" size="icon">
-								<Maximize2 className="h-4 w-4" />
-							</Button>
-							<Button variant="outline" size="icon">
-								<Share2 className="h-4 w-4" />
-							</Button>
 						</div>
 					</div>
 					{images.length > 1 && (

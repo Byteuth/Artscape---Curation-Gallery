@@ -3,7 +3,6 @@ import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { ArrowLeft } from "lucide-react";
 import {
 	Pagination,
@@ -21,7 +20,6 @@ import { useRouter } from "next/navigation";
 import NavigationBar from "@/components/navigation-bar";
 import GalleryCarousel from "@/components/gallery-carousel";
 import SearchAndFilter from "@/components/search-and-filter";
-import Footer from "@/components/footer";
 
 import { getArtworksByKeyword } from "../actions/getArtworksByKeyword";
 import {
@@ -34,19 +32,52 @@ import {
 const PLACEHOLDER_IMAGE = "/images/placeholder-image.png";
 const ITEMS_PER_PAGE = 20;
 const PAGE_SIZE = ITEMS_PER_PAGE * 2;
+const artwork = {
+	id: 1,
+	title: "The Starry Night",
+	dated: "1889",
+	images: ["https://images.metmuseum.org/CRDImages/gr/original/DP260372.jpg"],
+	source: "Met",
+	description:
+		"One of Vincent van Gogh’s most famous paintings, depicting a swirling night sky over a quiet village.",
+	medium: "Oil on canvas",
+	dimensions: "73.7 × 92.1 cm",
+	provenance: "Acquired by The Museum of Modern Art, 1941",
+	colors: [
+		{ r: 0, g: 0, b: 255 },
+		{ r: 255, g: 255, b: 0 },
+	],
+	technique: "Impasto",
+	period: "Post-Impressionism",
+	classification: "Painting",
+	artist: "Vincent van Gogh",
+	artistNationality: "Dutch",
+	objectURL: "https://images.metmuseum.org/CRDImages/gr/original/DP260372.jpg",
+	accessionyear: "1941",
+	country: "Netherlands",
+	department: "European Paintings",
+	creditLine: "Bequest of Lillie P. Bliss, 1931",
+	galleryNumber: "501",
+	objectDate: "1889",
+	objectID: 437998,
+	relatedTags: ["Post-Impressionism", "Night Sky", "Swirling Patterns"],
+	url: "https://www.metmuseum.org/art/collection/search/437998",
+};
 
 export default function Gallery() {
 	const router = useRouter();
 	const [currentPage, setCurrentPage] = useState<number>(1);
 	const [artworks, setArtworks] = useState<Artwork[]>([]);
+	const [filteredArtworks, setFilteredArtworks] = useState<Artwork[]>([
+		artwork,
+	]);
 	const [totalArtworks, setTotalArtworks] = useState(0);
 	const [searchObject, setSearchObject] = useState<SearchObject>({
 		keywords: [],
-		hasImage: false,
+		hasImage: true,
 		searchKey: "",
 	});
 	const [loading, setLoading] = useState<boolean>(false);
-	const [goToPage, setGoToPage] = useState("");
 	const [initialized, setInitialized] = useState(false);
 
 	// Ensure the searchObject state gets updated after checking localStorage
@@ -111,9 +142,9 @@ export default function Gallery() {
 	// Fetch artworks based on search criteria
 	useEffect(() => {
 		let isMounted = true;
+		setLoading(true);
 
 		const fetchAndSetArtworks = async () => {
-			setLoading(true);
 			try {
 				const { harvardResponse, metResponse } = await getArtworksByKeyword(
 					searchObject.searchKey,
@@ -169,6 +200,11 @@ export default function Gallery() {
 
 					setArtworks(combinedArtworks);
 					setTotalArtworks(harvardResponse.total + metResponse.total);
+					setSearchObject({
+						keywords: [],
+						hasImage: searchObject.hasImage,
+						searchKey: searchObject.searchKey,
+					});
 				}
 			} catch (error) {
 				if (isMounted) console.error("Failed to fetch artworks:", error);
@@ -180,23 +216,73 @@ export default function Gallery() {
 		fetchAndSetArtworks();
 
 		return () => {
+			setLoading(false);
 			isMounted = false;
 		};
-	}, [searchObject.searchKey, currentPage]);
+	}, [searchObject.searchKey, currentPage, searchObject.hasImage]);
 
-	// Filter artworks based on image filter preference
-	const filteredArtworks = artworks.filter((artwork) => {
-		const passesImageFilter =
-			searchObject.hasImage ||
-			(Array.isArray(artwork.images) &&
-				artwork.images.length > 0 &&
-				artwork.images.every(
-					(image) => image && typeof image === "string" && image.trim() !== ""
-				));
+	// Filter artworks based on keywords and image filter preference
+	useEffect(() => {
+		const filterArtworksByKeywords = (
+			artworks: Artwork[],
+			keywords: string[]
+		): Artwork[] => {
+			// If no keywords are provided, return all artworks
+			if (!keywords || keywords.length === 0) {
+				return artworks;
+			}
 
-		return passesImageFilter;
-	});
+			return artworks.filter((artwork) => {
+				// Convert keywords to lowercase for case-insensitive comparison
+				const lowercaseKeywords = keywords.map((keyword) =>
+					keyword.toLowerCase()
+				);
 
+				// Check each keyword separately - all must match for the artwork to be included
+				return lowercaseKeywords.every((keyword) => {
+					// First check if it's a source match
+					if (artwork.source && artwork.source.toLowerCase() === keyword) {
+						return true;
+					}
+
+					// If not a source match, check other fields
+					const fieldsToSearch = [
+						artwork.artist,
+						artwork.classification,
+						artwork.medium,
+						artwork.technique,
+					];
+
+					// Check if this keyword matches any of the fields
+					return fieldsToSearch.some((field) => {
+						if (!field) return false;
+						return field.toLowerCase().includes(keyword);
+					});
+				});
+			});
+		};
+
+		// First apply keyword filtering
+		const keywordFilteredArtworks = filterArtworksByKeywords(
+			artworks,
+			searchObject.keywords
+		);
+
+		// Then apply image filtering
+		const finalFilteredArtworks = keywordFilteredArtworks.filter((artwork) => {
+			const passesImageFilter =
+				!searchObject.hasImage ||
+				(Array.isArray(artwork.images) &&
+					artwork.images.length > 0 &&
+					artwork.images.every(
+						(image) => image && typeof image === "string" && image.trim() !== ""
+					));
+
+			return passesImageFilter;
+		});
+
+		setFilteredArtworks(finalFilteredArtworks);
+	}, [artworks, searchObject.keywords, searchObject.hasImage]);
 	// Handle page change
 	const handlePageChange = (page: number) => {
 		setCurrentPage(page);
@@ -224,6 +310,7 @@ export default function Gallery() {
 				</h1>
 			</div>
 
+			{/* Carousel Section */}
 			<GalleryCarousel />
 
 			{/* Main Content Section */}
@@ -236,9 +323,10 @@ export default function Gallery() {
 							artworks={artworks}
 							setSearchObject={setSearchObject}
 							handleImageFilterChange={handleImageFilterChange}
+							setLoading={setLoading}
 						/>
 
-						{loading ? (
+						{loading && filteredArtworks.length !== 0 ? (
 							<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6  mt-16">
 								{[...Array(ITEMS_PER_PAGE)].map((_, index) => (
 									<Card key={index} className="overflow-hidden">
@@ -255,7 +343,7 @@ export default function Gallery() {
 								))}
 							</div>
 						) : (
-							<div className="grid grid-cols-4 gap-x-6 gap-y-12 mt-16">
+							<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-12 mt-16">
 								{[0, 1, 2, 3].map((column) => (
 									<div key={column} className="flex flex-col space-y-6">
 										{filteredArtworks
@@ -309,7 +397,7 @@ export default function Gallery() {
 												onClick={() =>
 													handlePageChange(Math.max(1, currentPage - 1))
 												}
-												className={`border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground ${
+												className={`border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground bg-green-300 hover:bg-green-400 ${
 													currentPage === 1
 														? "opacity-50 cursor-not-allowed"
 														: "hover:cursor-pointer"
@@ -335,7 +423,9 @@ export default function Gallery() {
 														href="#"
 														onClick={() => handlePageChange(pageIndex)}
 														className={`border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground ${
-															currentPage === pageIndex ? "font-bold" : ""
+															currentPage === pageIndex
+																? "font-bold bg-green-300 hover:bg-green-400"
+																: ""
 														}`}
 													>
 														{pageIndex}
@@ -346,7 +436,7 @@ export default function Gallery() {
 										{/* Right ellipsis and last page */}
 										{currentPage < Math.ceil(totalArtworks / PAGE_SIZE) - 3 && (
 											<>
-												<PaginationEllipsis className="border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground" />
+												<PaginationEllipsis className="" />
 												<PaginationItem>
 													<PaginationLink
 														href="#"
@@ -374,7 +464,7 @@ export default function Gallery() {
 														)
 													)
 												}
-												className={`border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground ${
+												className={`border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground bg-green-300 hover:bg-green-400 ${
 													currentPage === Math.ceil(totalArtworks / PAGE_SIZE)
 														? "opacity-50 cursor-not-allowed"
 														: "hover:cursor-pointer"
@@ -382,7 +472,6 @@ export default function Gallery() {
 											/>
 										</PaginationItem>
 									</ul>
-						
 								</PaginationContent>
 							</Pagination>
 						)}
@@ -390,7 +479,7 @@ export default function Gallery() {
 				</div>
 			</div>
 
-			<Footer />
+			{/* <Footer /> */}
 		</div>
 	);
 }

@@ -9,116 +9,423 @@ import Image from "next/image";
 import Link from "next/link";
 
 const gallerySample = [
-	{
-		title: "Gold Flower",
-		imgUrl: "https://images.metmuseum.org/CRDImages/gr/original/DP260372.jpg",
-		dated: "ca. 2300–2100 BCE",
-		source: "M",
-		id: "252349",
-	},
-	{
-		title: "House",
-		imgUrl: "https://images.metmuseum.org/CRDImages/as/original/156471.jpg",
-		dated: "mid- to late 1780s",
-		source: "M",
-		id: "62567",
-	},
-	{
-		title: "Woman on a Striped Sofa with a Dog",
-		imgUrl: "https://nrs.harvard.edu/urn-3:HUAM:DDC252719_dynmc",
-		dated: "1876",
-		source: "H",
-		id: "228130",
-	},
-	{
-		title: "Frontispiece of the Figurine",
-		imgUrl: "https://nrs.harvard.edu/urn-3:HUAM:INV171585_dynmc",
-		dated: "unknown",
-		source: "H",
-		id: "279384",
-	},
-	{
-		title: "Angel",
-		imgUrl:
-			"https://images.metmuseum.org/CRDImages/es/original/DP-14477-001.jpg",
-		dated: "ca. 1760–70",
-		source: "M",
-		id: "189692",
-	},
-	{
-		title: "Cat figurine",
-		imgUrl:
-			"https://images.metmuseum.org/CRDImages/eg/original/30.8.104_EGDP014432.jpg",
-		dated: "664–30 B.C.",
-		source: "M",
-		id: "572106",
-	},
-	{
-		title: "Terracotta amphora (jar)",
-		imgUrl: "https://images.metmuseum.org/CRDImages/gr/original/DP116936.jpg",
-		dated: "ca. 530 BCE",
-		source: "M",
-		id: "255154",
-	},
-	{
-		title: "A Meadow Irrigated by a River",
-		imgUrl: "https://nrs.harvard.edu/urn-3:HUAM:INV138376_dynmc",
-		dated: "ca. 1840",
-		source: "H",
-		id: "239299",
-	},
-	{
-		title: "The Adoration of the Magi",
-		imgUrl:
-			"https://images.metmuseum.org/CRDImages/ep/original/DP-31416-001.jpg",
-		dated: "1519-1548",
-		source: "M",
-		id: "436504",
-	},
-	{
-		title: "Landscape with Tobias and the Angel",
-		imgUrl: "https://nrs.harvard.edu/urn-3:HUAM:DDC254457_dynmc",
-		dated: "c. 1620-1622",
-		source: "H",
-		id: "227512",
-	},
-	{
-		title: "A Meadow Irrigated by a River",
-		imgUrl: "https://nrs.harvard.edu/urn-3:HUAM:INV138376_dynmc",
-		dated: "ca. 1840",
-		source: "H",
-		id: "239299",
-	},
-	{
-		title: "The Adoration of the Magi",
-		imgUrl:
-			"https://images.metmuseum.org/CRDImages/ep/original/DP-31416-001.jpg",
-		dated: "1519-1548",
-		source: "M",
-		id: "436504",
-	},
-	{
-		title: "Landscape with Tobias and the Angel",
-		imgUrl: "https://nrs.harvard.edu/urn-3:HUAM:DDC254457_dynmc",
-		dated: "c. 1620-1622",
-		source: "H",
-		id: "227512",
-	},
+	[
+		{
+			title: "Figurine of a Dog",
+			imgUrl: "https://images.metmuseum.org/CRDImages/eg/original/DP349853.jpg",
+			dated: "ca. 2300–2100 BCE",
+			source: "M",
+			id: "252349",
+		},
+		{
+			title: "Dog",
+			imgUrl: "https://nrs.harvard.edu/urn-3:HUAM:INV002119_dynmc",
+			dated: "mid- to late 1780s",
+			source: "M",
+			id: "62567",
+		},
+		{
+			title: "The Dog Wallah",
+			imgUrl: "https://nrs.harvard.edu/urn-3:HUAM:DDC108702_dynmc",
+			dated: "1876",
+			source: "H",
+			id: "228130",
+		},
+		{
+			title: "The Wounded Dog",
+			imgUrl: "https://nrs.harvard.edu/urn-3:HUAM:73978_dynmc",
+			dated: "unknown",
+			source: "H",
+			id: "279384",
+		},
+		{
+			title: "Marie Emilie Coignet de Courson",
+			imgUrl:
+				"https://images.metmuseum.org/CRDImages/ep/original/DP-1019-01.jpg",
+			dated: "ca. 1760–70",
+			source: "M",
+			id: "189692",
+		},
+		{
+			title: "Limestone dog",
+			imgUrl: "https://images.metmuseum.org/CRDImages/gr/original/DP269822.jpg",
+			dated: "664–30 B.C.",
+			source: "M",
+			id: "572106",
+		},
+		{
+			title: "Seated dog",
+			imgUrl:
+				"https://images.metmuseum.org/CRDImages/ao/original/75B_18BR2.jpg",
+			dated: "ca. 530 BCE",
+			source: "M",
+			id: "255154",
+		},
+		{
+			title: "Limestone statuette of a coursing hound seizing a hare",
+			imgUrl: "https://images.metmuseum.org/CRDImages/gr/original/DP263921.jpg",
+			dated: "ca. 1840",
+			source: "H",
+			id: "239299",
+		},
+		{
+			title: "From the Dogs series",
+			imgUrl: "https://images.metmuseum.org/CRDImages/dp/original/DP831743.jpg",
+			dated: "1519-1548",
+			source: "M",
+			id: "436504",
+		},
+		{
+			title: "LFrom the Dogs series 2",
+			imgUrl: "https://images.metmuseum.org/CRDImages/dp/original/DP831742.jpg",
+			dated: "c. 1620-1622",
+			source: "H",
+			id: "227512",
+		},
+		{
+			title: "Musette, a Maltese dog",
+			imgUrl: "https://images.metmuseum.org/CRDImages/es/original/DP314807.jpg",
+			dated: "ca. 1840",
+			source: "H",
+			id: "239299",
+		},
+		{
+			title: "Siberian Wolf Hound,",
+			imgUrl: "https://images.metmuseum.org/CRDImages/dp/original/DP821790.jpg",
+			dated: "1519-1548",
+			source: "M",
+			id: "436504",
+		},
+		{
+			title: "Sportsman and Dogs",
+			imgUrl: "https://nrs.harvard.edu/urn-3:HUAM:INV198778_dynmc",
+			dated: "c. 1620-1622",
+			source: "H",
+			id: "227512",
+		},
+	],
+	[
+		{
+			title: "Peace and Plenty",
+			imgUrl: "https://images.metmuseum.org/CRDImages/ad/original/DP159755.jpg",
+			dated: "ca. 1840",
+			source: "H",
+			id: "239299",
+		},
+		{
+			title: "Mountains",
+			imgUrl: "https://nrs.harvard.edu/urn-3:HUAM:INV010253_dynmc",
+			dated: "ca. 1840",
+			source: "H",
+			id: "239299",
+		},
+		{
+			title: "Mountainss",
+			imgUrl: "https://nrs.harvard.edu/urn-3:HUAM:INV010254_dynmc",
+			dated: "ca. 1840",
+			source: "H",
+			id: "239299",
+		},
+		{
+			title: "A Farm in Brittany",
+			imgUrl: "https://images.metmuseum.org/CRDImages/ep/original/DP123847.jpg",
+			dated: "ca. 1840",
+			source: "H",
+			id: "239299",
+		},
+		{
+			title: "Flower Garden",
+			imgUrl:
+				"https://images.metmuseum.org/CRDImages/ad/original/DP-21451-001.jpg",
+			dated: "ca. 1840",
+			source: "H",
+			id: "239299",
+		},
+		{
+			title: "Farm Scene",
+			imgUrl:
+				"https://images.metmuseum.org/CRDImages/rl/original/DP-22055-001.jpg",
+			dated: "ca. 1840",
+			source: "H",
+			id: "239299",
+		},
+		{
+			title: "The Repast of the Lion",
+			imgUrl: "https://images.metmuseum.org/CRDImages/ep/original/DT50.jpg",
+			dated: "ca. 1840",
+			source: "H",
+			id: "239299",
+		},
+		{
+			title: "Lady with Three Peacocks ",
+			imgUrl: "https://nrs.harvard.edu/urn-3:HUAM:ISL10058_dynmc",
+			dated: "ca. 1840",
+			source: "H",
+			id: "239299",
+		},
+		{
+			title: "Carrots",
+			imgUrl: "https://nrs.harvard.edu/urn-3:HUAM:51966_dynmc",
+			dated: "ca. 1840",
+			source: "H",
+			id: "239299",
+		},
+		{
+			title: "Walnut Branch",
+			imgUrl: "https://nrs.harvard.edu/urn-3:HUAM:74077_dynmc",
+			dated: "ca. 1840",
+			source: "H",
+			id: "239299",
+		},
+		{
+			title: "Garden",
+			imgUrl: "https://nrs.harvard.edu/urn-3:HUAM:INV009833_dynmc",
+			dated: "ca. 1840",
+			source: "H",
+			id: "239299",
+		},
+		{
+			title: "The Monet Family in Their Garden at Argenteuil",
+			imgUrl:
+				"https://images.metmuseum.org/CRDImages/ep/original/DP-25465-001.jpg",
+			dated: "ca. 1840",
+			source: "H",
+			id: "239299",
+		},
+		{
+			title: "Flower Study",
+			imgUrl: "https://nrs.harvard.edu/urn-3:HUAM:INV010856_dynmc",
+			dated: "ca. 1840",
+			source: "H",
+			id: "239299",
+		},
+	],
+	[
+		{
+			title: "Nicholas Boylston",
+			imgUrl: "https://nrs.harvard.edu/urn-3:HUAM:LEG257034",
+			dated: "ca. 1840",
+			source: "H",
+			id: "239299",
+		},
+		{
+			title: "The House of Bijapur",
+			imgUrl: "https://images.metmuseum.org/CRDImages/is/original/DP231353.jpg",
+			dated: "ca. 1840",
+			source: "H",
+			id: "239299",
+		},
+		{
+			title: "Portrait of Napoleon I",
+			imgUrl:
+				"https://images.metmuseum.org/CRDImages/es/original/DP-25866-001.jpg",
+			dated: "ca. 1840",
+			source: "H",
+			id: "239299",
+		},
+		{
+			title: "Edward Charles Pickering",
+			imgUrl: "https://nrs.harvard.edu/urn-3:HUAM:74527_dynmc",
+			dated: "ca. 1840",
+			source: "H",
+			id: "239299",
+		},
+		{
+			title: "Portrait of a woman",
+			imgUrl: "https://nrs.harvard.edu/urn-3:HUAM:70813_dynmc",
+			dated: "ca. 1840",
+			source: "H",
+			id: "239299",
+		},
+		{
+			title: "Madonna and Child",
+			imgUrl:
+				"https://images.metmuseum.org/CRDImages/ep/original/DP-26882-001.jpg",
+			dated: "ca. 1840",
+			source: "H",
+			id: "239299",
+		},
+		{
+			title: "Nicholas Boylston",
+			imgUrl: "https://nrs.harvard.edu/urn-3:HUAM:DDC104940_dynmc",
+			dated: "ca. 1840",
+			source: "H",
+			id: "239299",
+		},
+		{
+			title: "The Vision of Saint John",
+			imgUrl:
+				"https://images.metmuseum.org/CRDImages/ep/original/DP-17641-001.jpg",
+			dated: "ca. 1840",
+			source: "H",
+			id: "239299",
+		},
+		{
+			title: "Sebastián Martínez y Pérez",
+			imgUrl:
+				"https://images.metmuseum.org/CRDImages/ep/original/DP-28009-001.jpg",
+			dated: "ca. 1840",
+			source: "H",
+			id: "239299",
+		},
+		{
+			title:
+				"Virgin and Child with the Young Saint John the Baptist and Angels",
+			imgUrl: "https://images.metmuseum.org/CRDImages/ep/original/DP123935.jpg",
+			dated: "ca. 1840",
+			source: "H",
+			id: "239299",
+		},
+		{
+			title: "Saints Peter",
+			imgUrl: "https://images.metmuseum.org/CRDImages/ep/original/DT2838.jpg",
+			dated: "ca. 1840",
+			source: "H",
+			id: "239299",
+		},
+		{
+			title: "The Temptation",
+			imgUrl: "https://images.metmuseum.org/CRDImages/ep/original/DP124058.jpg",
+			dated: "ca. 1840",
+			source: "H",
+			id: "239299",
+		},
+		{
+			title: "Don Gaspar de Guzmán",
+			imgUrl:
+				"https://images.metmuseum.org/CRDImages/ep/original/DP-14936-011.jpg",
+			dated: "ca. 1840",
+			source: "H",
+			id: "239299",
+		},
+	],
+	[
+		{
+			title: "Jewish Woman of Algiers",
+			imgUrl: "https://images.metmuseum.org/CRDImages/es/original/DP250149.jpg",
+			dated: "ca. 1840",
+			source: "H",
+			id: "239299",
+		},
+		{
+			title: "Head of a Guardian Figure",
+			imgUrl: "https://nrs.harvard.edu/urn-3:HUAM:VRS45092_dynmc",
+			dated: "ca. 1840",
+			source: "H",
+			id: "239299",
+		},
+		{
+			title: "Buddha Maitreya",
+			imgUrl:
+				"https://images.metmuseum.org/CRDImages/as/original/DP170102.jpg",
+			dated: "ca. 1840",
+			source: "H",
+			id: "239299",
+		},
+		{
+			title: "The Little Fourteen-Year-Old Dancer",
+			imgUrl: "https://images.metmuseum.org/CRDImages/es/original/DP-14939-002.jpg",
+			dated: "ca. 1840",
+			source: "H",
+			id: "239299",
+		},
+		{
+			title: "Spinario ",
+			imgUrl: "https://images.metmuseum.org/CRDImages/es/original/DP248736.jpg",
+			dated: "ca. 1840",
+			source: "H",
+			id: "239299",
+		},
+		{
+			title: "Paris",
+			imgUrl:
+				"https://images.metmuseum.org/CRDImages/es/original/DP229778.jpg",
+			dated: "ca. 1840",
+			source: "H",
+			id: "239299",
+		},
+		{
+			title: "Saint Catherine of Alexandria",
+			imgUrl: "https://images.metmuseum.org/CRDImages/md/original/DP159988.jpg",
+			dated: "ca. 1840",
+			source: "H",
+			id: "239299",
+		},
+		{
+			title: "Seated Buddha",
+			imgUrl:
+				"https://images.metmuseum.org/CRDImages/as/original/DP123364.jpg",
+			dated: "ca. 1840",
+			source: "H",
+			id: "239299",
+		},
+		{
+			title: "Shrine of the Virgin",
+			imgUrl:
+				"https://images.metmuseum.org/CRDImages/md/original/DP266473.jpg",
+			dated: "ca. 1840",
+			source: "H",
+			id: "239299",
+		},
+		{
+			title:
+				"Unique Forms of Continuity in Space",
+			imgUrl: "https://images.metmuseum.org/CRDImages/ma/original/DT6411.jpg",
+			dated: "ca. 1840",
+			source: "H",
+			id: "239299",
+		},
+		{
+			title: "Tomb Effigy Bust of Marie de France (1327-41), daughter of Charles IV of France and Jeanne d'Evreux",
+			imgUrl: "https://images.metmuseum.org/CRDImages/md/original/DT135.jpg",
+			dated: "ca. 1840",
+			source: "H",
+			id: "239299",
+		},
+		{
+			title: "Woman's Head",
+			imgUrl: "https://images.metmuseum.org/CRDImages/ma/original/DT203050.jpg",
+			dated: "ca. 1840",
+			source: "H",
+			id: "239299",
+		},
+		{
+			title: "Satyr",
+			imgUrl:
+				"https://images.metmuseum.org/CRDImages/es/original/DP-612-001.jpg",
+			dated: "ca. 1840",
+			source: "H",
+			id: "239299",
+		},
+	],
 ];
 
 const suggestions = [
-	{ title: "Explore Art History", color: "text-green-500" },
-	{ title: "Discover Masterpieces", color: "text-blue-500" },
-	{ title: "Journey Through Time", color: "text-purple-500" },
-	{ title: "Cultural Heritage", color: "text-red-500" },
-	{ title: "Artistic Excellence", color: "text-yellow-500" },
+	{ title: "Dogs", color: "text-yellow-500", images: gallerySample[0] },
+	{
+		title: "Vegetation",
+		color: "text-green-500",
+		images: gallerySample[1],
+	},
+	{
+		title: "Paintings",
+		color: "text-orange-500",
+		images: gallerySample[2],
+	},
+	{
+		title: "Sculptures",
+		color: "text-blue-500",
+		images: gallerySample[3],
+	},
 ];
 
 export default function GalleryHero() {
 	const [currentSuggestion, setCurrentSuggestion] = useState(
 		() => suggestions[0]
 	);
-	const [currentGallery, setCurrentGallery] = useState(() => gallerySample);
+	const [currentGallery, setCurrentGallery] = useState(
+		() => currentSuggestion.images
+	);
 	const suggestionRef = useRef(null);
 	const isMounted = useRef(false);
 
@@ -135,7 +442,13 @@ export default function GalleryHero() {
 		let index = 0;
 		const interval = setInterval(() => {
 			index = (index + 1) % suggestions.length;
-			setCurrentSuggestion(suggestions[index]);
+			const newSuggestion = suggestions[index];
+			setCurrentSuggestion(newSuggestion);
+			// Update gallery when suggestion changes
+			const shuffledGallery = [...newSuggestion.images].sort(
+				() => Math.random() - 0.5
+			);
+			setCurrentGallery(shuffledGallery);
 		}, 8000);
 		return () => clearInterval(interval);
 	}, []);
@@ -143,12 +456,12 @@ export default function GalleryHero() {
 	useEffect(() => {
 		if (typeof window !== "undefined") {
 			isMounted.current = true;
-			const shuffledGallery = [...gallerySample].sort(
+			const shuffledGallery = [...currentSuggestion.images].sort(
 				() => Math.random() - 0.5
 			);
 			setCurrentGallery(shuffledGallery);
 		}
-	}, []);
+	}, [currentSuggestion]);
 
 	// Handle main carousel animations
 	useEffect(() => {
@@ -226,13 +539,8 @@ export default function GalleryHero() {
 				</h3>
 			</div>
 			<div className="relative">
-				{/* Gradient overlay for white shadow at the bottom */}
 				<div className="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-white to-transparent pointer-events-none z-10" />
-
-				<div
-					className={`grid gap-4
-					grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 translate-y-30 max-h-[480px] overflow-hidden`}
-				>
+				<div className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 translate-y-30 max-h-[480px] overflow-hidden">
 					{Array.from({ length: 5 }).map((_, carouselIndex) => {
 						const translateYClass = translateYClasses[carouselIndex] || "";
 						const gallerySlice = currentGallery.slice(
