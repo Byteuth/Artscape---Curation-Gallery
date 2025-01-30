@@ -1,14 +1,13 @@
 import { type NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/db";
 
-// PATCH - Update Collection
 export async function PATCH(
-	request: NextRequest,
-	context: { params: { collectionId: string } }
+	req: NextRequest,
+	{ params }: { params: { collectionId: string } }
 ) {
 	try {
-		const { collectionId } = context.params;
-		const { artwork } = await request.json();
+		const { collectionId } = params;
+		const { artwork } = await req.json();
 
 		const existingCollection = await prisma.collection.findUnique({
 			where: { id: collectionId },
@@ -30,7 +29,7 @@ export async function PATCH(
 			new Set([...existingImages, ...newImages.reverse()])
 		);
 
-		const updatedArtworksUrl = updatedImages.join(", ");
+		const updatedArtworksUrl = updatedImages.join(", ")
 		const isArtworkAlreadyConnected = existingCollection.artworks.some(
 			(existingArtwork) => existingArtwork.objectId === artwork.id
 		);
@@ -96,6 +95,7 @@ export async function PATCH(
 		return NextResponse.json(updatedCollection, { status: 200 });
 	} catch (error: any) {
 		console.error("Error updating collection:", error);
+
 		return NextResponse.json(
 			{ error: error.message || "Failed to update collection" },
 			{ status: 500 }
@@ -103,13 +103,12 @@ export async function PATCH(
 	}
 }
 
-// GET - Fetch Collection
 export async function GET(
-	request: NextRequest,
-	context: { params: { collectionId: string } }
-): Promise<NextResponse> {
+	req: NextRequest,
+	{ params }: { params: { collectionId: string } }
+) {
 	try {
-		const { collectionId } = context.params;
+		const { collectionId } = params;
 
 		const collection = await prisma.collection.findUnique({
 			where: { id: collectionId },
@@ -124,10 +123,10 @@ export async function GET(
 				{ status: 404 }
 			);
 		}
-
 		return NextResponse.json(collection, { status: 200 });
 	} catch (error: any) {
 		console.error("Error fetching collection:", error);
+
 		return NextResponse.json(
 			{ error: error.message || "Failed to fetch collection" },
 			{ status: 500 }
@@ -135,13 +134,12 @@ export async function GET(
 	}
 }
 
-// DELETE - Remove Collection
 export async function DELETE(
-	request: NextRequest,
-	context: { params: { collectionId: string } }
+	req: NextRequest,
+	{ params }: { params: { collectionId: string } }
 ) {
 	try {
-		const { collectionId } = context.params;
+		const { collectionId } = params;
 
 		const deletedCollection = await prisma.collection.delete({
 			where: { id: collectionId },
@@ -150,6 +148,7 @@ export async function DELETE(
 		return NextResponse.json(deletedCollection, { status: 200 });
 	} catch (error: any) {
 		console.error("Error deleting collection:", error);
+
 		return NextResponse.json(
 			{ error: error.message || "Failed to delete collection" },
 			{ status: 500 }
