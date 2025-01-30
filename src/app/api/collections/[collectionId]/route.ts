@@ -1,13 +1,14 @@
 import { type NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/db";
 
+// PATCH - Update Collection
 export async function PATCH(
-	req: NextRequest,
-	{ params }: { params: { collectionId: string } }
+	request: NextRequest,
+	context: { params: { collectionId: string } }
 ) {
 	try {
-		const { collectionId } = params;
-		const { artwork } = await req.json();
+		const { collectionId } = context.params;
+		const { artwork } = await request.json();
 
 		const existingCollection = await prisma.collection.findUnique({
 			where: { id: collectionId },
@@ -95,7 +96,6 @@ export async function PATCH(
 		return NextResponse.json(updatedCollection, { status: 200 });
 	} catch (error: any) {
 		console.error("Error updating collection:", error);
-
 		return NextResponse.json(
 			{ error: error.message || "Failed to update collection" },
 			{ status: 500 }
@@ -103,12 +103,13 @@ export async function PATCH(
 	}
 }
 
+// GET - Fetch Collection
 export async function GET(
 	request: NextRequest,
-	{ params }: { params: { collectionId: string } }
+	context: { params: { collectionId: string } }
 ): Promise<NextResponse> {
 	try {
-		const { collectionId } = params;
+		const { collectionId } = context.params;
 
 		const collection = await prisma.collection.findUnique({
 			where: { id: collectionId },
@@ -123,6 +124,7 @@ export async function GET(
 				{ status: 404 }
 			);
 		}
+
 		return NextResponse.json(collection, { status: 200 });
 	} catch (error: any) {
 		console.error("Error fetching collection:", error);
@@ -133,12 +135,13 @@ export async function GET(
 	}
 }
 
+// DELETE - Remove Collection
 export async function DELETE(
-	req: NextRequest,
-	{ params }: { params: { collectionId: string } }
+	request: NextRequest,
+	context: { params: { collectionId: string } }
 ) {
 	try {
-		const { collectionId } = params;
+		const { collectionId } = context.params;
 
 		const deletedCollection = await prisma.collection.delete({
 			where: { id: collectionId },
@@ -147,7 +150,6 @@ export async function DELETE(
 		return NextResponse.json(deletedCollection, { status: 200 });
 	} catch (error: any) {
 		console.error("Error deleting collection:", error);
-
 		return NextResponse.json(
 			{ error: error.message || "Failed to delete collection" },
 			{ status: 500 }
