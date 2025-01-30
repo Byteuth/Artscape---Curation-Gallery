@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Azeret_Mono as Geist_Mono } from "next/font/google";
 import SessionProvider from "@/components/sessionProvider/sessionProvider";
 import { Toaster } from "@/components/ui/toaster";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth"; 
 import "./globals.css";
+import type React from "react"; 
 
 const geistSans = Geist({
 	variable: "--font-geist-sans",
