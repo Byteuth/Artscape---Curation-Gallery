@@ -104,9 +104,9 @@ export async function PATCH(
 }
 
 export async function GET(
-	req: NextRequest,
+	request: NextRequest,
 	{ params }: { params: { collectionId: string } }
-) {
+): Promise<NextResponse> {
 	try {
 		const { collectionId } = params;
 
@@ -126,7 +126,6 @@ export async function GET(
 		return NextResponse.json(collection, { status: 200 });
 	} catch (error: any) {
 		console.error("Error fetching collection:", error);
-
 		return NextResponse.json(
 			{ error: error.message || "Failed to fetch collection" },
 			{ status: 500 }
