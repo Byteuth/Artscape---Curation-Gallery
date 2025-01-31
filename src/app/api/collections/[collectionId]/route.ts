@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { Artwork } from "@/types/index";
 import prisma from "@/lib/db";
 
-// // PATCH: Update collection with new artwork
+// PATCH: Update collection with new artwork
 // export async function PATCH(
 // 	request: NextRequest,
 // 	context: { params: { collectionId: string } }
