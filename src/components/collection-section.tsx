@@ -146,7 +146,7 @@ export default function CollectionSection() {
 
 	return (
 		<div className="flex flex-col pb-6 w-full max-w-7xl mx-auto px-4 sm:px-8 md:px-16">
-			{!collections || collections.length === 0 ? (
+			{!collections || collections.length === 0 && !isLoading ? (
 				<div className="text-center">
 					<p className="text-lg text-gray-600">
 						{path === "/saved"
