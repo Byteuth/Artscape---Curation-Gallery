@@ -33,12 +33,21 @@ export async function POST(req: NextRequest) {
 		});
 
 		return NextResponse.json(newCollection, { status: 201 });
-	} catch (error) {
-		console.error("Error creating collection:", error);
-		return NextResponse.json(
-			{ error: error.message || "Failed to create collection" },
-			{ status: 500 }
-		);
+	} catch (error: unknown) {
+		if (error instanceof Error) {
+			console.error("Error creating collection:", error);
+			return NextResponse.json(
+				{ error: error.message || "Failed to create collection" },
+				{ status: 500 }
+			);
+		} else {
+			// Fallback if error is not an instance of Error
+			console.error("Unexpected error:", error);
+			return NextResponse.json(
+				{ error: "An unexpected error occurred" },
+				{ status: 500 }
+			);
+		}
 	}
 }
 
@@ -62,10 +71,10 @@ export async function GET(req: NextRequest) {
 		});
 
 		return NextResponse.json(collections, { status: 200 });
-	} catch (error) {
+	} catch (error: unknown) {
 		console.error("Error fetching collections:", error);
 		return NextResponse.json(
-			{ error: error.message || "Failed to fetch collections" },
+			{ error: "Failed to fetch collections" },
 			{ status: 500 }
 		);
 	}

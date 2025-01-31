@@ -5,7 +5,7 @@ interface ArtworkImage {
 
 export interface Collections {
 	id: string;
-	user: string;
+	userId: string;
 	title: string;
 	images: string;
 	mainImage: ArtworkImage;
@@ -21,7 +21,7 @@ export interface Artwork {
 	title: string;
 	dated: string;
 	images: string[];
-	source: "Harvard" | "Met";
+	source: "Met" | "Harvard" | string;
 	description?: string | null;
 	medium?: string | null;
 	dimensions?: string | null;
@@ -44,13 +44,16 @@ export interface Artwork {
 	url?: string;
 }
 
-interface Color {
-	color: string;
-	spectrum: string;
-	hue: string;
-	percent: number;
-	css3: string;
-}
+type Color = {
+	r: number;
+	g: number;
+	b: number;
+	color?: string;
+	spectrum?: string;
+	hue?: string;
+	percent?: number;
+	css3?: string;
+};
 
 interface Person {
 	role: string;
@@ -236,5 +239,14 @@ export interface ArtworksResponse {
 		pages: number;
 		totalrecords: number;
 		totalrecordsperquery: number;
+	};
+}
+
+export interface Session {
+	user: {
+		id: string;
+		email?: string | null;
+		image?: string | null;
+		name?: string | null;
 	};
 }

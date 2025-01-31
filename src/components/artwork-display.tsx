@@ -25,7 +25,7 @@ import { Plus } from "lucide-react";
 import Zoom from "react-medium-image-zoom";
 import "react-medium-image-zoom/dist/styles.css";
 
-import { Artwork, Collections } from "@/types";
+import { Artwork, Collections, Session } from "@/types";
 import { Skeleton } from "./ui/skeleton";
 
 export default function ArtworkDisplay({
@@ -68,7 +68,7 @@ export default function ArtworkDisplay({
 	};
 
 	const handleAddToCollection = async () => {
-		if (!session?.user?.id) return;
+		if (!session?.user) return;
 
 		setLoading(true);
 		setError("");

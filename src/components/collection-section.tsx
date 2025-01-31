@@ -62,7 +62,7 @@ export default function CollectionSection() {
 	const [visibleArtworks, setVisibleArtworks] = useState<number>(
 		path === "/" ? 8 : 8
 	);
-	const [collections, setCollections] = useState<Collection[] | null>(null);
+	const [collections, setCollections] = useState<Collection[]>([]);
 	const [userNames, setUserNames] = useState<Record<string, string>>({});
 	const [currentUserId, setCurrentUserId] = useState<string | null>(null);
 	const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -212,7 +212,7 @@ export function CollectionGrid({
 	id: string;
 	title: string;
 	user: string;
-	images: string | null;
+	images: string[] | null;
 	collections: Collection[];
 	setCollections: React.Dispatch<React.SetStateAction<Collection[]>>;
 }) {

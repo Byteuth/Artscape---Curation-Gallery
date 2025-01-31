@@ -27,7 +27,7 @@ interface FilterProps {
 	filterOptions: {
 		Material: { label: string; value: string }[];
 		Classification: { label: string; value: string }[];
-		// Technique: { label: string; value: string }[];
+		Source: { label: string; value: string }[];
 	};
 }
 {
@@ -167,18 +167,7 @@ export default function SearchAndFilter({
 				artworks.filter((artwork) => artwork.classification === item).length
 			})`,
 			value: item,
-		})) as { label: string; value: string }[],
-
-		// Technique: Array.from(
-		// 	new Set(
-		// 		artworks
-		// 			.map((artwork) => artwork.technique)
-		// 			.filter((item): item is string => Boolean(item))
-		// 	)
-		// ).map((item) => ({
-		// 	label: item,
-		// 	value: item,
-		// })) as { label: string; value: string }[],
+		})),
 
 		Material: Array.from(
 			new Set(
@@ -189,7 +178,7 @@ export default function SearchAndFilter({
 		).map((item) => ({
 			label: item,
 			value: item,
-		})) as { label: string; value: string }[],
+		})),
 
 		Source: Array.from(
 			new Set(
@@ -200,7 +189,7 @@ export default function SearchAndFilter({
 		).map((item) => ({
 			label: item,
 			value: item,
-		})) as { label: string; value: string }[],
+		})),
 	};
 
 	const removeFilterWord = (word: string) => {

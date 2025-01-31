@@ -11,6 +11,9 @@ const compat = new FlatCompat({
 });
 
 export default [
+	compat.extends("next"), // Use the extends method for the Next.js config
+	compat.extends("next/core-web-vitals"), // Use the core-web-vitals preset
+
 	{
 		files: ["**/*.{js,jsx,ts,tsx}"],
 		plugins: {
@@ -19,6 +22,5 @@ export default [
 		rules: {
 			// Add any specific rules here if necessary
 		},
-		...compat.extends("next/core-web-vitals"),
 	},
 ];

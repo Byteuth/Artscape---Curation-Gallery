@@ -11,7 +11,7 @@ import {
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Input } from "./ui/input";
 import { Textarea } from "./ui/textarea";
-import { Artwork, Collections } from "@/types";
+import { Artwork, Collections, Session } from "@/types";
 import Image from "next/image";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "./ui/button";
@@ -227,12 +227,8 @@ export default function CollectionsModal({
 				<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
 					{filteredCollections.map((collection) => {
 						const reversed = collection.artworks.map((artwork) => {
-							const images =
-								artwork.images
-									?.split(",")
-									.map((img: string) => img.trim())
-									.filter(Boolean) || [];
-
+							
+							const images = artwork.images?.filter(Boolean) || [];
 							return images[0];
 						});
 
@@ -306,13 +302,14 @@ export default function CollectionsModal({
 																) : (
 																	<div className="absolute inset-0 bg-black bg-opacity-70" />
 																)}
-																{index === 1 && artworksMainImage.length > 3 && (
-																	<div className="absolute inset-0 bg-black bg-opacity-70 flex items-center justify-center">
-																		<span className="text-white text-lg font-semibold">
-																			+{artworksMainImage.length - 3} more
-																		</span>
-																	</div>
-																)}
+																{index === 1 &&
+																	artworksMainImage.length > 3 && (
+																		<div className="absolute inset-0 bg-black bg-opacity-70 flex items-center justify-center">
+																			<span className="text-white text-lg font-semibold">
+																				+{artworksMainImage.length - 3} more
+																			</span>
+																		</div>
+																	)}
 															</div>
 														))}
 													</>

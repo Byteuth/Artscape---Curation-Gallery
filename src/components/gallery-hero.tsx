@@ -316,15 +316,15 @@ const gallerySample = [
 		},
 		{
 			title: "Buddha Maitreya",
-			imgUrl:
-				"https://images.metmuseum.org/CRDImages/as/original/DP170102.jpg",
+			imgUrl: "https://images.metmuseum.org/CRDImages/as/original/DP170102.jpg",
 			dated: "ca. 1840",
 			source: "H",
 			id: "239299",
 		},
 		{
 			title: "The Little Fourteen-Year-Old Dancer",
-			imgUrl: "https://images.metmuseum.org/CRDImages/es/original/DP-14939-002.jpg",
+			imgUrl:
+				"https://images.metmuseum.org/CRDImages/es/original/DP-14939-002.jpg",
 			dated: "ca. 1840",
 			source: "H",
 			id: "239299",
@@ -338,8 +338,7 @@ const gallerySample = [
 		},
 		{
 			title: "Paris",
-			imgUrl:
-				"https://images.metmuseum.org/CRDImages/es/original/DP229778.jpg",
+			imgUrl: "https://images.metmuseum.org/CRDImages/es/original/DP229778.jpg",
 			dated: "ca. 1840",
 			source: "H",
 			id: "239299",
@@ -353,30 +352,28 @@ const gallerySample = [
 		},
 		{
 			title: "Seated Buddha",
-			imgUrl:
-				"https://images.metmuseum.org/CRDImages/as/original/DP123364.jpg",
+			imgUrl: "https://images.metmuseum.org/CRDImages/as/original/DP123364.jpg",
 			dated: "ca. 1840",
 			source: "H",
 			id: "239299",
 		},
 		{
 			title: "Shrine of the Virgin",
-			imgUrl:
-				"https://images.metmuseum.org/CRDImages/md/original/DP266473.jpg",
+			imgUrl: "https://images.metmuseum.org/CRDImages/md/original/DP266473.jpg",
 			dated: "ca. 1840",
 			source: "H",
 			id: "239299",
 		},
 		{
-			title:
-				"Unique Forms of Continuity in Space",
+			title: "Unique Forms of Continuity in Space",
 			imgUrl: "https://images.metmuseum.org/CRDImages/ma/original/DT6411.jpg",
 			dated: "ca. 1840",
 			source: "H",
 			id: "239299",
 		},
 		{
-			title: "Tomb Effigy Bust of Marie de France (1327-41), daughter of Charles IV of France and Jeanne d'Evreux",
+			title:
+				"Tomb Effigy Bust of Marie de France (1327-41), daughter of Charles IV of France and Jeanne d'Evreux",
 			imgUrl: "https://images.metmuseum.org/CRDImages/md/original/DT135.jpg",
 			dated: "ca. 1840",
 			source: "H",
@@ -429,7 +426,7 @@ export default function GalleryHero() {
 	const suggestionRef = useRef(null);
 	const isMounted = useRef(false);
 
-	const translateYClasses = {
+	const translateYClasses: { [key: number]: string } = {
 		0: "translate-y-0",
 		1: "translate-y-24",
 		2: "translate-y-48",
