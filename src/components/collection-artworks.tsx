@@ -3,37 +3,11 @@ import Image from "next/image";
 import { Separator } from "@/components/ui/separator";
 import Zoom from "react-medium-image-zoom";
 import "react-medium-image-zoom/dist/styles.css";
-interface Artwork {
-	id: string;
-	objectId: number;
-	title: string;
-	images: string;
-	description: string | null;
-	source: string;
-	medium: string;
-	period: string | null;
-	country: string;
-	department: string;
-	creditLine: string;
-	objectDate: string | null;
-	objectURL: string;
-	createdAt: string;
-	updatedAt: string;
-}
+import { Artwork, Collections } from "@/types";
 
-interface Collection {
-	id: string;
-	userId: string;
-	title: string;
-	images: string;
-	description: string;
-	createdAt: string;
-	updatedAt: string;
-	artworks: Artwork[];
-}
 interface CollectionArtworksProps {
 	artworks: Artwork[];
-	collection: Collection | null;
+	collection: Collections | null;
 }
 
 export default function CollectionArtworks({
@@ -90,17 +64,27 @@ export default function CollectionArtworks({
 									<Card>
 										{/* Image with Zoom */}
 										<Zoom>
-											<Image
-												src={
-													artwork.images?.includes(",")
-														? artwork.images.split(",")[0].trim()
-														: artwork.images || "/images/placeholder-image.png"
-												}
-												alt={artwork.title || "Artwork"}
-												width={800}
-												height={600}
-												className="w-full max-auto max-h-[600px] object-contain rounded-xl"
-											/>
+											<Card>
+												{/* Image with Zoom */}
+												<Zoom>
+													<Image
+														src={
+															Array.isArray(artwork.images)
+																? artwork.images[0] ||
+																  "/images/placeholder-image.png"
+																: typeof artwork.images === "string" &&
+																  artwork.images.includes(",")
+																? artwork.images.split(",")[0].trim()
+																: artwork.images ||
+																  "/images/placeholder-image.png"
+														}
+														alt={artwork.title || "Artwork"}
+														width={800}
+														height={600}
+														className="w-full max-auto max-h-[600px] object-contain rounded-xl"
+													/>
+												</Zoom>
+											</Card>
 										</Zoom>
 									</Card>
 								</section>

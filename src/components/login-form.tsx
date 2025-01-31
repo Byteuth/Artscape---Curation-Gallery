@@ -34,7 +34,7 @@ export default function LoginForm({
 				setError("Invalid email or password");
 			}
 		} else {
-			router.back();
+			router.push("/");
 		}
 	};
 

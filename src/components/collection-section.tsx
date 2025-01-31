@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { Collections } from "@/types";
 import { Card } from "@/components/ui/card";
 import LoadingSpinner from "./loading-spinner";
 import { Trash2 } from "lucide-react";
@@ -18,51 +19,12 @@ import {
 } from "./ui/dialog";
 import { DialogTitle } from "@radix-ui/react-dialog";
 
-export interface Artwork {
-	id: string;
-	objectId: number;
-	title: string;
-	images: string | null;
-	description: string | null;
-	source: string;
-	medium: string;
-	period: string | null;
-	country: string;
-	department: string;
-	creditLine: string;
-	objectDate: string;
-	objectURL: string;
-	createdAt: string;
-	updatedAt: string;
-}
-
-export interface User {
-	id: string;
-	email: string;
-	password: string;
-	name: string;
-	createdAt: string;
-	updatedAt: string;
-}
-
-export interface Collection {
-	id: string;
-	userId: string;
-	title: string;
-	images: string | null;
-	description: string;
-	createdAt: string;
-	updatedAt: string;
-	user: User;
-	artworks: Artwork[];
-}
-
 export default function CollectionSection() {
 	const path = usePathname();
 	const [visibleArtworks, setVisibleArtworks] = useState<number>(
 		path === "/" ? 8 : 8
 	);
-	const [collections, setCollections] = useState<Collection[]>([]);
+	const [collections, setCollections] = useState<Collections[]>([]);
 	const [userNames, setUserNames] = useState<Record<string, string>>({});
 	const [currentUserId, setCurrentUserId] = useState<string | null>(null);
 	const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -95,7 +57,7 @@ export default function CollectionSection() {
 
 			try {
 				const response = await fetch("/api/collections");
-				const collectionsData: Collection[] = await response.json();
+				const collectionsData: Collections[] = await response.json();
 
 				let filteredCollections = collectionsData;
 
@@ -146,7 +108,7 @@ export default function CollectionSection() {
 
 	return (
 		<div className="flex flex-col pb-6 w-full max-w-7xl mx-auto px-4 sm:px-8 md:px-16">
-			{!collections || collections.length === 0 && !isLoading ? (
+			{!collections || (collections.length === 0 && !isLoading) ? (
 				<div className="text-center">
 					<p className="text-lg text-gray-600">
 						{path === "/saved"
@@ -158,24 +120,25 @@ export default function CollectionSection() {
 				<>
 					<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6  ">
 						{collections.slice(0, visibleArtworks).map((collection) => {
-							const reversed = collection.artworks.map((artwork) => {
-								const images =
-									artwork.images
-										?.split(",")
-										.map((img: string) => img.trim())
-										.filter(Boolean) || [];
+							const reversed = collection.artworks
+								.map((artwork) => {
+									if (!artwork || !artwork.images) return null;
 
-								return images[0];
-							});
+									const images = Array.isArray(artwork.images)
+										? artwork.images.filter(Boolean)
+										: [artwork.images];
 
-							const artworksMainImage = reversed.reverse();
-					
+									return images[0] || null;
+								})
+								.filter((image): image is string => image !== null) 
+								.reverse();
+
 							return (
 								<CollectionGrid
 									key={collection.id}
 									id={collection.id}
 									title={collection.title}
-									images={artworksMainImage}
+									images={reversed}
 									user={userNames[collection.userId] || "Unknown User"}
 									collections={collections}
 									setCollections={setCollections}
@@ -212,9 +175,9 @@ export function CollectionGrid({
 	id: string;
 	title: string;
 	user: string;
-	images: string[] | null;
-	collections: Collection[];
-	setCollections: React.Dispatch<React.SetStateAction<Collection[]>>;
+	images: string[];
+	collections: Collections[];
+	setCollections: React.Dispatch<React.SetStateAction<Collections[]>>;
 }) {
 	// const fixedImages = collections.arworks
 	const imageArray = images ? images : [];

@@ -7,40 +7,14 @@ import { Button } from "@/components/ui/button";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import "react-medium-image-zoom/dist/styles.css";
+import { Collections} from "@/types";
 
-interface Artwork {
-	id: string;
-	objectId: number;
-	title: string;
-	images: string;
-	description: string | null;
-	source: string;
-	medium: string;
-	period: string | null;
-	country: string;
-	department: string;
-	creditLine: string;
-	objectDate: string | null;
-	objectURL: string;
-	createdAt: string;
-	updatedAt: string;
-}
 
-interface Collection {
-	id: string;
-	userId: string;
-	title: string;
-	images: string;
-	description: string;
-	createdAt: string;
-	updatedAt: string;
-	artworks: Artwork[];
-}
 
 export default function CollectionId() {
 	const pathname = usePathname();
 	const router = useRouter();
-	const [collection, setCollection] = useState<Collection | null>(null);
+	const [collection, setCollection] = useState<Collections | null>(null);
 	const [loading, setLoading] = useState(true);
 
 	const collectionId = pathname?.split("/").pop();

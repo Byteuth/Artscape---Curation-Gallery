@@ -209,6 +209,7 @@ export default function CollectionsModal({
 			);
 
 			setFilteredCollections(collectionsByUserId);
+			// console.log(filteredCollections)
 		}
 	}, [collections, session?.user?.id]);
 
@@ -226,13 +227,20 @@ export default function CollectionsModal({
 
 				<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
 					{filteredCollections.map((collection) => {
-						const reversed = collection.artworks.map((artwork) => {
-							
-							const images = artwork.images?.filter(Boolean) || [];
-							return images[0];
-						});
+						const reversed = collection.artworks
+							.map((artwork) => {
+								console.log("zzzzzzzzzzzzzzzzzzzzzzzzzz", artwork);
 
-						const artworksMainImage = reversed.reverse();
+								if (!artwork || !artwork.images) return null;
+
+								const images = Array.isArray(artwork.images)
+									? artwork.images.filter(Boolean)
+									: [artwork.images]; 
+
+								return images[0] || null; 
+							})
+							.filter(Boolean) 
+							.reverse(); 
 
 						return (
 							<Card
@@ -254,45 +262,39 @@ export default function CollectionsModal({
 								</Button>
 								<CardContent className="p-3 group">
 									<div className="relative aspect-square overflow-hidden">
-										{artworksMainImage.length === 1 ? (
+										{reversed.length === 1 ? (
 											// Single image layout
 											<Image
-												src={
-													artworksMainImage[0] ||
-													"/images/placeholder-image.png"
-												}
-												alt={`${title} main image`}
+												src={reversed[0] || "/images/placeholder-image.png"}
+												alt={`${collection.title} main image`}
 												fill
-												className="object-cover "
+												className="object-cover"
 											/>
 										) : (
 											// Multiple images layout
 											<div className="grid grid-cols-2 gap-1 h-full">
 												<div
 													className={`relative ${
-														artworksMainImage.length === 1
+														reversed.length === 1
 															? "col-span-2"
 															: "col-span-1 row-span-2"
 													}`}
 												>
 													<Image
-														src={
-															artworksMainImage[0] ||
-															"/images/placeholder-image.png"
-														}
-														alt={`${title} main image`}
+														src={reversed[0] || "/images/placeholder-image.png"}
+														alt={`${collection.title} main image`}
 														fill
-														className="object-cover "
+														className="object-cover"
 													/>
 												</div>
-												{artworksMainImage.length > 1 && (
+												{reversed.length > 1 && (
 													<>
 														{[...Array(2)].map((_, index) => (
 															<div key={index} className="relative">
-																{index < artworksMainImage.length - 1 ? (
+																{index < reversed.length - 1 ? (
 																	<Image
 																		src={
-																			artworksMainImage[index + 1] ||
+																			reversed[index + 1] ||
 																			"/images/placeholder-image.png"
 																		}
 																		alt={`${title} image ${index + 2}`}
@@ -302,14 +304,13 @@ export default function CollectionsModal({
 																) : (
 																	<div className="absolute inset-0 bg-black bg-opacity-70" />
 																)}
-																{index === 1 &&
-																	artworksMainImage.length > 3 && (
-																		<div className="absolute inset-0 bg-black bg-opacity-70 flex items-center justify-center">
-																			<span className="text-white text-lg font-semibold">
-																				+{artworksMainImage.length - 3} more
-																			</span>
-																		</div>
-																	)}
+																{index === 1 && reversed.length > 3 && (
+																	<div className="absolute inset-0 bg-black bg-opacity-70 flex items-center justify-center">
+																		<span className="text-white text-lg font-semibold">
+																			+{reversed.length - 3} more
+																		</span>
+																	</div>
+																)}
 															</div>
 														))}
 													</>

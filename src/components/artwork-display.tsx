@@ -95,7 +95,7 @@ export default function ArtworkDisplay({
 		}
 	};
 
-	const images = artwork?.images || [];
+	const images = Array.isArray(artwork?.images) ? artwork.images : [];
 
 	return (
 		<Card className="w-full max-w-[1000px] mx-auto bg-gray-100 my-6">

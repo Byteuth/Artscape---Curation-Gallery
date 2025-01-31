@@ -20,7 +20,7 @@ export interface Artwork {
 	id: number;
 	title: string;
 	dated: string;
-	images: string[];
+	images: string | string[]
 	source: "Met" | "Harvard" | string;
 	description?: string | null;
 	medium?: string | null;
@@ -249,4 +249,13 @@ export interface Session {
 		image?: string | null;
 		name?: string | null;
 	};
+}
+
+export interface User {
+	id: string;
+	email: string;
+	password: string;
+	name: string;
+	createdAt: string;
+	updatedAt: string;
 }
