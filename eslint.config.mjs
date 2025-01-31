@@ -10,14 +10,15 @@ const compat = new FlatCompat({
 	baseDirectory: __dirname,
 });
 
-const eslintConfig = [
+export default [
 	{
 		files: ["**/*.{js,jsx,ts,tsx}"],
-		extends: [...compat.extends("next/core-web-vitals")],
 		plugins: {
 			next: nextPlugin,
 		},
+		rules: {
+			// Add any specific rules here if necessary
+		},
+		...compat.extends("next/core-web-vitals"),
 	},
 ];
-
-export default eslintConfig;
