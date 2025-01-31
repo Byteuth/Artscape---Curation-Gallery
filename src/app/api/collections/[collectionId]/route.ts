@@ -1,13 +1,23 @@
 import { type NextRequest, NextResponse } from "next/server";
+import { Artwork } from "@/types/";
 import prisma from "@/lib/db";
 
+
+// PATCH: Update collection with new artwork
 export async function PATCH(
 	req: NextRequest,
 	{ params }: { params: { collectionId: string } }
 ) {
 	try {
 		const { collectionId } = params;
-		const { artwork } = await req.json();
+		const { artwork }: { artwork: Artwork } = await req.json(); // Explicitly typing `artwork`
+
+		if (!artwork || !artwork.id) {
+			return NextResponse.json(
+				{ error: "Invalid artwork data" },
+				{ status: 400 }
+			);
+		}
 
 		const existingCollection = await prisma.collection.findUnique({
 			where: { id: collectionId },
@@ -44,9 +54,7 @@ export async function PATCH(
 		const updatedCollection = await prisma.$transaction(async (prisma) => {
 			const collection = await prisma.collection.update({
 				where: { id: collectionId },
-				data: {
-					images: updatedArtworksUrl,
-				},
+				data: { images: updatedArtworksUrl },
 			});
 
 			const upsertedArtwork = await prisma.artwork.upsert({
@@ -93,16 +101,22 @@ export async function PATCH(
 		});
 
 		return NextResponse.json(updatedCollection, { status: 200 });
-	} catch (error: any) {
+	} catch (error: unknown) {
 		console.error("Error updating collection:", error);
 
 		return NextResponse.json(
-			{ error: error.message || "Failed to update collection" },
+			{
+				error:
+					error instanceof Error
+						? error.message
+						: "Failed to update collection",
+			},
 			{ status: 500 }
 		);
 	}
 }
 
+// GET: Retrieve collection by ID
 export async function GET(
 	req: NextRequest,
 	{ params }: { params: { collectionId: string } }
@@ -112,9 +126,7 @@ export async function GET(
 
 		const collection = await prisma.collection.findUnique({
 			where: { id: collectionId },
-			include: {
-				artworks: true,
-			},
+			include: { artworks: true },
 		});
 
 		if (!collection) {
@@ -123,17 +135,22 @@ export async function GET(
 				{ status: 404 }
 			);
 		}
+
 		return NextResponse.json(collection, { status: 200 });
-	} catch (error: any) {
+	} catch (error: unknown) {
 		console.error("Error fetching collection:", error);
 
 		return NextResponse.json(
-			{ error: error.message || "Failed to fetch collection" },
+			{
+				error:
+					error instanceof Error ? error.message : "Failed to fetch collection",
+			},
 			{ status: 500 }
 		);
 	}
 }
 
+// DELETE: Remove a collection
 export async function DELETE(
 	req: NextRequest,
 	{ params }: { params: { collectionId: string } }
@@ -146,11 +163,16 @@ export async function DELETE(
 		});
 
 		return NextResponse.json(deletedCollection, { status: 200 });
-	} catch (error: any) {
+	} catch (error: unknown) {
 		console.error("Error deleting collection:", error);
 
 		return NextResponse.json(
-			{ error: error.message || "Failed to delete collection" },
+			{
+				error:
+					error instanceof Error
+						? error.message
+						: "Failed to delete collection",
+			},
 			{ status: 500 }
 		);
 	}
