@@ -1,6 +1,8 @@
-# Curation Gallery
+# Artscape
 
-Welcome to the **Curation Gallery**, a web-based application that allows users to explore, save, and curate artworks from two museum and university collections.
+Welcome to **Artscape**, a web-based application that allows users to explore, save, and curate artworks from two museum and university collections.
+## Live Demo - https://artscape.up.railway.app/
+![image](https://github.com/user-attachments/assets/79ce8121-8e1b-4187-ab3f-45169e26a530)
 
 ## Features
 
@@ -50,9 +52,7 @@ Ensure you have the following installed:
    ```env
    NEXT_PUBLIC_CLIENT_ID=your_api_key_here
    NEXT_PUBLIC_CLIENT_SECRET=your_api_key_here
-   AUTH_SECRET=your_api_key_here
-   GITHUB_ID=your_api_key_here
-   GITHUB_SECRET=your_api_key_here
+   AUTH_SECRET=your_api_key_here //Harvard Museum API key
    ```
 
 4. **Run the Development Server**
@@ -80,6 +80,50 @@ To deploy the app:
    - Follow the deployment instructions specific to your hosting provider.
 
 ---
+
+
+
+# Tech Stack
+
+## Frontend
+- React
+- Next.js
+- TailwindCSS
+- Radix UI
+- Embla Carousel
+- GSAP
+- React Medium Image Zoom
+
+## Backend
+- Next.js
+- NextAuth.js
+- Prisma
+- bcrypt
+
+## Languages
+- TypeScript
+- SQL
+
+## Database
+- Prisma ORM
+- PostgreSQL
+
+## Git
+- Git
+- GitHub
+
+# Images
+
+![image](https://github.com/user-attachments/assets/0e5e507a-ba48-47e4-96be-d0674be515fc)
+![image](https://github.com/user-attachments/assets/b9c4570e-10cd-4aac-8434-4df96eafa8f1)
+![image](https://github.com/user-attachments/assets/c03569ff-d604-4c0c-91f2-0c8f703e9743)
+![image](https://github.com/user-attachments/assets/031dd0ea-93eb-48e1-9106-df1bae460f70)
+
+
+
+
+
+
 
 ## Contact
 
