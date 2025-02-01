@@ -229,8 +229,6 @@ export default function CollectionsModal({
 					{filteredCollections.map((collection) => {
 						const reversed = collection.artworks
 							.map((artwork) => {
-								console.log("zzzzzzzzzzzzzzzzzzzzzzzzzz", artwork);
-
 								if (!artwork || !artwork.images) return null;
 
 								const images = Array.isArray(artwork.images)

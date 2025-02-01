@@ -1,15 +1,16 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import type React from "react";
+import { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Collections } from "@/types";
-import { Card } from "@/components/ui/card";
+import type { Collections } from "@/types";
+import { Card, CardContent } from "@/components/ui/card";
 import LoadingSpinner from "./loading-spinner";
-import { Trash2 } from "lucide-react";
+import { Plus, Trash2 } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { Button } from "./ui/button";
-import { useToast } from "@/hooks/use-toast";
+import { toast, useToast } from "@/hooks/use-toast";
 import {
 	Dialog,
 	DialogContent,
@@ -18,6 +19,8 @@ import {
 	DialogHeader,
 } from "./ui/dialog";
 import { DialogTitle } from "@radix-ui/react-dialog";
+import { Input } from "./ui/input";
+import { Textarea } from "./ui/textarea";
 
 export default function CollectionSection() {
 	const path = usePathname();
@@ -28,6 +31,10 @@ export default function CollectionSection() {
 	const [userNames, setUserNames] = useState<Record<string, string>>({});
 	const [currentUserId, setCurrentUserId] = useState<string | null>(null);
 	const [isLoading, setIsLoading] = useState<boolean>(true);
+	const [showCreateForm, setShowCreateForm] = useState<boolean>(false);
+	const [title, setTitle] = useState("");
+	const [description, setDescription] = useState("");
+	const [error, setError] = useState("");
 
 	const fetchCurrentUser = useCallback(async () => {
 		try {
@@ -50,51 +57,88 @@ export default function CollectionSection() {
 		}
 	}, []);
 
-	useEffect(() => {
-		const fetchCollectionsAndUsers = async () => {
-			setIsLoading(true);
-			await fetchCurrentUser();
+	const fetchCollectionsAndUsers = async () => {
+		setIsLoading(true);
+		await fetchCurrentUser();
 
-			try {
-				const response = await fetch("/api/collections");
-				const collectionsData: Collections[] = await response.json();
+		try {
+			const response = await fetch("/api/collections");
+			const collectionsData: Collections[] = await response.json();
 
-				let filteredCollections = collectionsData;
+			let filteredCollections = collectionsData;
 
-				if (path === "/saved") {
-					if (currentUserId) {
-						filteredCollections = collectionsData.filter(
-							(collection) => collection.userId === currentUserId
-						);
-					} else {
-						filteredCollections = [];
-					}
-				}
-
-				const uniqueUserIds = [
-					...new Set(
-						filteredCollections.map((collection) => collection.userId)
-					),
-				];
-
-				const userNamesMap: Record<string, string> = {};
-				const userNamePromises = uniqueUserIds.map(async (userId) => {
-					const name = await fetchUserName(userId);
-					if (name) {
-						userNamesMap[userId] = name;
-					}
-				});
-
-				await Promise.all(userNamePromises);
-				setCollections(filteredCollections);
-				setUserNames(userNamesMap);
-			} catch (error) {
-				console.error("Failed to fetch collections:", error);
-			} finally {
-				setIsLoading(false);
+			if (currentUserId) {
+				filteredCollections = collectionsData.filter(
+					(collection) => collection.userId === currentUserId
+				);
+			} else {
+				filteredCollections = [];
 			}
-		};
 
+			const uniqueUserIds = [
+				...new Set(filteredCollections.map((collection) => collection.userId)),
+			];
+
+			const userNamesMap: Record<string, string> = {};
+			const userNamePromises = uniqueUserIds.map(async (userId) => {
+				const name = await fetchUserName(userId);
+				if (name) {
+					userNamesMap[userId] = name;
+				}
+			});
+
+			await Promise.all(userNamePromises);
+			setCollections(filteredCollections);
+			setUserNames(userNamesMap);
+		} catch (error) {
+			console.error("Failed to fetch collections:", error);
+		} finally {
+			setIsLoading(false);
+		}
+	};
+
+	const handleCreateNewCollection = async (e: React.FormEvent) => {
+		e.preventDefault();
+		setError("");
+
+		if (!title || !description) {
+			setError("Title and description are required");
+			return;
+		}
+
+		setIsLoading(true);
+
+		try {
+			const createResponse = await fetch("/api/collections", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ title, description, userId: currentUserId }),
+			});
+
+			if (!createResponse.ok) {
+				const errorData = await createResponse.json();
+				setError(errorData.error || "An unexpected error occurred");
+				return;
+			}
+
+			// Fetch only the user's collections after creating a new one
+			await fetchCollectionsAndUsers();
+			setShowCreateForm(false);
+			setDescription("");
+			setTitle("");
+			toast({
+				title: "Collection Created",
+				description: `${title} was created successfully.`,
+			});
+		} catch (error) {
+			console.error("Error during collection creation:", error);
+			setError("An error occurred during collection creation.");
+		} finally {
+			setIsLoading(false);
+		}
+	};
+
+	useEffect(() => {
 		fetchCollectionsAndUsers();
 	}, [path, currentUserId, fetchCurrentUser, fetchUserName]);
 
@@ -130,21 +174,85 @@ export default function CollectionSection() {
 
 									return images[0] || null;
 								})
-								.filter((image): image is string => image !== null) 
+								.filter((image): image is string => image !== null)
 								.reverse();
 
 							return (
-								<CollectionGrid
-									key={collection.id}
-									id={collection.id}
-									title={collection.title}
-									images={reversed}
-									user={userNames[collection.userId] || "Unknown User"}
-									collections={collections}
-									setCollections={setCollections}
-								/>
+								<>
+									<CollectionGrid
+										key={collection.id}
+										id={collection.id}
+										title={collection.title}
+										images={reversed}
+										user={userNames[collection.userId] || "Unknown User"}
+										collections={collections}
+										setCollections={setCollections}
+										path={path}
+									/>
+								</>
 							);
 						})}
+						{path === "/saved" && (
+							<Card
+								className="overflow-hidden rounded-lg shadow-md transition-all duration-300 hover:shadow-xl cursor-pointer"
+								onClick={() => setShowCreateForm(true)}
+							>
+								<CardContent className="flex flex-col items-center justify-center h-full p-6">
+									<div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-4">
+										<Plus className="w-8 h-8 text-primary" />
+									</div>
+									<p className="font-semibold text-center">
+										Create New Collection
+									</p>
+								</CardContent>
+							</Card>
+						)}
+
+						<Dialog
+							open={showCreateForm}
+							onOpenChange={() => setShowCreateForm(false)}
+						>
+							<DialogContent className="sm:max-w-[425px]">
+								<DialogHeader>
+									<DialogTitle>Create New Collection</DialogTitle>
+								</DialogHeader>
+								<form
+									onSubmit={handleCreateNewCollection}
+									className="space-y-4"
+								>
+									{error && <p className="text-red-500 text-sm">{error}</p>}
+									<div className="space-y-2">
+										<label htmlFor="title" className="text-sm font-medium">
+											Title
+										</label>
+										<Input
+											id="title"
+											value={title}
+											onChange={(e) => setTitle(e.target.value)}
+											placeholder="Enter collection title"
+										/>
+									</div>
+									<div className="space-y-2">
+										<label
+											htmlFor="description"
+											className="text-sm font-medium"
+										>
+											Description
+										</label>
+										<Textarea
+											id="description"
+											value={description}
+											onChange={(e) => setDescription(e.target.value)}
+											placeholder="Enter collection description"
+											rows={3}
+										/>
+									</div>
+									<Button type="submit" className="w-full" disabled={isLoading}>
+										{isLoading ? "Creating..." : "Create Collection"}
+									</Button>
+								</form>
+							</DialogContent>
+						</Dialog>
 					</div>
 
 					{visibleArtworks < collections.length && path !== "/" && (
@@ -171,6 +279,7 @@ export function CollectionGrid({
 	images,
 	collections,
 	setCollections,
+	path,
 }: {
 	id: string;
 	title: string;
@@ -178,6 +287,7 @@ export function CollectionGrid({
 	images: string[];
 	collections: Collections[];
 	setCollections: React.Dispatch<React.SetStateAction<Collections[]>>;
+	path: string;
 }) {
 	// const fixedImages = collections.arworks
 	const imageArray = images ? images : [];
@@ -227,22 +337,23 @@ export function CollectionGrid({
 
 	return (
 		<Card
-			className={`cursor-pointer overflow-hidden transform transition-transform hover:shadow-right-bottom md:hover:scale-105 z-10 `}
+			className={`group cursor-pointer overflow-hidden transform transition-transform hover:shadow-right-bottom md:hover:scale-105 z-10`}
 		>
-			<Button
-				onClick={(e) => {
-					e.stopPropagation();
-					setDeleteConfirmation({
-						isOpen: true,
-						collectionId: id,
-					});
-				}}
-				aria-label="Delete Collection"
-				className="absolute top-2 right-2 scale-x-110 opacity-0 group-hover:opacity-100 p-2 rounded-full shadow-md hover:bg-red-600 z-10 duration-300"
-			>
-				<Trash2 className="text-red-600 group-hover:text-white transition-colors duration-300 z-40" />
-			</Button>
-
+			{path === "/saved" && (
+				<Button
+					onClick={(e) => {
+						e.stopPropagation();
+						setDeleteConfirmation({
+							isOpen: true,
+							collectionId: id,
+						});
+					}}
+					aria-label="Delete Collection"
+					className="absolute top-2 right-2 scale-x-110  p-2 rounded-full shadow-md hover:bg-red-600 z-10 duration-300 bg-white"
+				>
+					<Trash2 className="text-black hover:text-white transition-colors duration-300 z-40" />
+				</Button>
+			)}
 			<Dialog
 				open={deleteConfirmation.isOpen}
 				onOpenChange={(isOpen) =>
@@ -288,10 +399,18 @@ export function CollectionGrid({
 
 			<Link href={`/collections/${id}`} className="block">
 				<div className="relative aspect-square overflow-hidden">
-					{imageArray.length === 1 ? (
+					{imageArray.length === 0 ? (
+						// No images - show full placeholder
+						<Image
+							src="/images/placeholder-image.png"
+							alt={`${title} placeholder`}
+							fill
+							className="object-cover"
+						/>
+					) : imageArray.length === 1 ? (
 						// Single image layout
 						<Image
-							src={imageArray[0] || "/images/placeholder-image.png"}
+							src={imageArray[0] || "/placeholder.svg"}
 							alt={`${title} main image`}
 							fill
 							className="object-cover"
@@ -301,7 +420,7 @@ export function CollectionGrid({
 						<div className="grid grid-cols-2 gap-1 h-full">
 							<div className="relative col-span-1 row-span-2">
 								<Image
-									src={imageArray[0] || "/images/placeholder-image.png"}
+									src={imageArray[0] || "/placeholder.svg"}
 									alt={`${title} main image`}
 									fill
 									className="object-cover"
@@ -313,10 +432,7 @@ export function CollectionGrid({
 										<div key={index} className="relative">
 											{index < imageArray.length - 1 ? (
 												<Image
-													src={
-														imageArray[index + 1] ||
-														"/images/placeholder-image.png"
-													}
+													src={imageArray[index + 1] || "/placeholder.svg"}
 													alt={`${title} image ${index + 2}`}
 													fill
 													className="object-cover"

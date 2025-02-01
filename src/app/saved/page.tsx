@@ -25,6 +25,7 @@ export default function SavedCollections() {
 			</div>
 
 			<CollectionSection />
+			
 			{/* <Footer /> */}
 		</div>
 	);

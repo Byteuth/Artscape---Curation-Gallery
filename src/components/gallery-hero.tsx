@@ -570,8 +570,8 @@ export default function GalleryHero() {
 												className="carousel-item pt-1 md:pt-2"
 												suppressHydrationWarning
 											>
-												<Link href={`/gallery/${artwork.source}/${artwork.id}`}>
-													<Card className="cursor-pointer transform transition-transform hover:shadow-lg hover:scale-105">
+												{/* <Link href={`/gallery/${artwork.source}/${artwork.id}`}> */}
+													<Card className=" transform transition-transform hover:shadow-lg hover:scale-105">
 														<Image
 															src={artwork.imgUrl || "/placeholder.svg"}
 															alt={artwork.title || "Gallery artwork"}
@@ -581,7 +581,7 @@ export default function GalleryHero() {
 															quality={85}
 														/>
 													</Card>
-												</Link>
+												{/* </Link> */}
 											</div>
 										))}
 									</div>
