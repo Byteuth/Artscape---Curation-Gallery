@@ -1,6 +1,7 @@
 # Artscape
 
 Welcome to **Artscape**, a web-based application that allows users to explore, save, and curate artworks from two museum and university collections.
+## Live Demo - https://artscape.up.railway.app/
 ![image](https://github.com/user-attachments/assets/79ce8121-8e1b-4187-ab3f-45169e26a530)
 
 ## Features
