@@ -22,12 +22,11 @@ export default function MobileNavbar() {
 	};
 
 	const handleLogout = () => {
-		signOut({ callbackUrl: "/" });
+		signOut({ callbackUrl: window.location.origin });
 	};
 
 	const closeSheet = () => {
 		setIsOpen(false);
-		console.log("Sheet closed");
 	};
 
 	const navItems = [
@@ -91,7 +90,9 @@ export default function MobileNavbar() {
 			{/* Mobile Menu */}
 			<Sheet open={isOpen} onOpenChange={setIsOpen}>
 				<DialogTitle className="sr-only ">Navigation Menu</DialogTitle>
-				<DialogDescription className="sr-only">Navigation Menu </DialogDescription>
+				<DialogDescription className="sr-only">
+					Navigation Menu{" "}
+				</DialogDescription>
 
 				<SheetTrigger asChild>
 					<Button
