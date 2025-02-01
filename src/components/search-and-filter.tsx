@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState, useEffect } from "react";
 import { Plus, Check, Square, SquareCheckBig } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -17,7 +19,7 @@ import {
 	PopoverTrigger,
 } from "@/components/ui/popover";
 import { usePathname } from "next/navigation";
-import { Artwork } from "@/types";
+import type { Artwork } from "@/types";
 import { Card } from "./ui/card";
 
 interface FilterProps {
@@ -154,6 +156,7 @@ export default function SearchAndFilter({
 	const [mustHaveImage, setMustHaveImage] = useState<boolean>(false);
 	const pathName = usePathname();
 	const isGalleryPage = pathName === "/gallery";
+	//const router = useRouter() //Removed as per update
 
 	const filterOptions = {
 		Classification: Array.from(
@@ -208,6 +211,7 @@ export default function SearchAndFilter({
 			hasImage: mustHaveImage,
 			searchKey: searchTerm,
 		});
+		localStorage.setItem("lastSearchTerm", searchTerm);
 	};
 	const handleMustHaveImage = () => {
 		setMustHaveImage(!mustHaveImage);
@@ -215,12 +219,25 @@ export default function SearchAndFilter({
 		// setLoading(false);
 	};
 	useEffect(() => {
+		const lastSearchTerm = localStorage.getItem("lastSearchTerm");
+		if (lastSearchTerm) {
+			setSearchTerm(lastSearchTerm);
+		}
+	}, []);
+
+	useEffect(() => {
 		setSearchObject((prev) => ({
 			...prev,
 			keywords: filterWords,
 			hasImage: mustHaveImage,
 		}));
-	}, [filterWords, mustHaveImage, setSearchObject, setLoading]);
+	}, [filterWords, mustHaveImage, setSearchObject]);
+
+	useEffect(() => {
+		return () => {
+			localStorage.setItem("lastSearchTerm", searchTerm);
+		};
+	}, [searchTerm]);
 
 	return (
 		<Card className="bg-green-300 w-full pt-16 pb-8 px-2 ">
