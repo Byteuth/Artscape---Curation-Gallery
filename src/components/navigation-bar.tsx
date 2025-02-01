@@ -39,9 +39,9 @@ export default function MobileNavbar() {
 		<nav className="flex items-center justify-between p-4 bg-white">
 			<Link href="/" className="flex items-center">
 				<Image
-					src="/images/logo-final2.png"
+					src="/images/logo-final1.png"
 					alt="Logo"
-					className="h-8 w-auto object-contain"
+					className="h-16 w-auto object-contain"
 					width={150}
 					height={150}
 				/>
