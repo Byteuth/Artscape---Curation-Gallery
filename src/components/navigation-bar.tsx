@@ -22,7 +22,7 @@ export default function MobileNavbar() {
 	};
 
 	const handleLogout = () => {
-		signOut({ callbackUrl: window.location.origin });
+		signOut({ callbackUrl: 'https://artscape.up.railway.app/' });
 	};
 
 	const closeSheet = () => {

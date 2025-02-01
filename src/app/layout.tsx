@@ -18,11 +18,11 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-	title: "Curation Gallery", 
+	title: "Artscape", 
 	description: "Welcome to a personal project of mine where anyone can curate their own gallery",
 	icons: {
 		icon: "/images/logo-final1.png", 
-	},
+	},	
 };
 
 export default async function RootLayout({
