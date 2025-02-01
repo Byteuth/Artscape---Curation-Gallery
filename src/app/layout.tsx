@@ -21,7 +21,7 @@ export const metadata: Metadata = {
 	title: "Curation Gallery", 
 	description: "Welcome to a personal project of mine where anyone can curate their own gallery",
 	icons: {
-		icon: "/images/logo-small.png", 
+		icon: "/images/logo-final1.png", 
 	},
 };
 

@@ -67,12 +67,11 @@ export default function CollectionSection() {
 
 			let filteredCollections = collectionsData;
 
-			if (currentUserId) {
+			// Only filter by userId if the path is "/saved"
+			if (path === "/saved" && currentUserId) {
 				filteredCollections = collectionsData.filter(
 					(collection) => collection.userId === currentUserId
 				);
-			} else {
-				filteredCollections = [];
 			}
 
 			const uniqueUserIds = [
@@ -178,18 +177,16 @@ export default function CollectionSection() {
 								.reverse();
 
 							return (
-								<>
-									<CollectionGrid
-										key={collection.id}
-										id={collection.id}
-										title={collection.title}
-										images={reversed}
-										user={userNames[collection.userId] || "Unknown User"}
-										collections={collections}
-										setCollections={setCollections}
-										path={path}
-									/>
-								</>
+								<CollectionGrid
+									key={collection.id}
+									id={collection.id}
+									title={collection.title}
+									images={reversed}
+									user={userNames[collection.userId] || "Unknown User"}
+									collections={collections}
+									setCollections={setCollections}
+									path={path}
+								/>
 							);
 						})}
 						{path === "/saved" && (
