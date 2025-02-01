@@ -111,7 +111,7 @@ export default function MobileNavbar() {
 					<div className="flex justify-between items-center mb-6">
 						<Link href="/" onClick={closeSheet}>
 							<Image
-								src="/images/logo-small.png"
+								src="/images/logo-final1.png"
 								alt="Logo"
 								className="h-12 w-auto object-contain"
 								width={150}
